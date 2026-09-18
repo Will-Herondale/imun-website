@@ -6,28 +6,38 @@ export function SectionHeading({
   intro,
   align = "left",
   id,
+  index,
+  tone = "light",
 }: {
   kicker?: string;
   title: string;
   intro?: string;
   align?: "left" | "center";
   id?: string;
+  /** Document section marker, e.g. "1" or "Part II". */
+  index?: string;
+  tone?: "light" | "dark";
 }) {
+  const dark = tone === "dark";
   return (
-    <Reveal
-      className={`max-w-3xl ${align === "center" ? "mx-auto text-center" : ""}`}
-    >
-      {kicker ? (
-        <p className={`kicker ${align === "center" ? "mx-auto flex items-center justify-center gap-3" : "flex items-center gap-3"}`}>
-          <span aria-hidden="true" className="inline-block h-px w-8 bg-azure-600/70" />
-          {kicker}
-        </p>
-      ) : null}
-      <h2 id={id} className="mt-4 text-[clamp(1.9rem,4vw,2.8rem)] font-medium leading-[1.12] text-navy-900">
+    <Reveal className={`max-w-3xl ${align === "center" ? "mx-auto text-center" : ""}`}>
+      <div className={`rule-heavy mb-5 ${dark ? "!bg-white/25" : ""}`} aria-hidden="true" />
+      <div className={`flex items-baseline gap-3 ${align === "center" ? "justify-center" : ""}`}>
+        {index ? <span className={dark ? "doc-index !text-white" : "doc-index"}>{index}</span> : null}
+        {kicker ? <p className={`eyebrow-doc ${dark ? "!text-white/60" : ""}`}>{kicker}</p> : null}
+      </div>
+      <h2
+        id={id}
+        className={`mt-3 font-display text-[clamp(1.6rem,3.2vw,2.2rem)] font-semibold leading-[1.15] ${
+          dark ? "!text-white" : "text-navy-900"
+        }`}
+      >
         {title}
       </h2>
       {intro ? (
-        <p className="mt-5 text-[1.02rem] leading-relaxed text-steel-600">{intro}</p>
+        <p className={`mt-4 text-[0.98rem] leading-relaxed ${dark ? "text-white/70" : "text-steel-600"}`}>
+          {intro}
+        </p>
       ) : null}
     </Reveal>
   );
