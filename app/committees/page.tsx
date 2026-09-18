@@ -2,14 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
 import { Reveal } from "@/components/Reveal";
-import { committees } from "@/lib/config/committees";
+import { committees, type ExecutiveBoard } from "@/lib/config/committees";
 import { siteUrl } from "@/app/layout";
 
 export const metadata: Metadata = {
   title: "Committees",
-  description: `The draft committee roster for ${"IMUN"} — General Assembly, Security Council, specialised agencies and a domestic chamber.`,
+  description: `The committee roster for ${"IMUN"} — General Assembly, Security Council, specialised agencies, a regional body, a crisis committee and a domestic chamber.`,
   alternates: { canonical: `${siteUrl}/committees` },
 };
+
+function boardRows(eb: ExecutiveBoard) {
+  const rows = [
+    { label: "Chairperson", value: eb.chairpersons },
+    { label: "Vice-chairperson", value: eb.viceChairpersons },
+    { label: "Rapporteur", value: eb.rapporteurs },
+  ];
+  if (typeof eb.director === "number") {
+    rows.unshift({ label: "Director", value: eb.director });
+  }
+  return rows.map((r) => ({ ...r, label: r.value === 1 ? r.label : `${r.label}s` }));
+}
 
 export default function CommitteesPage() {
   return (
@@ -45,6 +57,22 @@ export default function CommitteesPage() {
                   <div className="col-span-12 md:col-span-3 md:text-right">
                     <span className="eyebrow-doc block">Agenda</span>
                     <span className="mt-1 block text-[0.9rem] text-steel-500">{c.agenda}</span>
+                    {c.executiveBoard ? (
+                      <div className="mt-6">
+                        <span className="eyebrow-doc block">Executive board</span>
+                        <dl className="mt-2 space-y-1 text-[0.88rem] text-steel-500">
+                          {boardRows(c.executiveBoard).map((row) => (
+                            <div
+                              key={row.label}
+                              className="flex items-baseline justify-between gap-4 md:justify-end md:gap-3"
+                            >
+                              <dt>{row.label}</dt>
+                              <dd className="font-semibold text-navy-700">{row.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </div>
+                    ) : null}
                   </div>
                 </article>
               </Reveal>

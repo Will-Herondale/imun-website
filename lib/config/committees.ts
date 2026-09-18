@@ -1,16 +1,29 @@
 /**
  * Committee roster for the current IMUN session.
  *
- * « PLACEHOLDER » — this list must be replaced with the secretariat's
- * confirmed committee list before the site is announced. The entries below
- * illustrate the format; symbols/labels like the organ descriptions are
- * deliberately generic so nothing is misrepresented as a confirmed fact.
+ * The secretariat is confirming this roster in stages. Committees with an
+ * `executiveBoard` (DISEC, JCC, UNHRC, EU) are confirmed, including their
+ * board staffing; the remaining entries are still provisional and every
+ * agenda remains "Awaiting published agenda" until the secretariat issues it.
  *
  * Changing committee names here automatically updates:
  *   - the /committees page,
  *   - the registration form preference dropdowns,
  *   - validation of committee preferences on both client and server.
  */
+
+/**
+ * Executive board staffing for a committee. Chairs run their own committee's
+ * proceedings, so these figures are published for information only and are not
+ * part of delegate seat allocation.
+ */
+export type ExecutiveBoard = {
+  /** Crisis committees are led by a director. */
+  director?: number;
+  chairpersons: number;
+  viceChairpersons: number;
+  rapporteurs: number;
+};
 
 export type Committee = {
   /** Short code shown in the form dropdowns. */
@@ -29,6 +42,11 @@ export type Committee = {
    * the real numbers with the secretariat and update them here.
    */
   seats: number;
+  /**
+   * Executive board counts, where the secretariat has confirmed them. Omitted
+   * for committees whose board staffing is not yet published.
+   */
+  executiveBoard?: ExecutiveBoard;
 };
 
 export const committees: Committee[] = [
@@ -58,6 +76,7 @@ export const committees: Committee[] = [
     description:
       "An intergovernmental body responsible for strengthening the promotion and protection of human rights around the globe. Delegates negotiate in the language of principle and precedent.",
     seats: 30,
+    executiveBoard: { chairpersons: 1, viceChairpersons: 1, rapporteurs: 1 },
   },
   {
     code: "WHO",
@@ -85,6 +104,36 @@ export const committees: Committee[] = [
     description:
       "A domestic parliamentary simulation. Delegates act as members of Parliament in a legislative setting of question hour, debate and statutory business.",
     seats: 40,
+  },
+  {
+    code: "DISEC",
+    name: "Disarmament and International Security Committee",
+    category: "General Assembly",
+    agenda: "Awaiting published agenda",
+    description:
+      "The First Committee of the General Assembly, charged with disarmament, global challenges and threats to peace. Delegates confront arms control, non-proliferation and collective security in a chamber where consensus is hard won.",
+    seats: 30,
+    executiveBoard: { chairpersons: 1, viceChairpersons: 1, rapporteurs: 1 },
+  },
+  {
+    code: "JCC",
+    name: "Joint Crisis Committee",
+    category: "Crisis Committee",
+    agenda: "Awaiting published agenda",
+    description:
+      "A fast-moving crisis simulation in which the board directs events as they unfold. Delegates respond to live developments and negotiate under pressure, where every directive carries immediate consequence.",
+    seats: 30,
+    executiveBoard: { director: 1, chairpersons: 2, viceChairpersons: 2, rapporteurs: 2 },
+  },
+  {
+    code: "EU",
+    name: "European Union",
+    category: "Regional Body",
+    agenda: "Awaiting published agenda",
+    description:
+      "The council of European member states, negotiating common positions on trade, security and enlargement. Delegates balance national interest against the bloc's collective voice.",
+    seats: 30,
+    executiveBoard: { chairpersons: 1, viceChairpersons: 1, rapporteurs: 1 },
   },
 ];
 

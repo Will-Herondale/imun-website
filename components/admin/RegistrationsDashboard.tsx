@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { AllocationStatus, RegistrationRecord } from "@/lib/validation/registration";
 import { allocationStatusLabels } from "@/lib/allocations";
 import { committeeName } from "@/lib/display";
+import { committees } from "@/lib/config/committees";
 import { AllocationMatrix } from "@/components/admin/AllocationMatrix";
 import { AllocationEditor } from "@/components/admin/AllocationEditor";
 
@@ -197,8 +198,8 @@ export function RegistrationsDashboard({ email }: { email: string }) {
                 <label className="sr-only" htmlFor="q-committee">Filter by committee</label>
                 <select id="q-committee" className="select" value={committee} onChange={(e) => { setCommittee(e.target.value); setPage(1); }}>
                   <option value="">All committees</option>
-                  {["UNGA", "UNSC", "UNHRC", "WHO", "UNEP", "LS"].map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                  {committees.map((c) => (
+                    <option key={c.code} value={c.code}>{c.code}</option>
                   ))}
                 </select>
               </div>
