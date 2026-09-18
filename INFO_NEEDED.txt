@@ -1,0 +1,81 @@
+IMUN WEBSITE - EVERYTHING WE STILL NEED
+Updated: 18 Sep 2026
+(Bulleted list only. Send whatever exists; "not decided" is a valid answer.)
+
+EVENT
+- Event dates: CONFIRMED 10-11 October 2026
+- Time zone
+- Venue name, full address and city: NOT DECIDED YET
+- Format (in-person / online / hybrid)
+- Edition (e.g. 1st edition, 2026)
+- Registration opening date
+- Registration closing date
+
+REGISTRATION AND FEES
+- Registration fee per delegate
+- Early-bird fee and its deadline
+- Delegation / school fee, if any
+- Accommodation fee, if offered
+- Payment method or gateway link
+- Refund and cancellation policy
+- Eligibility (grades, ages, schools)
+
+CONTACT AND SOCIALS
+- Official email address
+- Phone or WhatsApp number
+- Instagram handle/link
+- X (Twitter) handle/link
+- LinkedIn page
+- YouTube channel
+- Final website domain: CONFIRMED imun.in (register at a registrar, e.g. GoDaddy/Namecheap/BigRock)
+
+COMMITTEES
+- Confirm final committee list (current draft: UNGA, UNSC, UNHRC, WHO, UNEP, Lok Sabha)
+- For each committee: full name
+- For each committee: abbreviation
+- For each committee: agenda / topic
+- For each committee: number of seats
+- For each committee: difficulty level (beginner / intermediate / advanced)
+
+DAIS AND CHAIRS
+- Names and positions of chairs per committee
+- Optional: one-line bio and photo per chair
+
+SECRETARIAT AND BOARD
+- Names and roles of organizing board members
+- Photos of organizing board members
+- Names and roles of the secretary board
+- Photos of the secretary board
+- One-line bio per person (optional)
+- Any faculty advisor / patron name and title
+
+PROGRAMME
+- Day-by-day schedule outline (days, sessions, social events)
+- Opening and closing ceremony details
+- Awards and prizes
+- Certificates (participation / awards details)
+
+HOMEPAGE NUMBERS
+- Expected number of delegates
+- Number of committees
+- Number of days / sessions
+- Number of schools or institutions
+
+IMAGERY AND BRAND
+- Event or campus photos for the hero
+- Past-edition photos for a gallery
+- Committee / session photos
+- Sponsor and partner logos
+- Transparent PNG or SVG of the final emblem (optional, for cleaner lockups)
+
+POLICY AND LEGAL
+- Privacy policy (or approve our generated draft)
+- Terms and conditions (or approve our generated draft)
+- Code of conduct / Rules of Procedure link
+- Delegate handbook link
+
+PRODUCTION
+- Final domain name: CONFIRMED imun.in
+- Admin login email: SET to organisers@imun.in (tell us if you want it changed)
+- Admin password: SET (handed over separately)
+- Azure region: DEPLOYED to centralindia (resource group iemun-rg)

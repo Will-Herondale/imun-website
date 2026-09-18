@@ -1,0 +1,50 @@
+{
+  "name": "iemun-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Official website of IMUN — Indian MUN",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "start:standalone": "node .next/standalone/server.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "process:logo": "tsx scripts/process-logo.ts",
+    "build:standalone": "node scripts/build-standalone.mjs",
+    "start:e2e": "node scripts/start-e2e.mjs",
+    "e2e": "playwright test",
+    "azurite": "azurite --location ./azurite-data --silent"
+  },
+  "dependencies": {
+    "@azure/data-tables": "latest",
+    "@azure/identity": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "archiver": "^8.0.0",
+    "azurite": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "postcss": "latest",
+    "sharp": "latest",
+    "tailwindcss": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}
