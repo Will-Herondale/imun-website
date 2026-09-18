@@ -16,7 +16,7 @@ export default async function AdminLoginPage() {
     <div className="container-site flex min-h-[calc(100dvh-3.5rem)] items-center justify-center py-12">
       <div className="w-full max-w-md">
         <p className="kicker flex items-center gap-3">
-          <span aria-hidden="true" className="inline-block h-px w-8 bg-azure-600/70" />
+          <span aria-hidden="true" className="inline-block h-px w-8 bg-brass-600/70" />
           Restricted
         </p>
         <h1 className="mt-4 font-display text-[2.2rem] font-medium text-navy-900">Organiser sign in</h1>

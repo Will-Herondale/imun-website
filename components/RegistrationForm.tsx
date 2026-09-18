@@ -199,7 +199,7 @@ export function RegistrationForm() {
         aria-live="polite"
       >
         <p className="kicker flex items-center gap-3">
-          <span aria-hidden="true" className="inline-block h-px w-8 bg-azure-600/70" />
+          <span aria-hidden="true" className="inline-block h-px w-8 bg-brass-600/70" />
           Registration received
         </p>
         <h2 className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] font-medium text-navy-900">
@@ -223,7 +223,7 @@ export function RegistrationForm() {
 
       <fieldset>
         <legend className="flex w-full items-center gap-4 border-b border-steel-200 pb-4">
-          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-azure-600">
+          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-brass-600">
             01
           </span>
           <span className="font-display text-[1.5rem] font-medium text-navy-900 sm:text-[1.7rem]">
@@ -304,7 +304,7 @@ export function RegistrationForm() {
 
       <fieldset className="mt-14">
         <legend className="flex w-full items-center gap-4 border-b border-steel-200 pb-4">
-          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-azure-600">
+          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-brass-600">
             02
           </span>
           <span className="font-display text-[1.5rem] font-medium text-navy-900 sm:text-[1.7rem]">
@@ -352,7 +352,7 @@ export function RegistrationForm() {
 
       <fieldset className="mt-14">
         <legend className="flex w-full items-center gap-4 border-b border-steel-200 pb-4">
-          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-azure-600">
+          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-brass-600">
             03
           </span>
           <span className="font-display text-[1.5rem] font-medium text-navy-900 sm:text-[1.7rem]">
@@ -415,7 +415,7 @@ export function RegistrationForm() {
 
       <fieldset className="mt-14">
         <legend className="flex w-full items-center gap-4 border-b border-steel-200 pb-4">
-          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-azure-600">
+          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-brass-600">
             04
           </span>
           <span className="font-display text-[1.5rem] font-medium text-navy-900 sm:text-[1.7rem]">
@@ -494,7 +494,7 @@ export function RegistrationForm() {
           Information collected here is used solely to administer your IMUN registration and is not shared
           beyond the organiser&apos;s secretariat. A draft of your responses is stored on this device so that
           you can recover them if you close the page; it is deleted when your registration is accepted.
-          See the <a href="/privacy" className="underline decoration-azure-600 underline-offset-2">privacy notice</a>.
+          See the <a href="/privacy" className="underline decoration-brass-600 underline-offset-2">privacy notice</a>.
         </p>
       </div>
     </form>

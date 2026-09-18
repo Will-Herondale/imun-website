@@ -16,23 +16,31 @@ export function Footer() {
   ].filter((s) => s.handle);
 
   return (
-    <footer className="border-t-[3px] border-navy-900 bg-steel-50 text-steel-600 no-print">
-      <div className="container-site grid grid-cols-12 gap-x-8 gap-y-10 py-14">
+    <footer className="relative overflow-hidden bg-navy-950 text-white/65 no-print">
+      <div className="rule-gold" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brass-500/[0.06] blur-3xl"
+      />
+
+      <div className="container-site relative grid grid-cols-12 gap-x-8 gap-y-12 py-16">
         <div className="col-span-12 md:col-span-5">
-          <BrandLogo tone="onLight" className="h-14 w-14 object-contain" />
-          <p className="mt-5 max-w-md text-[0.92rem] leading-relaxed">{site.descriptor}</p>
-          <p className="mt-3 text-[0.78rem] uppercase tracking-[0.14em] text-steel-500">
+          <BrandLogo tone="onDark" className="h-14 w-14 object-contain" />
+          <p className="mt-6 max-w-md text-[0.92rem] leading-relaxed text-white/60">
+            {site.descriptor}
+          </p>
+          <p className="mt-4 text-[0.74rem] font-semibold uppercase tracking-[0.2em] text-brass-300/80">
             {site.fullName}
             {site.edition ? ` · ${site.edition}` : ""}
           </p>
         </div>
 
         <nav aria-label="Footer" className="col-span-6 sm:col-span-4 md:col-span-2">
-          <h2 className="eyebrow-doc mb-4">Explore</h2>
-          <ul className="space-y-2.5 text-[0.9rem]">
+          <h2 className="kicker-light mb-5">Explore</h2>
+          <ul className="space-y-3 text-[0.9rem]">
             {navItems.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="transition-colors hover:text-navy-900">
+                <Link href={item.href} className="transition-colors hover:text-brass-300">
                   {item.label}
                 </Link>
               </li>
@@ -41,26 +49,29 @@ export function Footer() {
         </nav>
 
         <div className="col-span-6 sm:col-span-4 md:col-span-3">
-          <h2 className="eyebrow-doc mb-4">Conference</h2>
-          <ul className="space-y-2.5 text-[0.9rem]">
+          <h2 className="kicker-light mb-5">Conference</h2>
+          <ul className="space-y-3 text-[0.9rem]">
             <li>{tba(site.date) || "Dates to be announced"}</li>
             <li>
               {site.venue.name ? tba(site.venue.name) : "Venue to be announced"}
               {site.venue.city ? `, ${site.venue.city}` : ""}
             </li>
             <li>
-              <span className={reg.open ? "font-semibold text-navy-900" : ""}>{reg.label}</span>
+              <span className={reg.open ? "font-semibold text-brass-300" : ""}>{reg.label}</span>
             </li>
-            <li className="text-steel-400">{dateAndVenueLine()}</li>
+            <li className="text-white/35">{dateAndVenueLine()}</li>
           </ul>
         </div>
 
         <div className="col-span-12 sm:col-span-4 md:col-span-2">
-          <h2 className="eyebrow-doc mb-4">Contact</h2>
-          <ul className="space-y-2.5 text-[0.9rem]">
+          <h2 className="kicker-light mb-5">Contact</h2>
+          <ul className="space-y-3 text-[0.9rem]">
             <li>
               {site.contact.email ? (
-                <a href={`mailto:${site.contact.email}`} className="transition-colors hover:text-navy-900">
+                <a
+                  href={`mailto:${site.contact.email}`}
+                  className="transition-colors hover:text-brass-300"
+                >
                   {site.contact.email}
                 </a>
               ) : (
@@ -76,29 +87,29 @@ export function Footer() {
                     href={s.handle}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[0.8rem] transition-colors hover:text-navy-900"
+                    className="text-[0.8rem] transition-colors hover:text-brass-300"
                   >
                     {s.label}
                   </a>
                 ))}
               </li>
             ) : (
-              <li className="text-steel-400">Social channels to be announced</li>
+              <li className="text-white/35">Social channels to be announced</li>
             )}
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-steel-200">
-        <div className="container-site flex flex-col gap-3 py-5 text-[0.78rem] text-steel-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-t border-white/10">
+        <div className="container-site flex flex-col gap-3 py-6 text-[0.78rem] text-white/45 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {year} {site.name} · {site.fullName}. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="transition-colors hover:text-navy-900">
+            <Link href="/privacy" className="transition-colors hover:text-brass-300">
               Privacy
             </Link>
-            <Link href="/admin" className="transition-colors hover:text-navy-900">
+            <Link href="/admin" className="transition-colors hover:text-brass-300">
               Organisers
             </Link>
           </div>

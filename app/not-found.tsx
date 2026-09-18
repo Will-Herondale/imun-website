@@ -11,7 +11,7 @@ export default function NotFound() {
   return (
     <section className="section">
       <div className="container-site mx-auto max-w-lg text-center">
-        <p className="font-display text-[4rem] font-medium leading-none text-azure-600">404</p>
+        <p className="font-display text-[4rem] font-medium leading-none text-brass-600">404</p>
         <h1 className="mt-4 font-display text-[1.9rem] font-medium text-navy-900">
           This page is not on the agenda.
         </h1>

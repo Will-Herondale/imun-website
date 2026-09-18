@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, Inter } from "next/font/google";
+import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -16,11 +16,12 @@ const inter = Inter({
   display: "swap",
 });
 
-// Formal grotesque, echoing the seal's heavy geometric wordmark.
-const display = Archivo({
+// Editorial serif for display type — formal, literary, unmistakably premium.
+const display = Newsreader({
   subsets: ["latin"],
-  variable: "--font-display-grotesk",
+  variable: "--font-newsreader",
   display: "swap",
+  style: ["normal", "italic"],
 });
 
 export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.iemun.example").replace(/\/$/, "");

@@ -113,7 +113,7 @@ export function AllocationMatrix({ refreshKey }: { refreshKey: number }) {
                     <span className="flex items-center gap-2">
                       <span className="block h-1.5 w-24 overflow-hidden rounded-full bg-steel-100">
                         <span
-                          className={`block h-full ${over ? "bg-[#b4462f]" : "bg-azure-600"}`}
+                          className={`block h-full ${over ? "bg-[#b4462f]" : "bg-brass-600"}`}
                           style={{ width: `${pct}%` }}
                         />
                       </span>

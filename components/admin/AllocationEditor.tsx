@@ -111,7 +111,7 @@ export function AllocationEditor({
           {record.countryPreference ? (
             <button
               type="button"
-              className="mt-2 text-[0.8rem] font-semibold text-navy-700 underline decoration-azure-600 underline-offset-2 hover:text-navy-500"
+              className="mt-2 text-[0.8rem] font-semibold text-navy-700 underline decoration-brass-600 underline-offset-2 hover:text-navy-500"
               onClick={() => { setPortfolio(record.countryPreference); setSaved(false); }}
             >
               Use their preference: {record.countryPreference}

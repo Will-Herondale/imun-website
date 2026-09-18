@@ -42,7 +42,7 @@ export default function CommitteesPage() {
                   className="grid grid-cols-12 gap-4 border-b border-steel-200 py-10 md:gap-6 md:py-12"
                 >
                   <div className="col-span-12 flex items-baseline gap-5 md:col-span-3 md:block">
-                    <span aria-hidden="true" className="font-display text-[1.8rem] font-medium leading-none text-azure-600">
+                    <span aria-hidden="true" className="font-display text-[1.8rem] font-medium leading-none text-brass-600">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <code className="ml-auto rounded-[3px] border border-steel-200 px-2 py-1 text-[0.72rem] font-semibold tracking-[0.12em] text-navy-500 md:mt-4 md:inline-block">

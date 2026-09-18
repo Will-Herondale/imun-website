@@ -92,7 +92,7 @@ export default function ConferencePage() {
           <Reveal>
             <div className="border border-steel-200 bg-white p-8 shadow-[var(--shadow-card)]">
               <p className="kicker flex items-center gap-3">
-                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-azure-600" />
+                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-brass-600" />
                 Fixed
               </p>
               <dl className="mt-6">
@@ -144,7 +144,7 @@ export default function ConferencePage() {
               ].map(([t, body], i) => (
                 <Reveal as="li" key={t} delay={i * 60} className="border-b border-steel-200">
                   <div className="flex gap-6 py-7">
-                    <span aria-hidden="true" className="pt-1 font-display text-[1.4rem] text-azure-600">{String(i + 1).padStart(2, "0")}</span>
+                    <span aria-hidden="true" className="pt-1 font-display text-[1.4rem] text-brass-600">{String(i + 1).padStart(2, "0")}</span>
                     <div>
                       <h3 className="font-display text-[1.25rem] font-medium text-navy-900">{t}</h3>
                       <p className="mt-2 max-w-xl leading-relaxed text-steel-600">{body}</p>

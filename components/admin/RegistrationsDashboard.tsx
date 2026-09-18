@@ -133,7 +133,7 @@ export function RegistrationsDashboard({ email }: { email: string }) {
         <div className="container-site flex flex-wrap items-center justify-between gap-4 py-5">
           <div>
             <p className="kicker flex items-center gap-3">
-              <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-azure-600" />
+              <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-brass-600" />
               Organisers&apos; area
             </p>
             <h1 className="mt-3 font-display text-[1.8rem] font-medium text-navy-900">
@@ -142,7 +142,7 @@ export function RegistrationsDashboard({ email }: { email: string }) {
           </div>
           <div className="flex items-center gap-4 text-[0.85rem] text-steel-500">
             <span>{email}</span>
-            <button type="button" onClick={logout} className="font-semibold text-navy-700 underline decoration-azure-600 underline-offset-2 hover:text-navy-500">
+            <button type="button" onClick={logout} className="font-semibold text-navy-700 underline decoration-brass-600 underline-offset-2 hover:text-navy-500">
               Sign out
             </button>
           </div>
@@ -161,7 +161,7 @@ export function RegistrationsDashboard({ email }: { email: string }) {
                 onClick={() => setTab(key)}
                 className={`-mb-px border-b-2 px-4 py-3 text-[0.9rem] font-semibold transition-colors ${
                   tab === key
-                    ? "border-azure-600 text-navy-900"
+                    ? "border-brass-600 text-navy-900"
                     : "border-transparent text-steel-500 hover:text-navy-700"
                 }`}
               >

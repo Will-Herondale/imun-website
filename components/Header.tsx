@@ -10,6 +10,7 @@ import { registrationStatus } from "@/lib/registration-control";
 export function Header({ dateLine }: { dateLine: string }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const reg = registrationStatus();
 
   useEffect(() => {
@@ -17,6 +18,13 @@ export function Header({ dateLine }: { dateLine: string }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -27,17 +35,23 @@ export function Header({ dateLine }: { dateLine: string }) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b-[3px] border-navy-900 bg-white">
+    <header
+      className={`glass sticky top-0 z-50 border-b border-white/10 text-white no-print transition-shadow duration-300 ${
+        scrolled ? "shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]" : ""
+      }`}
+    >
+      <div className="rule-gold" />
+
       {/* Publication strip */}
-      <div className="border-b border-white/10 bg-navy-950 text-white/75 no-print">
-        <div className="container-site flex items-center justify-between gap-4 py-2 text-[0.68rem] uppercase tracking-[0.16em]">
+      <div className="border-b border-white/10">
+        <div className="container-site flex items-center justify-between gap-4 py-2 text-[0.66rem] uppercase tracking-[0.18em] text-white/50">
           <p className="truncate">{dateLine}</p>
           <Link
             href={registerHref}
-            className="flex shrink-0 items-center gap-2 font-semibold text-white/90 transition-colors hover:text-white"
+            className="flex shrink-0 items-center gap-2 font-semibold text-white/80 transition-colors hover:text-brass-300"
           >
             <span
-              className={`inline-block h-1.5 w-1.5 ${reg.open ? "bg-azure-300" : "bg-steel-400"}`}
+              className={`inline-block h-1.5 w-1.5 rounded-full ${reg.open ? "bg-brass-400" : "bg-steel-500"}`}
               aria-hidden="true"
             />
             {reg.label}
@@ -46,21 +60,29 @@ export function Header({ dateLine }: { dateLine: string }) {
       </div>
 
       {/* Masthead */}
-      <div className="container-site flex h-[68px] items-center justify-between gap-6">
-        <Link href="/" aria-label="IMUN — Indian MUN, homepage" className="flex shrink-0 items-center gap-3">
-          <BrandLogo priority tone="onLight" className="h-11 w-11 object-contain" />
+      <div className="container-site flex h-[72px] items-center justify-between gap-6">
+        <Link
+          href="/"
+          aria-label="IMUN — Indian MUN, homepage"
+          className="group flex shrink-0 items-center gap-3"
+        >
+          <BrandLogo
+            priority
+            tone="onDark"
+            className="h-11 w-11 object-contain transition-transform duration-500 group-hover:scale-[1.04]"
+          />
           <span className="hidden leading-none sm:block">
-            <span className="block font-display text-[1.05rem] font-semibold tracking-[0.02em] text-navy-900">
+            <span className="block font-display text-[1.35rem] font-semibold leading-none tracking-[0.01em] text-white">
               IMUN
             </span>
-            <span className="mt-1 block text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-steel-500">
+            <span className="mt-1.5 block text-[0.6rem] font-semibold uppercase tracking-[0.28em] text-brass-300/90">
               Indian MUN
             </span>
           </span>
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
-          <ul className="flex items-center gap-7">
+        <nav aria-label="Main" className="hidden items-center gap-8 lg:flex">
+          <ul className="flex items-center gap-8">
             {navItems.map((item) => (
               <li key={item.href}>
                 <Link
@@ -80,12 +102,12 @@ export function Header({ dateLine }: { dateLine: string }) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href={registerHref} className="btn btn-primary hidden lg:inline-flex">
+          <Link href={registerHref} className="btn btn-accent hidden px-6 py-3 lg:inline-flex">
             Register
           </Link>
           <button
             type="button"
-            className="lg:hidden -mr-2 flex h-11 w-11 items-center justify-center text-navy-900 hover:bg-navy-50"
+            className="-mr-2 flex h-11 w-11 items-center justify-center text-white transition-colors hover:text-brass-300 lg:hidden"
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={menuOpen ? "Close main menu" : "Open main menu"}
@@ -115,7 +137,9 @@ export function Header({ dateLine }: { dateLine: string }) {
       {/* Mobile menu */}
       <div
         id="mobile-menu"
-        className={`border-t border-steel-200 bg-white lg:hidden ${menuOpen ? "block" : "hidden"}`}
+        className={`border-t border-white/10 bg-navy-950/95 backdrop-blur lg:hidden ${
+          menuOpen ? "block" : "hidden"
+        }`}
       >
         <nav aria-label="Mobile" className="container-site py-4">
           <ul className="flex flex-col">
@@ -123,7 +147,7 @@ export function Header({ dateLine }: { dateLine: string }) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="flex items-center justify-between border-b border-steel-200 py-3.5 font-sans text-[0.95rem] font-semibold text-navy-900 last:border-0"
+                  className="flex items-center justify-between border-b border-white/10 py-3.5 font-sans text-[0.95rem] font-semibold text-white/85 transition-colors last:border-0 hover:text-brass-300"
                   aria-current={pathname === item.href ? "page" : undefined}
                   tabIndex={menuOpen ? 0 : -1}
                   onClick={() => setMenuOpen(false)}
@@ -134,7 +158,7 @@ export function Header({ dateLine }: { dateLine: string }) {
                     height="15"
                     viewBox="0 0 15 15"
                     aria-hidden="true"
-                    className="text-steel-400"
+                    className="text-white/40"
                   >
                     <path
                       d="M2.5 7.5h9M8 4l3.5 3.5L8 11"
@@ -149,7 +173,11 @@ export function Header({ dateLine }: { dateLine: string }) {
               </li>
             ))}
           </ul>
-          <Link href={registerHref} className="btn btn-primary mt-4 w-full" onClick={() => setMenuOpen(false)}>
+          <Link
+            href={registerHref}
+            className="btn btn-accent mt-4 w-full"
+            onClick={() => setMenuOpen(false)}
+          >
             Register as a delegate
           </Link>
         </nav>

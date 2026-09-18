@@ -71,11 +71,11 @@ export default function RegistrationPage() {
               <Reveal delay={80}>
                 <p className="mt-6 text-[0.88rem] leading-relaxed text-steel-500">
                   Questions before submitting? Consult the{" "}
-                  <Link href="/faq" className="font-semibold text-navy-700 underline decoration-azure-600 underline-offset-2">
+                  <Link href="/faq" className="font-semibold text-navy-700 underline decoration-brass-600 underline-offset-2">
                     FAQ
                   </Link>{" "}
                   or the{" "}
-                  <Link href="/contact" className="font-semibold text-navy-700 underline decoration-azure-600 underline-offset-2">
+                  <Link href="/contact" className="font-semibold text-navy-700 underline decoration-brass-600 underline-offset-2">
                     contact page
                   </Link>
                   .

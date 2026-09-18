@@ -39,7 +39,7 @@ export default function ContactPage() {
                     <dt className="eyebrow-doc">Email</dt>
                     <dd className="mt-2 text-[1.05rem] font-medium text-navy-900">
                       {hasEmail ? (
-                        <a href={`mailto:${site.contact.email}`} className="underline decoration-azure-600 underline-offset-4 hover:text-navy-600">
+                        <a href={`mailto:${site.contact.email}`} className="underline decoration-brass-600 underline-offset-4 hover:text-navy-600">
                           {site.contact.email}
                         </a>
                       ) : (
@@ -97,7 +97,7 @@ export default function ContactPage() {
               </p>
             </Reveal>
             <Reveal delay={120}>
-              <div className="rounded-[3px] border-l-2 border-azure-600 bg-azure-100/60 p-5 text-[0.92rem]">
+              <div className="rounded-[3px] border-l-2 border-brass-600 bg-brass-100/60 p-5 text-[0.92rem]">
                 The secretariat&apos;s official email and Instagram handle above
                 are monitored during the registration window. The conference
                 venue and postal address will be published here once confirmed.
