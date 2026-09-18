@@ -59,8 +59,14 @@ export const site = {
    */
   theme: "",
 
-  /** Delegate capacity across all committees (for the "at a glance" sheet). */
-  capacity: 300,
+  /** Delegate seats available across all committees (4 × 25). */
+  capacity: 100,
+
+  /** Expected delegate turnout for the session (headline figure). */
+  expectedDelegates: "150+",
+
+  /** Conference duration in days. */
+  days: 2,
 
   /**
    * Contact details for the public site and the registration footer.

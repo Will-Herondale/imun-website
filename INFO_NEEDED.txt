@@ -30,12 +30,11 @@ CONTACT AND SOCIALS
 - Final website domain: CONFIRMED imun.in (register at a registrar, e.g. GoDaddy/Namecheap/BigRock)
 
 COMMITTEES
-- Confirm final committee list (current draft: UNGA, UNSC, UNHRC, WHO, UNEP, Lok Sabha)
-- For each committee: full name
-- For each committee: abbreviation
-- For each committee: agenda / topic
-- For each committee: number of seats
-- For each committee: difficulty level (beginner / intermediate / advanced)
+- Committee list: CONFIRMED four committees — DISEC, UNHRC, EU, JCC
+- Full names and abbreviations: CONFIRMED
+- Seats per committee: CONFIRMED 25 maximum each
+- Difficulty level: NOT USED (no difficulty tiers)
+- Agendas: set by each committee's chair once decided
 
 DAIS AND CHAIRS
 - Names and positions of chairs per committee
@@ -56,10 +55,10 @@ PROGRAMME
 - Certificates (participation / awards details)
 
 HOMEPAGE NUMBERS
-- Expected number of delegates
-- Number of committees
-- Number of days / sessions
-- Number of schools or institutions
+- Expected number of delegates: CONFIRMED 150+
+- Number of committees: CONFIRMED 4
+- Number of days / sessions: CONFIRMED 2 days
+- Number of schools or institutions: NOT KNOWN YET
 
 IMAGERY AND BRAND
 - Event or campus photos for the hero

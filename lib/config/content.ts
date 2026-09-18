@@ -64,9 +64,9 @@ export const pillars = [
 
 /** The conference "at a glance" sheet fields (see /conference). */
 export const atAGlance = [
-  { key: "Programme", value: "Committee sessions · ceremonies · social evening" },
+  { key: "Programme", value: "Two days · committee sessions and ceremonies" },
   { key: "Language", value: "English" },
-  { key: "Participation", value: "School and college students" },
+  { key: "Participation", value: "School and college students · 150+ delegates expected" },
   { key: "Conduct", value: "Formal dress code; formal debate" },
 ] as const;
 

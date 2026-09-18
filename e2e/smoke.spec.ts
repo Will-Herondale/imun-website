@@ -57,10 +57,10 @@ test.describe("registration flow", () => {
     await page.getByLabel(/how many/i).selectOption("1");
     await page
       .getByLabel(/participated in/i)
-      .fill("Harvest MUN | 2026 | UNGA | Delegate | Special Mention");
-    await page.getByLabel(/first committee/i).selectOption("UNGA");
+      .fill("Harvest MUN | 2026 | DISEC | Delegate | Special Mention");
+    await page.getByLabel(/first committee/i).selectOption("DISEC");
     await page.getByLabel(/second committee/i).selectOption("UNHRC");
-    await page.getByLabel(/third committee/i).selectOption("WHO");
+    await page.getByLabel(/third committee/i).selectOption("EU");
     await page.getByLabel(/preferred country/i).fill("India");
     await page.getByLabel(/I confirm that/i).check();
     await page.getByLabel(/I agree to follow/i).check();

@@ -16,10 +16,10 @@ function validPayload(overrides: Record<string, unknown> = {}) {
     schoolName: "St Xavier's Collegiate School",
     grade: "11",
     munCount: "1",
-    munHistory: "Harvest MUN | 2026 | UNGA | Delegate | Special Mention",
-    committeePref1: "UNGA",
+    munHistory: "Harvest MUN | 2026 | DISEC | Delegate | Special Mention",
+    committeePref1: "DISEC",
     committeePref2: "UNHRC",
-    committeePref3: "WHO",
+    committeePref3: "EU",
     countryPreference: "India",
     specialRequest: "Sibling seated in the same committee.",
     declarationAccurate: "Yes",
@@ -61,7 +61,7 @@ describe("registrationSchema", () => {
 
   it("rejects duplicate committee preferences", () => {
     const out = registrationSchema.safeParse(
-      validPayload({ committeePref1: "UNGA", committeePref2: "UNGA", committeePref3: "WHO" })
+      validPayload({ committeePref1: "DISEC", committeePref2: "DISEC", committeePref3: "EU" })
     );
     expect(out.success).toBe(false);
     expect(out.success || out.error.issues.some((i) => i.path.join(".") === "committeePrefs")).toBe(true);
@@ -69,7 +69,7 @@ describe("registrationSchema", () => {
 
   it("rejects MUN history when the delegate has no conferences", () => {
     const out = registrationSchema.safeParse(
-      validPayload({ munCount: "0", munHistory: "Some MUN | 2026 | UNGA | Delegate | –" })
+      validPayload({ munCount: "0", munHistory: "Some MUN | 2026 | DISEC | Delegate | –" })
     );
     expect(out.success).toBe(false);
   });

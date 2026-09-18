@@ -19,9 +19,9 @@ function rec(overrides: Partial<RegistrationRecord> = {}): RegistrationRecord {
     grade: "11",
     munCount: "1",
     munHistory: "",
-    committeePref1: "UNGA",
+    committeePref1: "DISEC",
     committeePref2: "UNHRC",
-    committeePref3: "WHO",
+    committeePref3: "EU",
     countryPreference: "India",
     specialRequest: "",
     declarationAccurate: "Yes",
@@ -35,14 +35,14 @@ describe("buildAllocationSummary", () => {
     rec({
       id: "1",
       allocationStatus: "allocated",
-      allocatedCommittee: "UNSC",
+      allocatedCommittee: "UNHRC",
       allocatedPortfolio: "United States",
       schoolName: "School A",
     }),
     rec({
       id: "2",
       allocationStatus: "allocated",
-      allocatedCommittee: "UNSC",
+      allocatedCommittee: "UNHRC",
       allocatedPortfolio: "France",
       schoolName: "School A",
     }),
@@ -61,13 +61,13 @@ describe("buildAllocationSummary", () => {
 
   it("rolls allocations and preference demand into committee rows", () => {
     const s = buildAllocationSummary(rows);
-    const unsc = s.committees.find((c) => c.code === "UNSC")!;
-    expect(unsc.allocated).toBe(2);
-    expect(unsc.remaining).toBe(unsc.seats - 2);
+    const UNHRC = s.committees.find((c) => c.code === "UNHRC")!;
+    expect(UNHRC.allocated).toBe(2);
+    expect(UNHRC.remaining).toBe(UNHRC.seats - 2);
 
-    const unga = s.committees.find((c) => c.code === "UNGA")!;
-    expect(unga.pref1).toBe(4);
-    expect(unga.allocated).toBe(0);
+    const DISEC = s.committees.find((c) => c.code === "DISEC")!;
+    expect(DISEC.pref1).toBe(4);
+    expect(DISEC.allocated).toBe(0);
   });
 
   it("groups registrations and allocations by school", () => {
@@ -85,14 +85,14 @@ describe("publicAllocationGroups", () => {
         fullName: "Zoya Khan",
         schoolName: "School A",
         allocationStatus: "allocated",
-        allocatedCommittee: "UNSC",
+        allocatedCommittee: "UNHRC",
         allocatedPortfolio: "France",
       }),
       rec({ id: "2", fullName: "Meera Iyer", schoolName: "School B" }),
     ];
     const groups = publicAllocationGroups(rows);
     expect(groups).toHaveLength(1);
-    expect(groups[0].code).toBe("UNSC");
+    expect(groups[0].code).toBe("UNHRC");
     expect(groups[0].delegates).toEqual([
       { name: "Zoya Khan", school: "School A", portfolio: "France" },
     ]);
@@ -104,7 +104,7 @@ describe("allocationUpdateSchema", () => {
   it("accepts a valid allocation", () => {
     const parsed = allocationUpdateSchema.safeParse({
       allocationStatus: "allocated",
-      allocatedCommittee: "UNGA",
+      allocatedCommittee: "DISEC",
       allocatedPortfolio: "India",
       allocationNotes: "",
     });

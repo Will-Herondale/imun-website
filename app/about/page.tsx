@@ -5,7 +5,17 @@ import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/SectionHeading";
 import { site, tba, dateAndVenueLine } from "@/lib/config/site";
 import { pillars } from "@/lib/config/content";
+import { secretariat } from "@/lib/config/board";
 import { siteUrl } from "@/app/layout";
+
+function initialsOf(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
 
 export const metadata: Metadata = {
   title: "About",
@@ -81,6 +91,37 @@ export default function AboutPage() {
       </section>
 
       <section className="section">
+        <div className="container-site">
+          <SectionHeading
+            kicker="The secretariat"
+            title="Who runs the conference"
+            intro="The organising board responsible for the session — procedure and delegate affairs, communications, technology and logistics."
+          />
+          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {secretariat.map((m, i) => (
+              <Reveal key={`${m.role}-${m.name}`} delay={i * 60}>
+                <article className="card-premium h-full p-8">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-12 w-12 items-center justify-center rounded-[0.5rem] border border-brass-500/40 bg-brass-50 font-display text-[1.1rem] font-semibold text-brass-700"
+                  >
+                    {initialsOf(m.name)}
+                  </span>
+                  <p className="eyebrow-doc mt-6">{m.role}</p>
+                  <h3 className="mt-2 font-display text-[1.35rem] font-medium text-navy-900">
+                    {m.name}
+                  </h3>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+          <p className="mt-8 text-[0.85rem] text-steel-500">
+            Photographs and biographies will be published once supplied by the secretariat.
+          </p>
+        </div>
+      </section>
+
+      <section className="section border-t border-steel-100">
         <div className="container-site grid grid-cols-12 gap-10">
           <div className="col-span-12 lg:col-span-5">
             <SectionHeading

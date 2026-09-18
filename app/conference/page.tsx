@@ -16,9 +16,11 @@ export const metadata: Metadata = {
 export default function ConferencePage() {
   const reg = registrationStatus();
   const confirmed = [
-    { label: "Debate sessions", value: "Committee sessions across the roster" },
-    { label: "Conduct", value: "Formal dress code, formal debate, English language" },
+    { label: "Committees", value: "Four — DISEC, UNHRC, EU and the Joint Crisis Committee" },
+    { label: "Duration", value: `${site.days} days` },
+    { label: "Expected delegates", value: `${site.expectedDelegates} delegates` },
     { label: "Participation", value: "School and college students across India" },
+    { label: "Conduct", value: "Formal dress code, formal debate, English language" },
   ];
 
   const pending = [

@@ -7,7 +7,8 @@ import { siteUrl } from "@/app/layout";
 
 export const metadata: Metadata = {
   title: "Committees",
-  description: `The committee roster for ${"IMUN"} — General Assembly, Security Council, specialised agencies, a regional body, a crisis committee and a domestic chamber.`,
+  description:
+    "The four committees of IMUN — DISEC, UNHRC, the European Union and the Joint Crisis Committee.",
   alternates: { canonical: `${siteUrl}/committees` },
 };
 
@@ -29,7 +30,7 @@ export default function CommitteesPage() {
       <PageMasthead
         section="Committees"
         title="The committee roster"
-        lede="A draft listing of the chamber system. Committee agendas and the final roster are issued by the secretariat once confirmed."
+        lede="The confirmed roster of four committees. Each committee's agenda is set by its chair and issued ahead of the session."
       />
 
       <section className="section">
@@ -55,7 +56,9 @@ export default function CommitteesPage() {
                     <p className="mt-4 max-w-2xl leading-relaxed text-steel-600">{c.description}</p>
                   </div>
                   <div className="col-span-12 md:col-span-3 md:text-right">
-                    <span className="eyebrow-doc block">Agenda</span>
+                    <span className="eyebrow-doc block">Delegate seats</span>
+                    <span className="mt-1 block text-[0.9rem] text-navy-800">{c.seats} maximum</span>
+                    <span className="eyebrow-doc mt-6 block">Agenda</span>
                     <span className="mt-1 block text-[0.9rem] text-steel-500">{c.agenda}</span>
                     {c.executiveBoard ? (
                       <div className="mt-6">
@@ -82,13 +85,12 @@ export default function CommitteesPage() {
           <Reveal>
             <div className="mt-12 rounded-[4px] border border-steel-200 bg-steel-50 p-6">
               <p className="text-[0.92rem] leading-relaxed text-steel-600">
-                <span className="font-semibold text-navy-800">Before confirming a committee:</span>{" "}
-                the list above is a draft placeholder held in a single configuration
-                file. The final roster, agendas and delegate allocations per
-                committee will be published by the secretariat before registration
-                is processed. First-time delegates are equally welcome in every
-                chamber; the secretariat allocates portfolios with the experience
-                section of your registration in mind.
+                <span className="font-semibold text-navy-800">On committees:</span>{" "}
+                the session runs four committees, each capped at {committees[0]?.seats ?? 25}{" "}
+                delegate seats. Committee agendas are set by the chair of each chamber
+                and issued ahead of the session. First-time delegates are equally
+                welcome in every chamber; the secretariat allocates portfolios with
+                the experience section of your registration in mind.
               </p>
             </div>
           </Reveal>

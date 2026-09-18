@@ -343,7 +343,7 @@ export function RegistrationForm() {
               <code className="mt-1 block rounded-[3px] bg-steel-100 px-2 py-1 text-[0.75rem]">
                 {munHistoryFormat}
               </code>
-              Example line: <code className="inline-block rounded bg-steel-100 px-1.5">Sample MUN | 2025 | UNGA | USA | Best Delegate</code>
+              Example line: <code className="inline-block rounded bg-steel-100 px-1.5">Sample MUN | 2025 | DISEC | USA | Best Delegate</code>
             </span>
             {touched.munHistory && errors.munHistory ? <p id="err-munHistory" className="field-error" role="alert">{errors.munHistory}</p> : null}
           </div>

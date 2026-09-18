@@ -15,9 +15,9 @@ function rec(overrides: Partial<RegistrationRecord> = {}): RegistrationRecord {
     grade: "11",
     munCount: "1",
     munHistory: "",
-    committeePref1: "UNGA",
+    committeePref1: "DISEC",
     committeePref2: "UNHRC",
-    committeePref3: "WHO",
+    committeePref3: "EU",
     countryPreference: "India",
     specialRequest: "",
     declarationAccurate: "Yes",
@@ -27,23 +27,29 @@ function rec(overrides: Partial<RegistrationRecord> = {}): RegistrationRecord {
 }
 
 const rows = [
-  rec({ id: "1", fullName: "Aarav Sharma", email: "aarav@example.com", countryPreference: "India" }),
+  rec({
+    id: "1",
+    fullName: "Aarav Sharma",
+    email: "aarav@example.com",
+    committeePref2: "JCC",
+    countryPreference: "India",
+  }),
   rec({
     id: "2",
     fullName: "Zoya Khan",
     email: "zoya@school.in",
-    committeePref1: "UNSC",
-    committeePref2: "UNGA",
-    committeePref3: "UNEP",
+    committeePref1: "UNHRC",
+    committeePref2: "DISEC",
+    committeePref3: "JCC",
     countryPreference: "",
   }),
   rec({
     id: "3",
     fullName: "Meera Iyer",
     email: "meera@example.com",
-    committeePref1: "UNGA",
-    committeePref2: "WHO",
-    committeePref3: "LS",
+    committeePref1: "DISEC",
+    committeePref2: "EU",
+    committeePref3: "JCC",
   }),
 ];
 
@@ -55,7 +61,7 @@ describe("filterRegistrations", () => {
   });
 
   it("filters by committee preference", () => {
-    const out = filterRegistrations(rows, { committee: "UNSC" });
+    const out = filterRegistrations(rows, { committee: "UNHRC" });
     expect(out.map((r) => r.id)).toEqual(["2"]);
   });
 
