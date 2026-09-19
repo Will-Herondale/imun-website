@@ -62,6 +62,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${display.variable}`}>
       <body className="flex min-h-dvh flex-col">
+        {/* Safety net: reveal animations start at opacity 0 and are switched on
+            by JS. If scripting is unavailable, keep all content visible. */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[3px] focus:bg-navy-900 focus:px-4 focus:py-2 focus:text-white"

@@ -7,6 +7,7 @@ export default defineConfig([
   ...nextTs,
   globalIgnores([
     ".next/**",
+    ".netlify/**",
     "out/**",
     "coverage/**",
     "playwright-report/**",
