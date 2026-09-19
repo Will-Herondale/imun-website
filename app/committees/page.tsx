@@ -28,6 +28,7 @@ export default function CommitteesPage() {
   return (
     <>
       <PageMasthead
+        path="/committees"
         section="Committees"
         title="The committee roster"
         lede="The confirmed roster of four committees. Each committee's agenda is set by its chair and issued ahead of the session."

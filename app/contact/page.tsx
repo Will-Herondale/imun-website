@@ -23,6 +23,7 @@ export default function ContactPage() {
   return (
     <>
       <PageMasthead
+        path="/contact"
         section="Contact"
         title="Contact the secretariat"
         lede="For registration support, committee queries and everything else, the secretariat can be reached as follows."

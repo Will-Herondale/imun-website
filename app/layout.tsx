@@ -7,6 +7,7 @@ import { site, dateAndVenueLine } from "@/lib/config/site";
 import { siteUrl } from "@/lib/seo/site-url";
 import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/JsonLd";
+import { Analytics } from "@/components/Analytics";
 
 // Re-exported for pages that build canonical URLs from this module.
 export { siteUrl };
@@ -96,6 +97,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );

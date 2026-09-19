@@ -17,6 +17,7 @@ export default function FaqPage() {
   return (
     <>
       <PageMasthead
+        path="/faq"
         section="FAQ"
         title="Frequently asked questions"
         lede="If your question is not answered here, write to the secretariat using the contact details on the Contact page."

@@ -29,6 +29,7 @@ export default function RegistrationPage() {
   return (
     <>
       <PageMasthead
+        path="/registration"
         section="Registration"
         title="Become a delegate"
         lede="The official delegate registration form. Please read the privacy note before submitting — the information you provide is used only to administer your participation."

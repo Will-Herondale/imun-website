@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "process:logo": "tsx scripts/process-logo.ts",
+    "optimize:images": "tsx scripts/optimize-images.ts",
     "build:standalone": "node scripts/build-standalone.mjs",
     "start:e2e": "node scripts/start-e2e.mjs",
     "e2e": "playwright test",

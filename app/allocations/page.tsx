@@ -37,6 +37,7 @@ export default async function AllocationsPage() {
   return (
     <>
       <PageMasthead
+        path="/allocations"
         section="Allocations"
         title="Delegate allocations"
         lede="Committee and portfolio assignments for registered delegates. Allocations are published live and update automatically as the secretariat confirms them."

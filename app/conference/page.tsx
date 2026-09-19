@@ -39,7 +39,7 @@ export default function ConferencePage() {
 
   return (
     <>
-      <PageMasthead section="Conference" title="The conference record" lede={`Everything that frames the session — how it is run, how you participate and what the record currently confirms.`} />
+      <PageMasthead path="/conference" section="Conference" title="The conference record" lede={`Everything that frames the session — how it is run, how you participate and what the record currently confirms.`} />
 
       <JsonLd data={eventSchema()} />
 

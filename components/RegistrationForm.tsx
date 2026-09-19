@@ -8,6 +8,7 @@ import {
 } from "@/lib/validation/registration";
 import { committees } from "@/lib/config/committees";
 import { feeAmountFor, registrationRoundFor, site } from "@/lib/config/site";
+import { track } from "@/lib/analytics";
 
 type Values = {
   fullName: string;
@@ -79,6 +80,7 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
   const [awaitingPayment, setAwaitingPayment] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
   const autoSubmittedRef = useRef(false);
+  const startedRef = useRef(false);
   const submitRegistrationRef = useRef<((override?: Partial<Values>) => Promise<void>) | null>(null);
 
   // Draft recovery (device-local, never synced).
@@ -91,7 +93,15 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
     }
   }, [values, result]);
 
+  useEffect(() => {
+    if (manualMode) track("payment_manual_fallback");
+  }, [manualMode]);
+
   const set = useCallback(<K extends keyof Values>(key: K, value: Values[K]) => {
+    if (!startedRef.current) {
+      startedRef.current = true;
+      track("registration_form_start");
+    }
     setValues((v) => ({ ...v, [key]: value }));
     setErrors((e) => ({ ...e, [key]: undefined }));
   }, []);
@@ -180,7 +190,20 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
           code?: string;
         };
         if (res.ok) {
-          setResult({ duplicate: Boolean(data.duplicate), paymentStatus: String(data.paymentStatus ?? "") });
+          const outcome = String(data.paymentStatus ?? "");
+          if (!data.duplicate) {
+            if (outcome === "paid") {
+              track("purchase", {
+                transaction_id: v.paymentOrderId,
+                value: feeAmountFor(),
+                currency: "INR",
+                items: [{ item_name: registrationRoundFor().label }],
+              });
+            } else {
+              track("registration_submitted", { payment_status: outcome || "none" });
+            }
+          }
+          setResult({ duplicate: Boolean(data.duplicate), paymentStatus: outcome });
           try {
             window.localStorage.removeItem(DRAFT_KEY);
             window.localStorage.removeItem(PAYMENT_KEY);
@@ -250,6 +273,11 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         } catch {
           /* storage unavailable — the order id is also returned after redirect via polling */
         }
+        track("payment_initiated", {
+          value: feeAmountFor(),
+          currency: "INR",
+          round: registrationRoundFor().label,
+        });
         window.location.assign(data.checkoutUrl);
         return;
       }

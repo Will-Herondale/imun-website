@@ -14,6 +14,7 @@ export default function PrivacyPage() {
   return (
     <>
       <PageMasthead
+        path="/privacy"
         section="Privacy"
         title="Privacy notice"
         lede="This notice explains, in plain language, what happens to the personal information you give us when you register as a delegate."
@@ -77,6 +78,17 @@ export default function PrivacyPage() {
               in your browser&apos;s local storage so you do not lose progress if the
               page closes. The draft never leaves your device and is deleted when
               your registration is accepted.
+            </p>
+          </Reveal>
+          <Reveal delay={180}>
+            <h2 className="font-display text-[1.55rem] font-medium text-navy-900">Analytics</h2>
+            <p className="mt-3">
+              The public pages use a privacy-respecting web analytics service to
+              understand how many people visit and which pages are useful. It
+              records aggregated, anonymised usage such as page views and the
+              steps of the registration funnel. It does not receive the contents
+              of your registration — your name, contact details and answers are
+              never sent to it.
             </p>
           </Reveal>
           <Reveal delay={200}>

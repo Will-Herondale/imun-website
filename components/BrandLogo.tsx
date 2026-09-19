@@ -20,7 +20,7 @@ export function BrandLogo({
   tone?: "onDark" | "onLight";
 }) {
   const src =
-    tone === "onLight" ? "/assets/brand/iemun-seal.png" : "/assets/brand/iemun-logo.png";
+    tone === "onLight" ? "/assets/brand/iemun-seal.webp" : "/assets/brand/iemun-logo.webp";
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -32,6 +32,7 @@ export function BrandLogo({
       className={className}
       style={style}
       loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
       decoding="async"
     />
   );

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <PageMasthead section="About" title={`About ${site.name}`} lede={`${site.fullName} exists to give Indian student delegates a formal, rigorous Model United Nations — measured by the quality of the debate it produces.`} />
+      <PageMasthead path="/about" section="About" title={`About ${site.name}`} lede={`${site.fullName} exists to give Indian student delegates a formal, rigorous Model United Nations — measured by the quality of the debate it produces.`} />
 
       <section className="section">
         <div className="container-site grid grid-cols-12 gap-10">

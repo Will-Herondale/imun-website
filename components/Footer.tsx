@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
-import { navItems } from "@/lib/config/nav";
+import { navItems, secondaryNavItems } from "@/lib/config/nav";
 import { site, tba, dateAndVenueLine } from "@/lib/config/site";
 import { registrationStatus } from "@/lib/registration-control";
 
@@ -38,7 +38,7 @@ export function Footer() {
         <nav aria-label="Footer" className="col-span-6 sm:col-span-4 md:col-span-2">
           <h2 className="kicker-light mb-5">Explore</h2>
           <ul className="space-y-3 text-[0.9rem]">
-            {navItems.map((item) => (
+            {[...navItems, ...secondaryNavItems].map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="transition-colors hover:text-brass-300">
                   {item.label}

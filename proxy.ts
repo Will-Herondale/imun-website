@@ -21,16 +21,25 @@ export function proxy(request: NextRequest) {
     .replaceAll("-", "")
     .toString();
 
+  // Allow Google Analytics hosts only when a measurement ID is configured, so
+  // the production CSP stays tight for deployments without analytics.
+  const gaEnabled = /^(G|UA)-[A-Za-z0-9-]+$/.test(process.env.NEXT_PUBLIC_GA_ID?.trim() ?? "");
+  const gaScript = gaEnabled ? " https://www.googletagmanager.com" : "";
+  const gaConnect = gaEnabled
+    ? " https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com"
+    : "";
+  const gaImg = gaEnabled ? " https://www.google-analytics.com https://www.googletagmanager.com" : "";
+
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
+    `script-src 'self' 'nonce-${nonce}'${gaScript}`,
     // No nonce here on purpose: a nonce would make browsers ignore
     // 'unsafe-inline', and React sets inline styles (e.g. transition-delay)
     // that are then blocked. Inline styles are far lower risk than scripts.
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob:${gaImg}`,
     "font-src 'self'",
-    "connect-src 'self'",
+    `connect-src 'self'${gaConnect}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
