@@ -352,8 +352,8 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
             <>
               <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">Payment verified</p>
               <p className="mt-3 max-w-xl text-[0.92rem] leading-relaxed text-steel-600">
-                We have verified your payment of ₹{site.registrationFee.amount.toLocaleString("en-IN")} against the
-                wallet. Your seat is confirmed — the secretariat will email your committee allotment.
+                We have verified your payment of ₹{feeAmountFor().toLocaleString("en-IN")} against the wallet. Your
+                seat is confirmed — the secretariat will email your committee allotment.
               </p>
             </>
           ) : (

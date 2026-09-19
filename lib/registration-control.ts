@@ -5,7 +5,7 @@
  * submission, closing registration is enforced server-side — never only in
  * the UI.
  */
-import { site } from "@/lib/config/site";
+import { feeAmountFor, registrationRoundFor, site } from "@/lib/config/site";
 
 export function isRegistrationOpen(): boolean {
   const env = process.env.REGISTRATION_OPEN?.trim().toLowerCase();
@@ -16,8 +16,9 @@ export function isRegistrationOpen(): boolean {
 
 export function registrationStatus(): { open: boolean; label: string } {
   const open = isRegistrationOpen();
-  return {
-    open,
-    label: open ? site.registrationLabel || "Registration open — seats limited" : "Registration closed",
-  };
+  if (!open) return { open, label: "Registration closed" };
+  const round = registrationRoundFor();
+  const fee = feeAmountFor().toLocaleString("en-IN");
+  const label = `Registration open — ${round.label} · ₹${fee}`;
+  return { open, label };
 }
