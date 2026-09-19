@@ -62,6 +62,7 @@ test.describe("registration flow", () => {
     await page.getByLabel(/second committee/i).selectOption("UNHRC");
     await page.getByLabel(/third committee/i).selectOption("EU");
     await page.getByLabel(/preferred country/i).fill("India");
+    await page.getByLabel(/transaction ID/i).fill("412345678901");
     await page.getByLabel(/I confirm that/i).check();
     await page.getByLabel(/I agree to follow/i).check();
 

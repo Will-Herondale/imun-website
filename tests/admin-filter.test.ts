@@ -1,13 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { filterRegistrations, paginate } from "@/lib/admin-filter";
-import { emptyAllocation, type RegistrationRecord } from "@/lib/validation/registration";
+import { emptyAllocation, emptyPayment, type RegistrationRecord } from "@/lib/validation/registration";
 
 function rec(overrides: Partial<RegistrationRecord> = {}): RegistrationRecord {
   return {
     ...emptyAllocation(),
+    ...emptyPayment(),
     id: "1",
     createdAt: "2026-09-01T09:00:00.000Z",
     status: "submitted",
+    feeAmount: 1600,
     fullName: "Aarav Sharma",
     email: "aarav@example.com",
     contactNumber: "9876543210",
@@ -20,6 +22,8 @@ function rec(overrides: Partial<RegistrationRecord> = {}): RegistrationRecord {
     committeePref3: "EU",
     countryPreference: "India",
     specialRequest: "",
+    paymentOrderId: "",
+    paymentReference: "UTR123456789012",
     declarationAccurate: "Yes",
     declarationRules: "Yes",
     ...overrides,

@@ -98,6 +98,23 @@ export const registrationSchema = z
     countryPreference: z.string().trim().min(0).max(80),
     specialRequest: z.string().trim().min(0).max(1200),
 
+    /**
+     * FamGateway order id returned after a verified UPI payment. Preferred:
+     * the server re-verifies it against FamGateway before trusting it.
+     */
+    paymentOrderId: z.string().trim().max(40).optional().default(""),
+
+    /** Manual fallback: transaction ID / UTR typed by the delegate. */
+    paymentReference: z
+      .string()
+      .trim()
+      .max(40)
+      .refine((s) => s === "" || /^[A-Za-z0-9][A-Za-z0-9\-/ .]{5,39}$/.test(s), {
+        message: "Enter the payment reference / UTR shown in your payment confirmation.",
+      })
+      .optional()
+      .default(""),
+
     declarationAccurate: z.literal("Yes", { error: "You must confirm that the information is accurate." }),
     declarationRules: z.literal("Yes", { error: "You must agree to follow the rules and regulations of IMUN." }),
 
@@ -138,6 +155,13 @@ export const registrationSchema = z
         message: "You indicated no prior conferences; remove the experience list.",
       });
     }
+    if (!data.paymentOrderId && !data.paymentReference) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["paymentReference"],
+        message: "Complete the delegate fee payment before submitting.",
+      });
+    }
   })
   .strict();
 
@@ -155,6 +179,8 @@ export type RegistrationInput = {
   committeePref3: string;
   countryPreference: string;
   specialRequest: string;
+  paymentOrderId: string;
+  paymentReference: string;
   declarationAccurate: "Yes";
   declarationRules: "Yes";
 };
@@ -184,11 +210,38 @@ export const emptyAllocation = (): AllocationFields => ({
   updatedAt: "",
 });
 
+/** Payment reconciliation state, always server-managed. */
+export const paymentStatusOptions = ["pending", "paid", "unverified", "failed"] as const;
+export type PaymentStatus = (typeof paymentStatusOptions)[number];
+
+export type PaymentFields = {
+  paymentStatus: PaymentStatus;
+  /** FamGateway order id, when an automated payment was attempted. */
+  paymentOrderId: string;
+  /** Bank UTR recorded for a verified (or self-reported) payment. */
+  paymentUtr: string;
+  /** Payer name from the bank credit notification, when available. */
+  paymentPayer: string;
+  /** ISO timestamp of when the payment was recorded as paid. */
+  paidAt: string;
+};
+
+export const emptyPayment = (): PaymentFields => ({
+  paymentStatus: "pending",
+  paymentOrderId: "",
+  paymentUtr: "",
+  paymentPayer: "",
+  paidAt: "",
+});
+
 export type RegistrationRecord = RegistrationInput &
-  AllocationFields & {
+  AllocationFields &
+  PaymentFields & {
     id: string;
     createdAt: string;
     status: "submitted";
+    /** Server-computed delegate fee (INR) for the registration round in effect. */
+    feeAmount: number;
   };
 
 /**
@@ -225,7 +278,14 @@ export type AllocationUpdate = z.infer<typeof allocationUpdateSchema>;
 /** Applies server-side string sanitisation to a raw payload clone. */
 export function sanitizePayload(raw: Record<string, unknown> | null): Record<string, unknown> {
   if (!raw) return {};
-  const single = ["fullName", "contactNumber", "schoolName", "grade"] as const;
+  const single = [
+    "fullName",
+    "contactNumber",
+    "schoolName",
+    "grade",
+    "paymentOrderId",
+    "paymentReference",
+  ] as const;
   const multi = ["munHistory", "specialRequest"] as const;
   const out: Record<string, unknown> = {};
 

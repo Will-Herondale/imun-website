@@ -7,7 +7,7 @@ import {
   type RegistrationInput,
 } from "@/lib/validation/registration";
 import { committees } from "@/lib/config/committees";
-import { site } from "@/lib/config/site";
+import { feeAmountFor, registrationRoundFor, site } from "@/lib/config/site";
 
 type Values = {
   fullName: string;
@@ -22,6 +22,8 @@ type Values = {
   committeePref3: string;
   countryPreference: string;
   specialRequest: string;
+  paymentOrderId: string;
+  paymentReference: string;
   declarationAccurate: boolean;
   declarationRules: boolean;
 };
@@ -39,6 +41,8 @@ const initialValues: Values = {
   committeePref3: "",
   countryPreference: "",
   specialRequest: "",
+  paymentOrderId: "",
+  paymentReference: "",
   declarationAccurate: false,
   declarationRules: false,
 };
@@ -46,11 +50,12 @@ const initialValues: Values = {
 type Errors = Partial<Record<keyof Values, string>>;
 
 const DRAFT_KEY = "iemun:registration:Draft:v1";
+const PAYMENT_KEY = "iemun:payment:orderId:v1";
 
 const DESCRIPTION_TIP =
   "Only the fields marked required (*) must be completed. The MUN experience list is optional — first-time delegates leave it blank.";
 
-export function RegistrationForm() {
+export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: boolean }) {
   const [values, setValues] = useState<Values>(() => {
     if (typeof window === "undefined") return initialValues;
     try {
@@ -68,8 +73,13 @@ export function RegistrationForm() {
   const [touched, setTouched] = useState<Partial<Record<keyof Values, boolean>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ duplicate: boolean } | null>(null);
+  const [result, setResult] = useState<{ duplicate: boolean; paymentStatus: string } | null>(null);
+  const [manualMode, setManualMode] = useState(false);
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
+  const [awaitingPayment, setAwaitingPayment] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const autoSubmittedRef = useRef(false);
+  const submitRegistrationRef = useRef<((override?: Partial<Values>) => Promise<void>) | null>(null);
 
   // Draft recovery (device-local, never synced).
   useEffect(() => {
@@ -110,8 +120,95 @@ export function RegistrationForm() {
     }
     if (!v.declarationAccurate) errs.declarationAccurate = "You must confirm that the information is accurate.";
     if (!v.declarationRules) errs.declarationRules = "You must agree to follow the rules and regulations of IMUN.";
+    if (!paymentsLive && !v.paymentOrderId) {
+      const ref = v.paymentReference.trim();
+      if (ref.length < 6) errs.paymentReference = "Enter the payment reference / UTR from your payment confirmation.";
+      else if (!/^[A-Za-z0-9][A-Za-z0-9\-/ .]{5,39}$/.test(ref)) errs.paymentReference = "Payment reference contains invalid characters.";
+    }
     return errs;
-  }, []);
+  }, [paymentsLive]);
+
+  const submitRegistration = useCallback(
+    async (override?: Partial<Values>) => {
+      if (submitting || result) return;
+      const v = { ...values, ...override };
+
+      const manualRef = v.paymentReference.trim();
+      if (!v.paymentOrderId && manualMode && manualRef.length > 0 && !/^[A-Za-z0-9][A-Za-z0-9\-/ .]{5,39}$/.test(manualRef)) {
+        setErrors((e) => ({ ...e, paymentReference: "Payment reference contains invalid characters." }));
+        setTouched((t) => ({ ...t, paymentReference: true }));
+        return;
+      }
+
+      const honeypot = new FormData(formRef.current ?? undefined)
+        .get("website")
+        ?.toString()
+        .trim();
+
+      setSubmitting(true);
+      setSubmitError(null);
+      try {
+        const payload: RegistrationInput & { website?: string } = {
+          fullName: v.fullName,
+          email: v.email,
+          contactNumber: v.contactNumber,
+          schoolName: v.schoolName,
+          grade: v.grade,
+          munCount: v.munCount as RegistrationInput["munCount"],
+          munHistory: v.munHistory,
+          committeePref1: v.committeePref1,
+          committeePref2: v.committeePref2,
+          committeePref3: v.committeePref3,
+          countryPreference: v.countryPreference,
+          specialRequest: v.specialRequest,
+          paymentOrderId: v.paymentOrderId,
+          paymentReference: v.paymentReference,
+          declarationAccurate: "Yes",
+          declarationRules: "Yes",
+          website: honeypot,
+        };
+        const res = await fetch("/api/registrations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          fields?: Record<string, string>;
+          duplicate?: boolean;
+          paymentStatus?: string;
+          code?: string;
+        };
+        if (res.ok) {
+          setResult({ duplicate: Boolean(data.duplicate), paymentStatus: String(data.paymentStatus ?? "") });
+          try {
+            window.localStorage.removeItem(DRAFT_KEY);
+            window.localStorage.removeItem(PAYMENT_KEY);
+          } catch {
+            /* ignore */
+          }
+          return;
+        }
+        if (res.status === 422 && data.fields) {
+          const mapped: Errors = {};
+          for (const [k, msg] of Object.entries(data.fields)) {
+            if (k in initialValues) mapped[k as keyof Values] = msg;
+          }
+          setErrors(mapped);
+        }
+        setSubmitError(data.error ?? "Your registration could not be completed. Please try again.");
+      } catch {
+        setSubmitError("We could not reach the server. Check your connection and try again.");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [values, submitting, result, manualMode]
+  );
+
+  useEffect(() => {
+    submitRegistrationRef.current = submitRegistration;
+  }, [submitRegistration]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,64 +225,103 @@ export function RegistrationForm() {
       return;
     }
 
-    const honeypot = new FormData(formRef.current ?? undefined)
-      .get("website")
-      ?.toString()
-      .trim();
+    // Manual-only mode, an already-verified order id, or a manual UTR → submit.
+    if (!paymentsLive || values.paymentOrderId || values.paymentReference.trim()) {
+      await submitRegistration();
+      return;
+    }
 
+    // Otherwise start the automated secure checkout.
     setSubmitting(true);
     try {
-      const payload: RegistrationInput & { website?: string } = {
-        fullName: values.fullName,
-        email: values.email,
-        contactNumber: values.contactNumber,
-        schoolName: values.schoolName,
-        grade: values.grade,
-        munCount: values.munCount as RegistrationInput["munCount"],
-        munHistory: values.munHistory,
-        committeePref1: values.committeePref1,
-        committeePref2: values.committeePref2,
-        committeePref3: values.committeePref3,
-        countryPreference: values.countryPreference,
-        specialRequest: values.specialRequest,
-        declarationAccurate: "Yes",
-        declarationRules: "Yes",
-        website: honeypot,
-      };
-      const res = await fetch("/api/registrations", {
+      const res = await fetch("/api/payments/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ name: values.fullName }),
       });
       const data = (await res.json().catch(() => ({}))) as {
+        orderId?: string;
+        checkoutUrl?: string;
         error?: string;
-        fields?: Record<string, string>;
-        duplicate?: boolean;
-        code?: string;
       };
-      if (res.ok) {
-        setResult({ duplicate: Boolean(data.duplicate) });
+      if (res.ok && data.orderId && data.checkoutUrl) {
         try {
-          window.localStorage.removeItem(DRAFT_KEY);
+          window.localStorage.setItem(PAYMENT_KEY, data.orderId);
         } catch {
-          /* ignore */
+          /* storage unavailable — the order id is also returned after redirect via polling */
         }
+        window.location.assign(data.checkoutUrl);
         return;
       }
-      if (res.status === 422 && data.fields) {
-        const mapped: Errors = {};
-        for (const [k, msg] of Object.entries(data.fields)) {
-          if (k in initialValues) mapped[k as keyof Values] = msg;
-        }
-        setErrors(mapped);
-      }
-      setSubmitError(data.error ?? "Your registration could not be completed. Please try again.");
+      // Automated payment not available — reveal the manual fallback.
+      setManualMode(true);
+      setPaymentNotice(
+        res.status === 503
+          ? "Online checkout is temporarily unavailable. Pay the fee from any UPI app and enter the transaction ID / UTR below."
+          : data.error ?? "We could not start the online payment. Pay from any UPI app and enter the transaction ID / UTR below."
+      );
     } catch {
-      setSubmitError("We could not reach the server. Check your connection and try again.");
+      setManualMode(true);
+      setPaymentNotice(
+        "We could not start the online payment. Pay the fee from any UPI app and enter the transaction ID / UTR below."
+      );
     } finally {
       setSubmitting(false);
     }
   }
+
+  // Returning from the hosted checkout: confirm the order, then submit.
+  useEffect(() => {
+    if (result || autoSubmittedRef.current) return;
+    let orderId = "";
+    try {
+      orderId = window.localStorage.getItem(PAYMENT_KEY) ?? "";
+    } catch {
+      return;
+    }
+    if (!orderId) return;
+    autoSubmittedRef.current = true;
+
+    let cancelled = false;
+    const poll = async () => {
+      setAwaitingPayment(true);
+      for (let attempt = 0; attempt < 60 && !cancelled; attempt += 1) {
+        try {
+          const res = await fetch(`/api/payments/status?orderId=${encodeURIComponent(orderId)}`);
+          if (res.ok) {
+            const data = (await res.json()) as { status?: string };
+            if (data.status === "success") {
+              setValues((v) => ({ ...v, paymentOrderId: orderId, paymentReference: "" }));
+              setAwaitingPayment(false);
+              await submitRegistrationRef.current?.({
+                paymentOrderId: orderId,
+                paymentReference: "",
+              });
+              return;
+            }
+            if (data.status === "expired") break;
+          }
+        } catch {
+          /* transient — keep polling */
+        }
+        await new Promise((r) => setTimeout(r, 4000));
+      }
+      if (cancelled) return;
+      setAwaitingPayment(false);
+      try {
+        window.localStorage.removeItem(PAYMENT_KEY);
+      } catch {
+        /* ignore */
+      }
+      setPaymentNotice("We could not confirm that payment. If money left your account, contact the secretariat; otherwise try again.");
+    };
+    void poll();
+    return () => {
+      cancelled = true;
+    };
+    // Intentionally runs once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const usedCommittees = useMemo(
     () => new Set([values.committeePref1, values.committeePref2, values.committeePref3].filter(Boolean)),
@@ -212,13 +348,29 @@ export function RegistrationForm() {
             : "Your details have been recorded. The secretariat will contact you at the email address you provided once committee allotments are prepared. Please keep the same email address active."}
         </p>
         <div className="mt-8 border border-brass-500/30 bg-brass-50/60 p-6">
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">Next step — fee payment</p>
-          <p className="mt-3 max-w-xl text-[0.92rem] leading-relaxed text-steel-600">
-            Send the delegate fee on the {site.payment.provider} app to the wallet ID{" "}
-            <span className="font-mono font-semibold text-navy-900">{site.payment.walletId}</span>{" "}
-            and keep the payment reference. Your seat is confirmed once the
-            secretariat receives the fee.
-          </p>
+          {result.paymentStatus === "paid" ? (
+            <>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">Payment verified</p>
+              <p className="mt-3 max-w-xl text-[0.92rem] leading-relaxed text-steel-600">
+                We have verified your payment of ₹{site.registrationFee.amount.toLocaleString("en-IN")} against the
+                wallet. Your seat is confirmed — the secretariat will email your committee allotment.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">Payment recorded — awaiting verification</p>
+              <p className="mt-3 max-w-xl text-[0.92rem] leading-relaxed text-steel-600">
+                {values.paymentReference.trim() ? (
+                  <>
+                    We have logged your payment reference{" "}
+                    <span className="font-mono font-semibold text-navy-900">{values.paymentReference}</span> for
+                    verification against the wallet.{" "}
+                  </>
+                ) : null}
+                Your seat is confirmed once the secretariat matches the transfer.
+              </p>
+            </>
+          )}
         </div>
         <div className="mt-6 border-t border-steel-200 pt-6 text-[0.85rem] text-steel-500">
           The secretariat will contact you at the email address you provided once
@@ -430,6 +582,91 @@ export function RegistrationForm() {
             04
           </span>
           <span className="font-display text-[1.5rem] font-medium text-navy-900 sm:text-[1.7rem]">
+            Payment
+          </span>
+        </legend>
+
+        <div className="mt-6 border border-brass-500/30 bg-brass-50/60 p-6">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">
+            {registrationRoundFor().label} — delegate fee ₹{feeAmountFor().toLocaleString("en-IN")}
+          </p>
+          {paymentsLive ? (
+            <>
+              <p className="mt-3 max-w-2xl text-[0.92rem] leading-relaxed text-steel-600">
+                When you submit, you&apos;ll be taken to a secure UPI checkout to pay ₹
+                {feeAmountFor().toLocaleString("en-IN")} from any UPI app (Google Pay, PhonePe, Paytm,{" "}
+                {site.payment.provider} or any other). You return here automatically and your seat is confirmed the
+                moment the payment is verified.
+              </p>
+              <p className="mt-3 max-w-2xl text-[0.85rem] leading-relaxed text-steel-500">
+                Paying another way? You can send the fee to{" "}
+                <span className="font-mono font-semibold text-navy-900">{site.payment.walletId}</span> and record the
+                transaction ID / UTR instead.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 max-w-2xl text-[0.92rem] leading-relaxed text-steel-600">
+                {site.payment.setupNotice}
+              </p>
+              <dl className="mt-5 flex flex-wrap items-baseline gap-x-10 gap-y-3">
+                <div>
+                  <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Pay from</dt>
+                  <dd className="mt-1.5 font-semibold text-navy-900">Any UPI app</dd>
+                </div>
+                <div>
+                  <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Wallet ID</dt>
+                  <dd className="mt-1.5 font-mono text-[0.95rem] font-semibold text-navy-900">{site.payment.walletId}</dd>
+                </div>
+              </dl>
+            </>
+          )}
+        </div>
+
+        {awaitingPayment ? (
+          <div className="mt-6 flex items-start gap-3 border border-brass-500/40 bg-brass-50/60 p-4 text-[0.9rem] text-navy-800" role="status" aria-live="polite">
+            <span className="mt-0.5 inline-block h-4 w-4 animate-spin rounded-full border-2 border-brass-500/40 border-t-brass-600" aria-hidden="true" />
+            <span>Waiting for your payment to be confirmed — please don&apos;t close this tab.</span>
+          </div>
+        ) : null}
+
+        {paymentNotice ? (
+          <div className="mt-6 rounded-[3px] border border-brass-500/40 bg-brass-50/60 p-4 text-[0.9rem] text-brass-800" role="status">
+            {paymentNotice}
+          </div>
+        ) : null}
+
+        <div className="mt-6 sm:max-w-md">
+          <label className="field-label" htmlFor="f-paymentReference">
+            13. UPI transaction ID / UTR{" "}
+            {!paymentsLive || manualMode ? (
+              <span aria-hidden="true" className="text-[#b42318]">*</span>
+            ) : (
+              <span className="text-steel-500">(optional if you use the secure checkout)</span>
+            )}
+          </label>
+          <input
+            id="f-paymentReference" name="paymentReference" type="text" autoComplete="off"
+            className="input font-mono" value={values.paymentReference} placeholder="e.g. 412345678901"
+            onChange={(e) => set("paymentReference", e.target.value)}
+            onBlur={() => markTouched("paymentReference")}
+            aria-invalid={touched.paymentReference && errors.paymentReference ? true : undefined}
+            aria-describedby={errors.paymentReference ? "err-paymentReference" : "hint-paymentReference"}
+          />
+          <span id="hint-paymentReference" className="field-hint">
+            Shown in your UPI app&apos;s payment confirmation (UTRs are usually 12 digits).
+            {paymentsLive && !manualMode ? " Leave blank if you use the secure checkout." : ""}
+          </span>
+          {touched.paymentReference && errors.paymentReference ? <p id="err-paymentReference" className="field-error" role="alert">{errors.paymentReference}</p> : null}
+        </div>
+      </fieldset>
+
+      <fieldset className="mt-14">
+        <legend className="flex w-full items-center gap-4 border-b border-steel-200 pb-4">
+          <span aria-hidden="true" className="font-display text-[1.4rem] leading-none text-brass-600">
+            05
+          </span>
+          <span className="font-display text-[1.5rem] font-medium text-navy-900 sm:text-[1.7rem]">
             Declaration
           </span>
         </legend>
@@ -445,7 +682,7 @@ export function RegistrationForm() {
               aria-describedby={errors.declarationAccurate ? "err-declarationAccurate" : undefined}
             />
             <label htmlFor="f-declarationAccurate" className="text-[0.95rem] leading-relaxed text-navy-800">
-              13. I confirm that the information provided above is accurate.
+              14. I confirm that the information provided above is accurate.
               <span aria-hidden="true" className="text-[#b42318]"> *</span>
             </label>
           </div>
@@ -463,7 +700,7 @@ export function RegistrationForm() {
               aria-describedby={errors.declarationRules ? "err-declarationRules" : undefined}
             />
             <label htmlFor="f-declarationRules" className="text-[0.95rem] leading-relaxed text-navy-800">
-              14. I agree to follow the rules and regulations of IMUN.
+              15. I agree to follow the rules and regulations of IMUN.
               <span aria-hidden="true" className="text-[#b42318]"> *</span>
             </label>
           </div>
@@ -491,10 +728,12 @@ export function RegistrationForm() {
             {submitting ? (
               <>
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />
-                Submitting…
+                {awaitingPayment ? "Verifying payment…" : "Please wait…"}
               </>
-            ) : (
+            ) : !paymentsLive || values.paymentOrderId || values.paymentReference.trim() ? (
               "Submit registration"
+            ) : (
+              `Pay ₹${feeAmountFor().toLocaleString("en-IN")} & submit`
             )}
           </button>
           <p className="text-[0.8rem] text-steel-500">

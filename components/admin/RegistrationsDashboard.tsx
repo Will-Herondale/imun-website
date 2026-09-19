@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { AllocationStatus, RegistrationRecord } from "@/lib/validation/registration";
+import type { AllocationStatus, PaymentStatus, RegistrationRecord } from "@/lib/validation/registration";
 import { allocationStatusLabels } from "@/lib/allocations";
 import { committeeName } from "@/lib/display";
 import { committees } from "@/lib/config/committees";
@@ -25,6 +25,20 @@ const badgeClass: Record<AllocationStatus, string> = {
   waitlisted: "border-[#e5cfa0] bg-[#fdf6e6] text-[#8a6215]",
   rejected: "border-[#e5b3af] bg-[#fef3f2] text-[#8a1e15]",
   pending: "border-steel-300 bg-steel-100 text-steel-600",
+};
+
+const paymentStatusLabels: Record<PaymentStatus, string> = {
+  paid: "Verified",
+  unverified: "Unverified",
+  pending: "Pending",
+  failed: "Failed",
+};
+
+const paymentBadgeClass: Record<PaymentStatus, string> = {
+  paid: "border-[#9ec5a4] bg-[#eef7ef] text-[#1f6b34]",
+  unverified: "border-[#e5cfa0] bg-[#fdf6e6] text-[#8a6215]",
+  pending: "border-steel-300 bg-steel-100 text-steel-600",
+  failed: "border-[#e5b3af] bg-[#fef3f2] text-[#8a1e15]",
 };
 
 export function RegistrationsDashboard({ email }: { email: string }) {
@@ -241,17 +255,19 @@ export function RegistrationsDashboard({ email }: { email: string }) {
                     <th>MUNs</th>
                     <th>Committee preferences</th>
                     <th><button type="button" onClick={() => toggleSort("countryPreference")} className="inline-flex items-center gap-1.5">Country {sortIcon("countryPreference")}</button></th>
+                    <th>Payment</th>
+                    <th><button type="button" onClick={() => toggleSort("feeAmount")} className="inline-flex items-center gap-1.5">Fee {sortIcon("feeAmount")}</button></th>
                     <th>Allocation</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={9} className="py-10 text-center text-[0.9rem] text-steel-400">Loading registrations…</td>
+                      <td colSpan={11} className="py-10 text-center text-[0.9rem] text-steel-400">Loading registrations…</td>
                     </tr>
                   ) : items.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="py-10 text-center text-[0.9rem] text-steel-400">
+                      <td colSpan={11} className="py-10 text-center text-[0.9rem] text-steel-400">
                         {grandTotal === 0
                           ? "No registrations yet."
                           : "No registrations match your filters."}
@@ -276,6 +292,17 @@ export function RegistrationsDashboard({ email }: { email: string }) {
                           </span>
                         </td>
                         <td className="text-steel-600">{r.countryPreference || "—"}</td>
+                        <td>
+                          <span className="inline-flex flex-col gap-1">
+                            <span className={`inline-flex w-fit rounded-[3px] border px-1.5 py-0.5 text-[0.72rem] font-semibold ${paymentBadgeClass[r.paymentStatus] ?? paymentBadgeClass.pending}`}>
+                              {paymentStatusLabels[r.paymentStatus] ?? r.paymentStatus}
+                            </span>
+                            <span className="font-mono text-[0.72rem] text-steel-500">
+                              {r.paymentUtr || r.paymentReference || "—"}
+                            </span>
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap text-steel-600">₹{r.feeAmount.toLocaleString("en-IN")}</td>
                         <td>
                           <span className="inline-flex flex-col gap-1">
                             <span className={`inline-flex w-fit rounded-[3px] border px-1.5 py-0.5 text-[0.72rem] font-semibold ${badgeClass[r.allocationStatus]}`}>
@@ -374,6 +401,13 @@ function RegistrationDetail({
         ["Committee preference 3", `${record.committeePref3} — ${committeeName(record.committeePref3)}`],
         ["Preferred country / portfolio", record.countryPreference || "—"],
         ["Special request", record.specialRequest || "—"],
+        ["Payment status", paymentStatusLabels[record.paymentStatus] ?? record.paymentStatus],
+        ["Payment reference", record.paymentReference || "—"],
+        ["Payment UTR", record.paymentUtr || "—"],
+        ["Payment order ID", record.paymentOrderId || "—"],
+        ["Payment payer", record.paymentPayer || "—"],
+        ["Paid at", record.paidAt ? new Date(record.paidAt).toLocaleString("en-IN") : "—"],
+        ["Expected fee", `₹${record.feeAmount.toLocaleString("en-IN")}`],
         ["Received at", new Date(record.createdAt).toLocaleString("en-IN")],
         ["Record ID", record.id],
       ]

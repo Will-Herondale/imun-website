@@ -23,8 +23,18 @@ export function filterRegistrations(
   let out = rows;
   if (q) {
     out = out.filter((r) =>
-      [r.fullName, r.email, r.schoolName, r.countryPreference, r.grade, r.contactNumber]
-        .some((v) => v.toLowerCase().includes(q))
+      [
+        r.fullName,
+        r.email,
+        r.schoolName,
+        r.countryPreference,
+        r.grade,
+        r.contactNumber,
+        r.paymentReference,
+        r.paymentUtr,
+        r.paymentOrderId,
+        r.paymentPayer,
+      ].some((v) => v.toLowerCase().includes(q))
     );
   }
   if (committee) {
@@ -80,6 +90,13 @@ export const EXPORT_HEADERS = [
   "Committee Preference 3",
   "Preferred Country",
   "Special Request",
+  "Payment Reference",
+  "Payment Status",
+  "Payment Order ID",
+  "Payment UTR",
+  "Payment Payer",
+  "Paid At",
+  "Expected Fee (INR)",
   "Status",
   "Allocation Status",
   "Allocated Committee",
@@ -105,6 +122,13 @@ export function recordToCsvRow(r: RegistrationRecord): Record<string, unknown>[]
       "Committee Preference 3": r.committeePref3,
       "Preferred Country": r.countryPreference,
       "Special Request": r.specialRequest,
+      "Payment Reference": r.paymentReference,
+      "Payment Status": r.paymentStatus,
+      "Payment Order ID": r.paymentOrderId,
+      "Payment UTR": r.paymentUtr,
+      "Payment Payer": r.paymentPayer,
+      "Paid At": r.paidAt,
+      "Expected Fee (INR)": r.feeAmount,
       Status: r.status,
       "Allocation Status": r.allocationStatus,
       "Allocated Committee": r.allocatedCommittee,

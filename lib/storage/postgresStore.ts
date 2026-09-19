@@ -18,11 +18,15 @@
  */
 import { neon } from "@neondatabase/serverless";
 import { createHash, randomUUID } from "node:crypto";
+import { feeAmountFor } from "@/lib/config/site";
 import {
   emptyAllocation,
+  emptyPayment,
   type AllocationFields,
   type AllocationStatus,
   type MunCount,
+  type PaymentFields,
+  type PaymentStatus,
   type RegistrationInput,
   type RegistrationRecord,
 } from "@/lib/validation/registration";
@@ -66,6 +70,7 @@ function rowToRecord(row: Row): RegistrationRecord {
     id: String(row.id ?? ""),
     createdAt: toIso(row.created_at),
     status: "submitted",
+    feeAmount: Number(row.fee_amount ?? 0),
     fullName: String(row.full_name ?? ""),
     email: String(row.email ?? ""),
     contactNumber: String(row.contact_number ?? ""),
@@ -78,6 +83,8 @@ function rowToRecord(row: Row): RegistrationRecord {
     committeePref3: String(row.committee_pref3 ?? ""),
     countryPreference: String(row.country_preference ?? ""),
     specialRequest: String(row.special_request ?? ""),
+    paymentOrderId: String(row.payment_order_id ?? ""),
+    paymentReference: String(row.payment_reference ?? ""),
     declarationAccurate: (row.declaration_accurate ?? "") as "Yes",
     declarationRules: (row.declaration_rules ?? "") as "Yes",
     allocationStatus: (row.allocation_status as AllocationStatus) ?? "pending",
@@ -85,6 +92,10 @@ function rowToRecord(row: Row): RegistrationRecord {
     allocatedPortfolio: String(row.allocated_portfolio ?? ""),
     allocationNotes: String(row.allocation_notes ?? ""),
     updatedAt: String(row.updated_at ?? ""),
+    paymentStatus: (row.payment_status as PaymentStatus) ?? "pending",
+    paymentUtr: String(row.payment_utr ?? ""),
+    paymentPayer: String(row.payment_payer ?? ""),
+    paidAt: toIso(row.paid_at),
   };
 }
 
@@ -96,6 +107,7 @@ async function runEnsure(): Promise<void> {
       email_key char(32) UNIQUE NOT NULL,
       email text NOT NULL,
       created_at timestamptz NOT NULL DEFAULT now(),
+      fee_amount integer NOT NULL DEFAULT 0,
       full_name text NOT NULL,
       contact_number text NOT NULL,
       school_name text NOT NULL,
@@ -107,6 +119,12 @@ async function runEnsure(): Promise<void> {
       committee_pref3 text NOT NULL,
       country_preference text NOT NULL DEFAULT '',
       special_request text NOT NULL DEFAULT '',
+      payment_order_id text NOT NULL DEFAULT '',
+      payment_reference text NOT NULL DEFAULT '',
+      payment_status text NOT NULL DEFAULT 'pending',
+      payment_utr text NOT NULL DEFAULT '',
+      payment_payer text NOT NULL DEFAULT '',
+      paid_at timestamptz,
       declaration_accurate text NOT NULL,
       declaration_rules text NOT NULL,
       allocation_status text NOT NULL DEFAULT 'pending',
@@ -116,9 +134,43 @@ async function runEnsure(): Promise<void> {
       updated_at text NOT NULL DEFAULT ''
     )
   `;
+  // Additive migration: CREATE TABLE IF NOT EXISTS will not add new columns to
+  // an existing table, so each later column is added explicitly here.
+  await sql`
+    ALTER TABLE registrations
+    ADD COLUMN IF NOT EXISTS payment_reference text NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE registrations
+    ADD COLUMN IF NOT EXISTS fee_amount integer NOT NULL DEFAULT 0
+  `;
+  await sql`
+    ALTER TABLE registrations
+    ADD COLUMN IF NOT EXISTS payment_order_id text NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE registrations
+    ADD COLUMN IF NOT EXISTS payment_status text NOT NULL DEFAULT 'pending'
+  `;
+  await sql`
+    ALTER TABLE registrations
+    ADD COLUMN IF NOT EXISTS payment_utr text NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE registrations
+    ADD COLUMN IF NOT EXISTS payment_payer text NOT NULL DEFAULT ''
+  `;
+  await sql`
+    ALTER TABLE registrations
+    ADD COLUMN IF NOT EXISTS paid_at timestamptz
+  `;
   await sql`
     CREATE INDEX IF NOT EXISTS registrations_created_at_idx
     ON registrations (created_at)
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS registrations_payment_order_id_key
+    ON registrations (payment_order_id) WHERE payment_order_id <> ''
   `;
 }
 
@@ -137,29 +189,37 @@ export const postgresStore: RegistrationStore = {
     await ensureSchema();
   },
 
-  async create(input: RegistrationInput): Promise<CreateResult> {
+  async create(input: RegistrationInput, payment?: PaymentFields): Promise<CreateResult> {
     await ensureSchema();
     const record: RegistrationRecord = {
-      ...input,
       ...emptyAllocation(),
+      ...emptyPayment(),
+      ...input,
+      ...payment,
       id: randomUUID(),
       createdAt: new Date().toISOString(),
       status: "submitted",
+      feeAmount: feeAmountFor(),
     };
 
     const rows = (await getSql()`
       INSERT INTO registrations (
-        id, email_key, email, created_at, full_name, contact_number, school_name,
+        id, email_key, email, created_at, fee_amount, full_name, contact_number, school_name,
         grade, mun_count, mun_history, committee_pref1, committee_pref2,
-        committee_pref3, country_preference, special_request, declaration_accurate,
+        committee_pref3, country_preference, special_request,
+        payment_order_id, payment_reference, payment_status, payment_utr, payment_payer, paid_at,
+        declaration_accurate,
         declaration_rules, allocation_status, allocated_committee,
         allocated_portfolio, allocation_notes, updated_at
       ) VALUES (
         ${record.id}, ${emailKey(record.email)}, ${record.email}, ${record.createdAt},
+        ${record.feeAmount},
         ${record.fullName}, ${record.contactNumber}, ${record.schoolName},
         ${record.grade}, ${record.munCount}, ${record.munHistory},
         ${record.committeePref1}, ${record.committeePref2}, ${record.committeePref3},
         ${record.countryPreference}, ${record.specialRequest},
+        ${record.paymentOrderId}, ${record.paymentReference}, ${record.paymentStatus},
+        ${record.paymentUtr}, ${record.paymentPayer}, ${record.paidAt || null},
         ${record.declarationAccurate}, ${record.declarationRules},
         ${record.allocationStatus}, ${record.allocatedCommittee},
         ${record.allocatedPortfolio}, ${record.allocationNotes}, ${record.updatedAt}
@@ -187,6 +247,15 @@ export const postgresStore: RegistrationStore = {
     await ensureSchema();
     const rows = (await getSql()`
       SELECT * FROM registrations WHERE email_key = ${emailKey(email)} LIMIT 1
+    `) as Row[];
+    return rows[0] ? rowToRecord(rows[0]) : null;
+  },
+
+  async findByPaymentOrderId(orderId: string): Promise<RegistrationRecord | null> {
+    if (!orderId) return null;
+    await ensureSchema();
+    const rows = (await getSql()`
+      SELECT * FROM registrations WHERE payment_order_id = ${orderId} LIMIT 1
     `) as Row[];
     return rows[0] ? rowToRecord(rows[0]) : null;
   },

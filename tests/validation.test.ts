@@ -22,6 +22,7 @@ function validPayload(overrides: Record<string, unknown> = {}) {
     committeePref3: "EU",
     countryPreference: "India",
     specialRequest: "Sibling seated in the same committee.",
+    paymentReference: "UTR123456789012",
     declarationAccurate: "Yes",
     declarationRules: "Yes",
     website: "",
@@ -77,6 +78,20 @@ describe("registrationSchema", () => {
   it("rejects unknown keys (strict schema)", () => {
     const out = registrationSchema.safeParse(validPayload({ admin: "root" }));
     expect(out.success).toBe(false);
+  });
+
+  it("rejects when no payment information is supplied", () => {
+    const out = registrationSchema.safeParse(
+      validPayload({ paymentReference: "", paymentOrderId: "" })
+    );
+    expect(out.success).toBe(false);
+  });
+
+  it("accepts an automated payment order id without a manual reference", () => {
+    const out = registrationSchema.safeParse(
+      validPayload({ paymentReference: "", paymentOrderId: "fg_abc123" })
+    );
+    expect(out.success).toBe(true);
   });
 });
 

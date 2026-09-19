@@ -5,22 +5,30 @@ import {
   overrideStoreForTests,
   type RegistrationStore,
 } from "@/lib/storage";
-import { emptyAllocation, type RegistrationInput } from "@/lib/validation/registration";
+import {
+  emptyAllocation,
+  emptyPayment,
+  type PaymentFields,
+  type RegistrationInput,
+} from "@/lib/validation/registration";
 
 function fakeStore(): RegistrationStore & { created: RegistrationInput[] } {
   const created: RegistrationInput[] = [];
   return {
     created,
     async ensure() {},
-    async create(input) {
+    async create(input, payment?: PaymentFields) {
       created.push(input);
       return {
         record: {
-          ...input,
           ...emptyAllocation(),
+          ...emptyPayment(),
+          ...input,
+          ...payment,
           id: "recd-123",
           createdAt: new Date().toISOString(),
           status: "submitted",
+          feeAmount: 1600,
         },
         duplicate: false,
       };
@@ -31,13 +39,18 @@ function fakeStore(): RegistrationStore & { created: RegistrationInput[] } {
     async findByEmail() {
       return null;
     },
+    async findByPaymentOrderId() {
+      return null;
+    },
     async list() {
       return created.map((c, i) => ({
-        ...c,
         ...emptyAllocation(),
+        ...emptyPayment(),
+        ...c,
         id: `recd-${i}`,
         createdAt: new Date().toISOString(),
         status: "submitted" as const,
+        feeAmount: 1600,
       }));
     },
     async count() {
@@ -62,6 +75,7 @@ const goodPayload = {
   committeePref3: "EU",
   countryPreference: "India",
   specialRequest: "",
+  paymentReference: "UTR123456789012",
   declarationAccurate: "Yes",
   declarationRules: "Yes",
   website: "",
@@ -120,6 +134,17 @@ describe("POST /api/registrations", () => {
     const data = (await res.json()) as { fields?: Record<string, string> };
     expect(data.fields?.email).toBeDefined();
     expect(data.fields?.declarationRules).toBeDefined();
+  });
+
+  it("rejects an automated payment order id when payments are unconfigured (503)", async () => {
+    const res = await post({
+      ...goodPayload,
+      paymentReference: "",
+      paymentOrderId: "fg_test_order",
+    });
+    expect(res.status).toBe(503);
+    const data = (await res.json()) as { code: string };
+    expect(data.code).toBe("PAYMENTS_UNAVAILABLE");
   });
 
   it("rejects oversized bodies (413)", async () => {

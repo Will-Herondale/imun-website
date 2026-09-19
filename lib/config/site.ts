@@ -58,10 +58,10 @@ export const site = {
    * the Registration and Conference pages.
    */
   registrationRounds: [
-    { label: "Round 1", amount: 1600, window: "Until 28 September 2026" },
-    { label: "Round 2", amount: 2200, window: "29 September – 5 October 2026" },
-    { label: "Round 3", amount: 3000, window: "6 – 10 October 2026" },
-    { label: "On-spot", amount: 3500, window: "At the venue, subject to seats" },
+    { label: "Round 1", amount: 1600, window: "Until 28 September 2026", from: "2026-01-01", to: "2026-09-28" },
+    { label: "Round 2", amount: 2200, window: "29 September – 5 October 2026", from: "2026-09-29", to: "2026-10-05" },
+    { label: "Round 3", amount: 3000, window: "6 – 10 October 2026", from: "2026-10-06", to: "2026-10-10" },
+    { label: "On-spot", amount: 3500, window: "At the venue, subject to seats", from: "2026-10-11", to: "" },
   ],
 
   /**
@@ -71,7 +71,14 @@ export const site = {
   payment: {
     provider: "Fam",
     walletId: "nathan.hamilton@fam",
-    note: "Send the delegate fee to the wallet ID below on the Fam app, then keep the payment reference for confirmation.",
+    note: "Pay the delegate fee securely from any UPI app (Google Pay, PhonePe, Paytm, Fam or any other) at checkout — your seat is confirmed the moment the payment is verified. You can also pay to the wallet ID below and record the transaction ID / UTR for manual confirmation.",
+    /**
+     * Shown on the registration form while the secure checkout is not yet
+     * connected (FAMGATEWAY_API_KEY unset). It disappears automatically once the
+     * key is configured — no code change or redeploy needed.
+     */
+    setupNotice:
+      "Our secure UPI checkout is being set up and will be live by 5:30 PM (IST) today. You can register right now by paying the delegate fee from any UPI app to the wallet ID below and entering your transaction ID / UTR.",
   },
 
   /**
@@ -128,6 +135,23 @@ export const site = {
   /** Committees offered at this session. Reorder = reorder dropdowns. */
   committeesInRoster: true,
 };
+
+/**
+ * The registration round in effect for a given moment. Dates are evaluated in
+ * India Standard Time (Asia/Kolkata) so the round flips at local midnight.
+ */
+export function registrationRoundFor(date: Date = new Date()) {
+  const day = date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  return (
+    site.registrationRounds.find((r) => r.from <= day && (!r.to || day <= r.to)) ??
+    site.registrationRounds[0]
+  );
+}
+
+/** The delegate fee (INR) that applies right now — stored with each record. */
+export function feeAmountFor(date: Date = new Date()): number {
+  return registrationRoundFor(date).amount;
+}
 
 /** Convenience: true when an edition placeholder has been confirmed. */
 export const hasConfirmedEdition = Boolean(site.edition);

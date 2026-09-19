@@ -1,10 +1,14 @@
 import type { NextRequest } from "next/server";
 import {
+  emptyPayment,
   MAX_BODY_BYTES,
   registrationSchema,
   sanitizePayload,
+  type PaymentFields,
 } from "@/lib/validation/registration";
 import { activeStore } from "@/lib/storage";
+import { feeAmountFor } from "@/lib/config/site";
+import { famgatewayConfigured, verifyPaymentOrder } from "@/lib/payments/famgateway";
 import { isRegistrationOpen } from "@/lib/registration-control";
 import { checkRateLimit, LIMITS } from "@/lib/security/rateLimit";
 import { clientIpFrom } from "@/lib/utils/request";
@@ -75,13 +79,68 @@ export async function POST(request: NextRequest) {
     return jsonOk({ accepted: true, id: "IGNORED" }, { status: 201 });
   }
 
+  /**
+   * Resolve payment BEFORE persisting. When a FamGateway order id is present it
+   * is re-verified server-to-server (never trusted from the browser) and the
+   * credited amount must match this round's fee exactly. A manual UTR is stored
+   * as "unverified" for the secretariat to reconcile by hand.
+   */
+  let payment: PaymentFields;
+  if (data.paymentOrderId) {
+    if (!famgatewayConfigured()) {
+      return jsonError("Automated payment is temporarily unavailable. Please try again shortly.", 503, {
+        code: "PAYMENTS_UNAVAILABLE",
+      });
+    }
+    const verified = await verifyPaymentOrder(data.paymentOrderId);
+    if (!verified) {
+      return jsonError("We could not confirm that payment. Please retry in a moment.", 502, {
+        code: "PAYMENT_VERIFY_FAILED",
+      });
+    }
+    if (verified.status !== "success") {
+      return jsonError("Your payment has not been confirmed yet. Complete the payment, then submit again.", 402, {
+        code: "PAYMENT_PENDING",
+      });
+    }
+    const expected = feeAmountFor();
+    if (verified.amount !== expected) {
+      return jsonError(
+        `We received ₹${verified.amount || 0} but the fee for this round is ₹${expected}. Please contact the secretariat.`,
+        422,
+        { code: "PAYMENT_AMOUNT_MISMATCH", fields: { paymentReference: "Payment amount does not match the delegate fee." } }
+      );
+    }
+    const alreadyUsed = await activeStore().findByPaymentOrderId(data.paymentOrderId);
+    if (alreadyUsed) {
+      return jsonError("This payment has already been used for another registration.", 409, {
+        code: "PAYMENT_ALREADY_USED",
+      });
+    }
+    payment = {
+      paymentStatus: "paid",
+      paymentOrderId: data.paymentOrderId,
+      paymentUtr: verified.utr,
+      paymentPayer: verified.payerName,
+      paidAt: new Date().toISOString(),
+    };
+  } else {
+    payment = { ...emptyPayment(), paymentStatus: "unverified" };
+  }
+
   try {
-    const result = await activeStore().create(data);
+    const result = await activeStore().create(data, payment);
     log.info(`registration ${result.duplicate ? "duplicate (did not persist)" : "persisted"}`, {
       id: result.record.id,
+      paymentStatus: result.record.paymentStatus,
     });
     return jsonOk(
-      { accepted: true, duplicate: result.duplicate, id: result.record.id },
+      {
+        accepted: true,
+        duplicate: result.duplicate,
+        id: result.record.id,
+        paymentStatus: result.record.paymentStatus,
+      },
       { status: 201 }
     );
   } catch (err) {

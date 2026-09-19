@@ -68,4 +68,6 @@ export const LIMITS = {
   login: { limit: 8, windowMs: 15 * 60 * 1000 },
   /** Login attempts against a single admin account. */
   account: { limit: 8, windowMs: 15 * 60 * 1000 },
+  /** Payment order creation + status polling, per IP per 10 minutes. */
+  payments: { limit: 30, windowMs: 10 * 60 * 1000 },
 } as const;

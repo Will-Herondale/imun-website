@@ -40,8 +40,8 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "How do I pay the delegate fee?",
     answer:
-      `Payment is made on the ${site.payment.provider} app to the wallet ID ${site.payment.walletId}. ` +
-      `Keep the payment reference after you pay — the secretariat reconciles every payment against a registration and confirms your seat. ` +
+      `Payment is made from any UPI app (Google Pay, PhonePe, Paytm, ${site.payment.provider} or any other) to the wallet ID ${site.payment.walletId}. ` +
+      `Keep the payment reference (transaction ID / UTR) after you pay — the secretariat reconciles every payment against a registration and confirms your seat. ` +
       `Submission of the registration form does not by itself confirm a seat until the fee is received.`,
   },
   {

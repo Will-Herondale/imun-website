@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { isRegistrationOpen, registrationStatus } from "@/lib/registration-control";
 import { site, tba, dateAndVenueLine } from "@/lib/config/site";
 import { committees } from "@/lib/config/committees";
+import { famgatewayConfigured } from "@/lib/payments/famgateway";
 import { siteUrl } from "@/app/layout";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function RegistrationPage() {
   const open = isRegistrationOpen();
   const reg = registrationStatus();
+  const paymentsLive = famgatewayConfigured();
   const feeRounds = site.registrationRounds;
   const feeMin = Math.min(...feeRounds.map((r) => r.amount));
   const feeMax = Math.max(...feeRounds.map((r) => r.amount));
@@ -90,7 +92,7 @@ export default function RegistrationPage() {
           <div className="order-1 col-span-12 lg:order-2 lg:col-span-8">
             {open ? (
               <Reveal>
-                <RegistrationForm />
+                <RegistrationForm paymentsLive={paymentsLive} />
               </Reveal>
             ) : (
               <Reveal>
@@ -159,11 +161,13 @@ export default function RegistrationPage() {
             <Reveal delay={80}>
               <div className="mt-6 border border-brass-500/30 bg-brass-50/60 p-6">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">How to pay</p>
-                <p className="mt-3 text-[0.95rem] leading-relaxed text-steel-600">{site.payment.note}</p>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-steel-600">
+                  {paymentsLive ? site.payment.note : site.payment.setupNotice}
+                </p>
                 <dl className="mt-5 flex flex-wrap items-baseline gap-x-10 gap-y-3">
                   <div>
-                    <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">App</dt>
-                    <dd className="mt-1.5 font-semibold text-navy-900">{site.payment.provider}</dd>
+                    <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Pay from</dt>
+                    <dd className="mt-1.5 font-semibold text-navy-900">Any UPI app</dd>
                   </div>
                   <div>
                     <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Wallet ID</dt>

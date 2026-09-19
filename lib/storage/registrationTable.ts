@@ -22,11 +22,15 @@ import {
 } from "@azure/data-tables";
 import { DefaultAzureCredential } from "@azure/identity";
 import { createHash, randomUUID } from "node:crypto";
+import { feeAmountFor } from "@/lib/config/site";
 import {
   emptyAllocation,
+  emptyPayment,
   type AllocationFields,
   type AllocationStatus,
   type MunCount,
+  type PaymentFields,
+  type PaymentStatus,
   type RegistrationInput,
   type RegistrationRecord,
 } from "@/lib/validation/registration";
@@ -43,9 +47,11 @@ export type CreateResult = {
 /** Small abstraction so route handlers and tests share one surface. */
 export interface RegistrationStore {
   ensure(): Promise<void>;
-  create(input: RegistrationInput): Promise<CreateResult>;
+  create(input: RegistrationInput, payment?: PaymentFields): Promise<CreateResult>;
   findById(id: string): Promise<RegistrationRecord | null>;
   findByEmail(email: string): Promise<RegistrationRecord | null>;
+  /** Looks up the record bound to an automated payment order id. */
+  findByPaymentOrderId(orderId: string): Promise<RegistrationRecord | null>;
   list(): Promise<RegistrationRecord[]>;
   count(): Promise<number>;
   /** Merges an allocation edit into an existing record; null when not found. */
@@ -94,6 +100,7 @@ function entityToRecord(entity: Record<string, unknown>): RegistrationRecord {
     id: String(row.id ?? ""),
     createdAt: String(row.createdAt ?? ""),
     status: "submitted",
+    feeAmount: Number(row.feeAmount ?? 0),
     fullName: String(row.fullName ?? ""),
     email: String(row.email ?? ""),
     contactNumber: String(row.contactNumber ?? ""),
@@ -106,6 +113,8 @@ function entityToRecord(entity: Record<string, unknown>): RegistrationRecord {
     committeePref3: String(row.committeePref3 ?? ""),
     countryPreference: String(row.countryPreference ?? ""),
     specialRequest: String(row.specialRequest ?? ""),
+    paymentOrderId: String(row.paymentOrderId ?? ""),
+    paymentReference: String(row.paymentReference ?? ""),
     declarationAccurate: (row.declarationAccurate ?? "") as "Yes",
     declarationRules: (row.declarationRules ?? "") as "Yes",
     allocationStatus: (row.allocationStatus as AllocationStatus) ?? "pending",
@@ -113,6 +122,10 @@ function entityToRecord(entity: Record<string, unknown>): RegistrationRecord {
     allocatedPortfolio: String(row.allocatedPortfolio ?? ""),
     allocationNotes: String(row.allocationNotes ?? ""),
     updatedAt: String(row.updatedAt ?? ""),
+    paymentStatus: (row.paymentStatus as PaymentStatus) ?? "pending",
+    paymentUtr: String(row.paymentUtr ?? ""),
+    paymentPayer: String(row.paymentPayer ?? ""),
+    paidAt: String(row.paidAt ?? ""),
   };
 }
 
@@ -133,15 +146,18 @@ export const registrationStore: RegistrationStore = {
     });
   },
 
-  async create(input) {
+  async create(input, payment) {
     await this.ensure();
     const id = randomUUID();
     const record: RegistrationRecord = {
-      ...input,
       ...emptyAllocation(),
+      ...emptyPayment(),
+      ...input,
+      ...payment,
       id,
       createdAt: new Date().toISOString(),
       status: "submitted",
+      feeAmount: feeAmountFor(),
     };
     try {
       await getTableClient().createEntity(entityFor(record));
@@ -174,6 +190,12 @@ export const registrationStore: RegistrationStore = {
     } catch {
       return null;
     }
+  },
+
+  async findByPaymentOrderId(orderId) {
+    if (!orderId) return null;
+    const rows = await this.list();
+    return rows.find((r) => r.paymentOrderId === orderId) ?? null;
   },
 
   async list() {
