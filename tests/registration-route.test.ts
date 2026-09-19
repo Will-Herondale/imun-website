@@ -4,7 +4,7 @@ import { POST } from "@/app/api/registrations/route";
 import {
   overrideStoreForTests,
   type RegistrationStore,
-} from "@/lib/storage/registrationTable";
+} from "@/lib/storage";
 import { emptyAllocation, type RegistrationInput } from "@/lib/validation/registration";
 
 function fakeStore(): RegistrationStore & { created: RegistrationInput[] } {

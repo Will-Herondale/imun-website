@@ -74,7 +74,13 @@ POLICY AND LEGAL
 - Delegate handbook link
 
 PRODUCTION
-- Final domain name: CONFIRMED imun.in
+- Final domain name: RECOMMENDED indianmun.in (AVAILABLE; imun.in still owned but its
+  Azure DNS is down). Alternates available: imun.org.in, imun.co.in, imunindia.in, iemun.in
+- Buy the domain at: Porkbun (prices in USD, carries .in/.co.in/.org.in) or GoDaddy
+  (INR billing; already holds imun.in). .in needs verifiable registrant name + address.
+- Hosting: MOVED to Netlify (free) + Neon Postgres (free). Azure subscription is
+  disabled (spending limit); old resources in iemun-rg are untouched but unreachable.
 - Admin login email: SET to organisers@imun.in (tell us if you want it changed)
 - Admin password: SET (handed over separately)
-- Azure region: DEPLOYED to centralindia (resource group iemun-rg)
+- Netlify env vars required: NETLIFY_DATABASE_URL, ADMIN_EMAIL, ADMIN_PASSWORD,
+  ADMIN_SESSION_SECRET (32+ chars), NEXT_PUBLIC_SITE_URL, REGISTRATION_OPEN

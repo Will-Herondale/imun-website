@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { Reveal } from "@/components/Reveal";
+import { SectionHeading } from "@/components/SectionHeading";
 import { isRegistrationOpen, registrationStatus } from "@/lib/registration-control";
 import { site, tba, dateAndVenueLine } from "@/lib/config/site";
 import { committees } from "@/lib/config/committees";
@@ -17,6 +18,11 @@ export const metadata: Metadata = {
 export default function RegistrationPage() {
   const open = isRegistrationOpen();
   const reg = registrationStatus();
+  const feeRounds = site.registrationRounds;
+  const feeMin = Math.min(...feeRounds.map((r) => r.amount));
+  const feeMax = Math.max(...feeRounds.map((r) => r.amount));
+  const inr = (amount: number) => `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
+  const feeRange = `${inr(feeMin)} – ${inr(feeMax)}`;
 
   return (
     <>
@@ -51,20 +57,16 @@ export default function RegistrationPage() {
                     </div>
                     <div className="flex items-baseline justify-between gap-4">
                       <dt className="text-steel-500">Delegate fee</dt>
-                      <dd className="font-semibold text-navy-900">
-                        {site.registrationFee.amount
-                          ? `${site.registrationFee.currency} ${site.registrationFee.amount}`
-                          : "To be announced"}
-                      </dd>
+                      <dd className="font-semibold text-navy-900">{feeRange}</dd>
                     </div>
                     <div className="flex items-baseline justify-between gap-4">
                       <dt className="text-steel-500">Committees</dt>
-                      <dd className="text-right text-navy-900">{committees.length} on the draft roster</dd>
+                      <dd className="text-right text-navy-900">{committees.length} on the roster</dd>
                     </div>
                   </dl>
                   <p className="mt-5 border-t border-steel-200 pt-4 text-[0.82rem] leading-relaxed text-steel-500">
                     {dateAndVenueLine()}. Submissions are recorded in the organiser&apos;s
-                    secure Azure-backed store and seen only by the secretariat.
+                    secure, access-controlled store and seen only by the secretariat.
                   </p>
                 </div>
               </Reveal>
@@ -115,6 +117,61 @@ export default function RegistrationPage() {
                 </div>
               </Reveal>
             )}
+          </div>
+        </div>
+      </section>
+
+      <section className="section-tight border-t border-steel-100 bg-steel-50/60">
+        <div className="container-site grid grid-cols-12 gap-10">
+          <div className="col-span-12 lg:col-span-5">
+            <SectionHeading
+              kicker="Fees and payment"
+              title="Delegate fee by registration round"
+              intro="Fees are charged per delegate and rise as the session approaches. Registering in an earlier round secures the lower fee."
+            />
+          </div>
+          <div className="col-span-12 lg:col-span-6 lg:col-start-7">
+            <Reveal>
+              <div className="overflow-hidden border border-steel-200 bg-white shadow-[var(--shadow-card)]">
+                <table className="w-full text-left text-[0.95rem]">
+                  <thead>
+                    <tr className="border-b border-steel-200 bg-steel-50/70">
+                      <th className="px-5 py-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Round</th>
+                      <th className="px-5 py-3.5 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Window</th>
+                      <th className="px-5 py-3.5 text-right text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Fee</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {feeRounds.map((r) => (
+                      <tr key={r.label} className="border-b border-steel-100 last:border-0">
+                        <td className="px-5 py-4 font-semibold text-navy-900">{r.label}</td>
+                        <td className="px-5 py-4 text-steel-600">{r.window}</td>
+                        <td className="px-5 py-4 text-right font-display text-[1.05rem] font-medium text-navy-900">
+                          {inr(r.amount)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Reveal>
+
+            <Reveal delay={80}>
+              <div className="mt-6 border border-brass-500/30 bg-brass-50/60 p-6">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">How to pay</p>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-steel-600">{site.payment.note}</p>
+                <dl className="mt-5 flex flex-wrap items-baseline gap-x-10 gap-y-3">
+                  <div>
+                    <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">App</dt>
+                    <dd className="mt-1.5 font-semibold text-navy-900">{site.payment.provider}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Wallet ID</dt>
+                    <dd className="mt-1.5 font-mono text-[0.95rem] font-semibold text-navy-900">{site.payment.walletId}</dd>
+                  </div>
+                </dl>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>

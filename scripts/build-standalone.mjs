@@ -30,6 +30,7 @@ async function main() {
     cwd: root,
     stdio: "inherit",
     shell: process.platform === "win32",
+    env: { ...process.env, BUILD_STANDALONE: "true" },
   });
   if (build.status !== 0) {
     console.error("build failed");

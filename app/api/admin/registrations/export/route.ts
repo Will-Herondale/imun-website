@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { readAdminSession, jsonError } from "@/lib/api";
-import { activeStore } from "@/lib/storage/registrationTable";
+import { activeStore } from "@/lib/storage";
 import {
   EXPORT_HEADERS,
   filterRegistrations,

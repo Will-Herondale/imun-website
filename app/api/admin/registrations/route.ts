@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { readAdminSession, jsonError, jsonOk } from "@/lib/api";
-import { activeStore } from "@/lib/storage/registrationTable";
+import { activeStore } from "@/lib/storage";
 import { filterRegistrations, paginate, type AdminQuery } from "@/lib/admin-filter";
 import { log } from "@/lib/log";
 

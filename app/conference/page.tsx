@@ -15,10 +15,15 @@ export const metadata: Metadata = {
 
 export default function ConferencePage() {
   const reg = registrationStatus();
+  const feeRounds = site.registrationRounds;
+  const inr = (amount: number) => `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
+  const feeRange = `${inr(Math.min(...feeRounds.map((r) => r.amount)))} – ${inr(Math.max(...feeRounds.map((r) => r.amount)))}`;
+
   const confirmed = [
     { label: "Committees", value: "Four — DISEC, UNHRC, EU and the Joint Crisis Committee" },
     { label: "Duration", value: `${site.days} days` },
     { label: "Expected delegates", value: `${site.expectedDelegates} delegates` },
+    { label: "Delegate fee", value: `${feeRange} by registration round` },
     { label: "Participation", value: "School and college students across India" },
     { label: "Conduct", value: "Formal dress code, formal debate, English language" },
   ];
@@ -27,7 +32,6 @@ export default function ConferencePage() {
     { label: "Dates", value: tba(site.date) },
     { label: "Venue", value: [site.venue.name, site.venue.city].filter(Boolean).join(", ") || tba("") },
     { label: "Edition", value: tba(site.edition) },
-    { label: "Delegate fee", value: site.registrationFee.amount ? `${site.registrationFee.currency} ${site.registrationFee.amount}` : "To be announced" },
     { label: "Session theme", value: tba(site.theme) },
   ];
 
@@ -122,9 +126,8 @@ export default function ConferencePage() {
                 ))}
               </dl>
               <p className="mt-6 text-[0.85rem] leading-relaxed text-steel-400">
-                These fields are placeholders held in a single site configuration
-                file; they are replaced by the secretariat before the site is
-                announced.
+                These details are confirmed with the secretariat and published
+                here as soon as they are finalised.
               </p>
             </div>
           </Reveal>

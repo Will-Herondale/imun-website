@@ -1,5 +1,5 @@
 import { readAdminSession, jsonError, jsonOk } from "@/lib/api";
-import { activeStore } from "@/lib/storage/registrationTable";
+import { activeStore } from "@/lib/storage";
 import { buildAllocationSummary } from "@/lib/allocations";
 import { log } from "@/lib/log";
 

@@ -1,9 +1,15 @@
 /** Frequently asked questions. Add/remove entries as needed. */
+import { site } from "@/lib/config/site";
 
 export type FaqEntry = {
   question: string;
   answer: string;
 };
+
+const inr = (amount: number) =>
+  `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
+
+const [round1, round2, round3, onSpot] = site.registrationRounds;
 
 export const faqEntries: FaqEntry[] = [
   {
@@ -24,7 +30,19 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "What is the registration fee, and what does it cover?",
     answer:
-      "The delegate fee, if any, will be confirmed with the official conference announcement. Fees, where applicable, generally cover committee sessions, conference materials and certificates. The exact breakdown will be published before registration opens.",
+      `The delegate fee is the same for every committee and is charged by registration round. ` +
+      `${round1.label} is ${inr(round1.amount)} (${round1.window}), ` +
+      `${round2.label} is ${inr(round2.amount)} (${round2.window}), ` +
+      `${round3.label} is ${inr(round3.amount)} (${round3.window}), and ` +
+      `on-spot registration is ${inr(onSpot.amount)} subject to seats. ` +
+      `The fee covers committee sessions, conference materials and your certificate.`,
+  },
+  {
+    question: "How do I pay the delegate fee?",
+    answer:
+      `Payment is made on the ${site.payment.provider} app to the wallet ID ${site.payment.walletId}. ` +
+      `Keep the payment reference after you pay — the secretariat reconciles every payment against a registration and confirms your seat. ` +
+      `Submission of the registration form does not by itself confirm a seat until the fee is received.`,
   },
   {
     question: "What is the dress code?",
@@ -44,6 +62,7 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "When does registration close?",
     answer:
-      "The registration deadline will be announced alongside the confirmed conference schedule. Where the form is open, early registration is recommended as committee seats are limited.",
+      `Registration runs through the session dates (${site.date}). On-spot registration is available at the venue subject to seats, at the highest fee tier. ` +
+      `Earlier rounds carry a lower fee and committee seats are limited, so registering early is recommended.`,
   },
 ];

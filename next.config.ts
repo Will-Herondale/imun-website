@@ -18,8 +18,13 @@ const securityHeaders = () => {
   return headers;
 };
 
+// `output: "standalone"` is only needed for the self-hosted Azure App Service
+// artifact (npm run build:standalone). Netlify's Next.js runtime expects the
+// default build output, so opt in via BUILD_STANDALONE instead of always on.
 const nextConfig: NextConfig = {
-  output: "standalone",
+  ...(process.env.BUILD_STANDALONE === "true"
+    ? { output: "standalone" as const }
+    : {}),
   reactStrictMode: true,
   poweredByHeader: false,
   images: { unoptimized: true },

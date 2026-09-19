@@ -7,6 +7,7 @@ import {
   type RegistrationInput,
 } from "@/lib/validation/registration";
 import { committees } from "@/lib/config/committees";
+import { site } from "@/lib/config/site";
 
 type Values = {
   fullName: string;
@@ -210,8 +211,18 @@ export function RegistrationForm() {
             ? "Our records show that a registration already exists for this email address. If you did not submit it, or need to correct anything, write to the secretariat using the contact details on the Contact page."
             : "Your details have been recorded. The secretariat will contact you at the email address you provided once committee allotments are prepared. Please keep the same email address active."}
         </p>
-        <div className="mt-8 border-t border-steel-200 pt-6 text-[0.85rem] text-steel-500">
-          Reference guidance: expect the confirmation within a few working days of the announcement of allotments.
+        <div className="mt-8 border border-brass-500/30 bg-brass-50/60 p-6">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">Next step — fee payment</p>
+          <p className="mt-3 max-w-xl text-[0.92rem] leading-relaxed text-steel-600">
+            Send the delegate fee on the {site.payment.provider} app to the wallet ID{" "}
+            <span className="font-mono font-semibold text-navy-900">{site.payment.walletId}</span>{" "}
+            and keep the payment reference. Your seat is confirmed once the
+            secretariat receives the fee.
+          </p>
+        </div>
+        <div className="mt-6 border-t border-steel-200 pt-6 text-[0.85rem] text-steel-500">
+          The secretariat will contact you at the email address you provided once
+          committee allotments are prepared.
         </div>
       </section>
     );

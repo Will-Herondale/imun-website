@@ -43,14 +43,35 @@ export const site = {
   },
 
   /**
-   * Registration fee, if charged.
-   * Leave `amount` empty (`null`) when no fee has been confirmed.
-   * « PLACEHOLDER » — confirm with the secretariat.
+   * Delegate registration fee. Fees rise by registration round, so `amount`
+   * holds the lowest (Round 1) tier used for the headline figure and the
+   * structured-data offer. The full schedule lives in `registrationRounds`.
    */
   registrationFee: {
-    amount: null as number | null,
+    amount: 1600,
     currency: "INR",
     note: "",
+  },
+
+  /**
+   * Registration rounds and their per-delegate fee. Editing this list updates
+   * the Registration and Conference pages.
+   */
+  registrationRounds: [
+    { label: "Round 1", amount: 1600, window: "Until 28 September 2026" },
+    { label: "Round 2", amount: 2200, window: "29 September – 5 October 2026" },
+    { label: "Round 3", amount: 3000, window: "6 – 10 October 2026" },
+    { label: "On-spot", amount: 3500, window: "At the venue, subject to seats" },
+  ],
+
+  /**
+   * How the delegate fee is collected. Confirmations are issued against the
+   * payment reference once the secretariat reconciles the wallet.
+   */
+  payment: {
+    provider: "Fam",
+    walletId: "nathan.hamilton@fam",
+    note: "Send the delegate fee to the wallet ID below on the Fam app, then keep the payment reference for confirmation.",
   },
 
   /**
@@ -95,14 +116,14 @@ export const site = {
    *   - the API rejects every submission with 409,
    *   - the site header shows a "Registration closed" marker.
    *
-   * NOTE: the environment variable REGISTRATION_OPEN (e.g. set in Azure App
-   * Service) overrides this value if present — the envelope wins, so you can
-   * flip registration in production without redeploying.
+   * NOTE: the environment variable REGISTRATION_OPEN (set in the hosting
+   * environment) overrides this value if present — the environment wins, so
+   * you can flip registration in production without redeploying.
    */
   registrationOpen: true,
 
   /** Human-readable label for the current registration period. */
-  registrationLabel: "",
+  registrationLabel: "Registration open — Round 1 (INR 1,600 until 28 September)",
 
   /** Committees offered at this session. Reorder = reorder dropdowns. */
   committeesInRoster: true,

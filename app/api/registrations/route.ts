@@ -4,7 +4,7 @@ import {
   registrationSchema,
   sanitizePayload,
 } from "@/lib/validation/registration";
-import { activeStore } from "@/lib/storage/registrationTable";
+import { activeStore } from "@/lib/storage";
 import { isRegistrationOpen } from "@/lib/registration-control";
 import { checkRateLimit, LIMITS } from "@/lib/security/rateLimit";
 import { clientIpFrom } from "@/lib/utils/request";

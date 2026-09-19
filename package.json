@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:netlify": "next build --webpack",
     "start": "next start",
     "start:standalone": "node .next/standalone/server.js",
     "lint": "eslint .",
@@ -25,12 +26,14 @@
   "dependencies": {
     "@azure/data-tables": "latest",
     "@azure/identity": "latest",
+    "@neondatabase/serverless": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
     "zod": "latest"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "latest",
     "@playwright/test": "latest",
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",

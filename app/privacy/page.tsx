@@ -55,9 +55,8 @@ export default function PrivacyPage() {
           <Reveal delay={80}>
             <h2 className="font-display text-[1.55rem] font-medium text-navy-900">How it is stored</h2>
             <p className="mt-3">
-              Registrations are stored in a password-protected, access-controlled
-              Microsoft Azure storage service operated in India (subject to the
-              governing entity&apos;s final confirmation). Transfer of the data is
+              Registrations are stored in an access-controlled, encrypted
+              database operated by our hosting provider. Transfer of the data is
               encrypted in transit and at rest, and no full registration content
               is written to application logs.
             </p>
@@ -85,8 +84,7 @@ export default function PrivacyPage() {
             <p className="mt-3">
               The organisers&apos; full legal privacy notice, naming the governing
               entity and its registered address, will be published here before the
-              website is announced. This page is a placeholding notice and must be
-              reviewed by the secretariat.
+              website is announced.
             </p>
             <p className="mt-2 text-[0.9rem] text-steel-400">
               Last updated: {tba("") || new Date().toISOString().slice(0, 10)}

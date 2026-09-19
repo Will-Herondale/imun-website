@@ -36,3 +36,11 @@ next-env.d.ts
 # azure publishing
 /.deployment/
 /deploy-artifact/
+# Local Netlify folder
+.netlify
+
+# local Neon CLI link state
+.neon
+
+# Netlify edge bundler lockfile (generated)
+deno.lock
