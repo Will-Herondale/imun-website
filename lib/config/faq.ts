@@ -40,9 +40,11 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "How do I pay the delegate fee?",
     answer:
-      `Payment is made from any UPI app (Google Pay, PhonePe, Paytm, ${site.payment.provider} or any other) to the wallet ID ${site.payment.walletId}. ` +
-      `Keep the payment reference (transaction ID / UTR) after you pay — the secretariat reconciles every payment against a registration and confirms your seat. ` +
-      `Submission of the registration form does not by itself confirm a seat until the fee is received.`,
+      `The fee is paid at checkout when you submit the registration form: you are taken to a secure UPI payment page and can pay ₹` +
+      `${site.registrationFee.amount.toLocaleString("en-IN")} (or the current round's fee) from any UPI app — Google Pay, PhonePe, Paytm, ${site.payment.provider} or any other. ` +
+      `Your seat is confirmed the moment the payment is verified, and you are returned to the form automatically. ` +
+      `If you prefer to pay another way, you can send the fee to the wallet ID ${site.payment.walletId} from any UPI app and enter the transaction ID / UTR on the form for the secretariat to reconcile manually. ` +
+      `A submission does not by itself confirm a seat until the fee is received.`,
   },
   {
     question: "What is the dress code?",
