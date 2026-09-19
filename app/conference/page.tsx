@@ -6,6 +6,8 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { site, tba, dateAndVenueLine } from "@/lib/config/site";
 import { registrationStatus } from "@/lib/registration-control";
 import { siteUrl } from "@/app/layout";
+import { eventSchema } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "Conference",
@@ -35,31 +37,11 @@ export default function ConferencePage() {
     { label: "Session theme", value: tba(site.theme) },
   ];
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: `${site.name} — ${site.fullName}`,
-    description: site.descriptor,
-    startDate: site.date || undefined,
-    location: {
-      "@type": "Place",
-      name: site.venue.name || "Venue to be announced",
-      address: { addressLocality: site.venue.city || undefined },
-    },
-    eventStatus: "https://schema.org/EventScheduled",
-    offers: site.registrationFee.amount
-      ? [{ "@type": "Offer", price: String(site.registrationFee.amount), priceCurrency: site.registrationFee.currency }]
-      : undefined,
-  };
-
   return (
     <>
       <PageMasthead section="Conference" title="The conference record" lede={`Everything that frames the session — how it is run, how you participate and what the record currently confirms.`} />
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={eventSchema()} />
 
       <section className="section">
         <div className="container-site grid grid-cols-12 gap-10">

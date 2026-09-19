@@ -1,9 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { site, dateAndVenueLine } from "@/lib/config/site";
+import { siteUrl } from "@/lib/seo/site-url";
+import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/JsonLd";
+
+// Re-exported for pages that build canonical URLs from this module.
+export { siteUrl };
 
 // Nonce-based CSP (see proxy.ts) requires dynamic rendering: Next can only
 // attach the per-request nonce to its inline scripts during server-side
@@ -24,23 +30,31 @@ const display = Newsreader({
   style: ["normal", "italic"],
 });
 
-export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.iemun.example").replace(/\/$/, "");
-
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${site.name} — Indian MUN`,
+    default: `IMUN — Indian Model United Nations`,
     template: `%s · ${site.name} — Indian MUN`,
   },
   description: site.descriptor,
+  applicationName: `${site.name} — ${site.fullName}`,
   keywords: [
     "IMUN",
     "Indian MUN",
+    "Indian Model United Nations",
     "Model United Nations",
+    "Model UN India",
     "MUN conference India",
-    "student conference",
+    "MUN 2026 India",
+    "student conference India",
     "debate India",
+    "DISEC",
+    "UNHRC",
   ],
+  authors: [{ name: `${site.name} Secretariat` }],
+  creator: `${site.name} — ${site.fullName}`,
+  publisher: `${site.name} — ${site.fullName}`,
+  category: "education",
   openGraph: {
     type: "website",
     siteName: `${site.name} — ${site.fullName}`,
@@ -49,11 +63,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} — Indian MUN`,
-    description: site.descriptor,
     images: ["/assets/brand/iemun-og.png"],
   },
   robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#020d24",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -73,6 +90,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <Header dateLine={dateAndVenueLine()} />
         <main id="main-content" className="flex-1">
           {children}

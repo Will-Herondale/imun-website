@@ -4,6 +4,8 @@ import { Accordion } from "@/components/Accordion";
 import { Reveal } from "@/components/Reveal";
 import { faqEntries } from "@/lib/config/faq";
 import { siteUrl } from "@/app/layout";
+import { faqSchema } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -19,6 +21,8 @@ export default function FaqPage() {
         title="Frequently asked questions"
         lede="If your question is not answered here, write to the secretariat using the contact details on the Contact page."
       />
+
+      <JsonLd data={faqSchema()} />
 
       <section className="section">
         <div className="container-site mx-auto max-w-4xl">

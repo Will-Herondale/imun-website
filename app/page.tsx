@@ -11,10 +11,12 @@ import { faqEntries } from "@/lib/config/faq";
 import { atAGlance, highlights, delegateExperience, whyParticipate } from "@/lib/config/content";
 import { registrationStatus } from "@/lib/registration-control";
 import { siteUrl } from "@/app/layout";
+import { eventSchema } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
-  title: `${site.name} — Indian MUN`,
-  description: site.descriptor,
+  title: { absolute: "IMUN — Indian Model United Nations Conference 2026" },
+  description: `${site.descriptor} Register as a delegate for the ${site.date} session.`,
   alternates: { canonical: `${siteUrl}/` },
 };
 
@@ -43,6 +45,8 @@ export default function HomePage() {
 
   return (
     <>
+      <JsonLd data={eventSchema()} />
+
       {/* ============================== HERO ============================== */}
       <section className="relative overflow-hidden bg-navy-950 text-white">
         <div className="rule-gold" />

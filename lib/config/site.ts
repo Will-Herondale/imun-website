@@ -36,6 +36,12 @@ export const site = {
   /** Conference dates, confirmed: 10–11 October 2026. */
   date: "10–11 October 2026",
 
+  /**
+   * Machine-readable dates for structured data (schema.org Event). Keep in
+   * sync with `date` above.
+   */
+  dateIso: { start: "2026-10-10", end: "2026-10-11" },
+
   /** Venue object. « PLACEHOLDER » — confirm venue + city. */
   venue: {
     name: "",
