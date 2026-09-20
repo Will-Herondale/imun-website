@@ -120,6 +120,14 @@ describe("POST /api/registrations", () => {
     expect(data.code).toBe("REGISTRATION_CLOSED");
   });
 
+  it("pauses submissions during maintenance (503)", async () => {
+    vi.stubEnv("SITE_MAINTENANCE", "true");
+    const res = await post(goodPayload);
+    expect(res.status).toBe(503);
+    const data = (await res.json()) as { code: string };
+    expect(data.code).toBe("MAINTENANCE");
+  });
+
   it("accepts honeypot submissions without persisting (201, no save)", async () => {
     const store = fakeStore();
     overrideStoreForTests(store);

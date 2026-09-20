@@ -5,6 +5,7 @@ import { createPaymentOrder, famgatewayConfigured } from "@/lib/payments/famgate
 import { checkRateLimit, LIMITS } from "@/lib/security/rateLimit";
 import { clientIpFrom } from "@/lib/utils/request";
 import { log } from "@/lib/log";
+import { isMaintenance, maintenanceJsonResponse } from "@/lib/maintenance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +23,10 @@ function originFrom(request: NextRequest): string {
  * URL and the order id used to poll for confirmation.
  */
 export async function POST(request: NextRequest) {
+  if (isMaintenance()) {
+    return maintenanceJsonResponse();
+  }
+
   const ip = clientIpFrom(request);
   const rl = checkRateLimit(`pay:create:${ip}`, LIMITS.payments.limit, LIMITS.payments.windowMs);
   if (!rl.allowed) {

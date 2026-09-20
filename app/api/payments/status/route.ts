@@ -3,6 +3,7 @@ import { jsonError, jsonOk } from "@/lib/api";
 import { famgatewayConfigured, verifyPaymentOrder } from "@/lib/payments/famgateway";
 import { checkRateLimit, LIMITS } from "@/lib/security/rateLimit";
 import { clientIpFrom } from "@/lib/utils/request";
+import { isMaintenance, maintenanceJsonResponse } from "@/lib/maintenance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +13,10 @@ export const dynamic = "force-dynamic";
  * the delegate pays; the authoritative check happens here (never client-side).
  */
 export async function GET(request: NextRequest) {
+  if (isMaintenance()) {
+    return maintenanceJsonResponse();
+  }
+
   const ip = clientIpFrom(request);
   const rl = checkRateLimit(`pay:status:${ip}`, LIMITS.payments.limit, LIMITS.payments.windowMs);
   if (!rl.allowed) {

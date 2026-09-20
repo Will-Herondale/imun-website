@@ -266,6 +266,7 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         orderId?: string;
         checkoutUrl?: string;
         error?: string;
+        code?: string;
       };
       if (res.ok && data.orderId && data.checkoutUrl) {
         try {
@@ -279,6 +280,11 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
           round: registrationRoundFor().label,
         });
         window.location.assign(data.checkoutUrl);
+        return;
+      }
+      // Registration paused (maintenance): show the notice, no manual fallback.
+      if (res.status === 503 && data.code === "MAINTENANCE") {
+        setPaymentNotice(data.error ?? "Registration is temporarily paused. Please check back shortly.");
         return;
       }
       // Automated payment not available — reveal the manual fallback.

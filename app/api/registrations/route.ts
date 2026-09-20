@@ -14,11 +14,16 @@ import { checkRateLimit, LIMITS } from "@/lib/security/rateLimit";
 import { clientIpFrom } from "@/lib/utils/request";
 import { jsonError, jsonOk } from "@/lib/api";
 import { log } from "@/lib/log";
+import { isMaintenance, maintenanceJsonResponse } from "@/lib/maintenance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  if (isMaintenance()) {
+    return maintenanceJsonResponse();
+  }
+
   if (!isRegistrationOpen()) {
     return jsonError("Registration is currently closed. Please check back after the form reopens.", 409, {
       code: "REGISTRATION_CLOSED",

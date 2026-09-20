@@ -14,7 +14,66 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 
+/**
+ * Maintenance mode. Set SITE_MAINTENANCE=true in the hosting environment to
+ * "pause" the public website: every public page and the delegate-facing APIs
+ * respond 503 (temporary, so Google keeps the pages and re-crawls later) with
+ * a branded notice. The admin area and admin APIs stay fully available, and
+ * robots.txt / sitemap.xml / static assets keep serving. Removing the variable
+ * restores the site; both work without a code change or redeploy.
+ */
+function maintenanceNotice(): NextResponse {
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMUN — Registration paused</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<style>html,body{margin:0}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#020d24;color:#fff;font-family:Arial,Helvetica,sans-serif;padding:2rem}.card{max-width:620px;text-align:center}.seal{width:74px;height:74px;margin:0 auto 2rem;border:1px solid rgba(193,161,90,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#c1a15a;font-weight:700;font-size:1.05rem;letter-spacing:2px}.kicker{color:#c1a15a;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;margin:0 0 .75rem}h1{font-size:clamp(1.9rem,5vw,3rem);margin:0 0 1rem;line-height:1.1}p{color:rgba(255,255,255,.75);line-height:1.7;margin:0 0 2rem}.mail{color:rgba(255,255,255,.5);font-size:.9rem;margin:0;margin-bottom:0}a{color:#c1a15a;text-decoration:none}.bar{width:64px;height:2px;background:#c1a15a;margin:0 auto 1.5rem}</style>
+</head>
+<body><div class="card">
+<div class="seal">IMUN</div>
+<p class="kicker">Indian MUN · 10–11 October 2026</p>
+<h1>Registration paused — an update is coming</h1>
+<div class="bar" aria-hidden="true"></div>
+<p>The secretariat is finalising changes to the conference format and the delegate fee. Online registration is temporarily paused. Please check back shortly — the updated details will be posted here as soon as they are confirmed.</p>
+<p class="mail">Questions? Write to <a href="mailto:imun.official@gmail.com">imun.official@gmail.com</a></p>
+</div></body>
+</html>`;
+
+  return new NextResponse(html, {
+    status: 503,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Retry-After": "86400",
+      "Cache-Control": "no-store",
+      "Content-Security-Policy":
+        "default-src 'none'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; frame-ancestors 'none'",
+    },
+  });
+}
+
+/** Paths that must stay live during maintenance. */
+function alwaysLive(pathname: string): boolean {
+  return (
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/assets/") ||
+    pathname === "/favicon.ico" ||
+    pathname === "/icon.png" ||
+    pathname === "/apple-icon.png" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/manifest.webmanifest"
+  );
+}
+
 export function proxy(request: NextRequest) {
+  if (process.env.SITE_MAINTENANCE?.trim().toLowerCase() === "true" && !alwaysLive(request.nextUrl.pathname)) {
+    return maintenanceNotice();
+  }
+
   // Two UUIDs give a 244-bit entropy nonce using Web Crypto, which is
   // available in both the Edge and Node middleware runtimes.
   const nonce = `${crypto.randomUUID()}${crypto.randomUUID()}`
