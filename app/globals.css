@@ -222,7 +222,7 @@
 
   /* ---- Buttons — precise, with a metallic primary ---- */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 font-sans text-[0.76rem] font-semibold
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap font-sans text-[0.76rem] font-semibold
       uppercase leading-none tracking-[0.16em] rounded-[0.3rem] px-7 py-[1rem]
       transition-[background-color,color,border-color,box-shadow,transform] duration-300
       select-none;

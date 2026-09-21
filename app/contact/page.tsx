@@ -100,8 +100,8 @@ export default function ContactPage() {
             <Reveal delay={120}>
               <div className="rounded-[3px] border-l-2 border-brass-600 bg-brass-100/60 p-5 text-[0.92rem]">
                 The secretariat&apos;s official email and Instagram handle above
-                are monitored during the registration window. The conference
-                venue and postal address will be published here once confirmed.
+                are monitored during the registration window. The full session
+                schedule will be published here once finalised.
               </div>
             </Reveal>
             <Reveal delay={180}>

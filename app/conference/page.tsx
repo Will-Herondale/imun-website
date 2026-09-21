@@ -22,6 +22,8 @@ export default function ConferencePage() {
   const feeRange = `${inr(Math.min(...feeRounds.map((r) => r.amount)))} – ${inr(Math.max(...feeRounds.map((r) => r.amount)))}`;
 
   const confirmed = [
+    { label: "Format", value: site.format },
+    { label: "Venue", value: site.venue.name || tba("") },
     { label: "Committees", value: "Four — DISEC, UNHRC, EU and the Joint Crisis Committee" },
     { label: "Duration", value: `${site.days} days` },
     { label: "Expected delegates", value: `${site.expectedDelegates} delegates` },
@@ -32,7 +34,6 @@ export default function ConferencePage() {
 
   const pending = [
     { label: "Dates", value: tba(site.date) },
-    { label: "Venue", value: [site.venue.name, site.venue.city].filter(Boolean).join(", ") || tba("") },
     { label: "Edition", value: tba(site.edition) },
     { label: "Session theme", value: tba(site.theme) },
   ];

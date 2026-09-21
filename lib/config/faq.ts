@@ -35,7 +35,7 @@ export const faqEntries: FaqEntry[] = [
       `${round2.label} is ${inr(round2.amount)} (${round2.window}), ` +
       `${round3.label} is ${inr(round3.amount)} (${round3.window}), and ` +
       `on-spot registration is ${inr(onSpot.amount)} subject to seats. ` +
-      `The fee covers committee sessions, conference materials and your certificate.`,
+      `The fee covers your committee sessions, digital conference materials and a signed certificate.`,
   },
   {
     question: "How do I pay the delegate fee?",
@@ -47,9 +47,16 @@ export const faqEntries: FaqEntry[] = [
       `A submission does not by itself confirm a seat until the fee is received.`,
   },
   {
+    question: "Is IMUN 2026 online or in person?",
+    answer:
+      `IMUN 2026 is held fully online on ${site.date}, using a live video platform. ` +
+      `Joining links, background guides and your committee materials are emailed to registered delegates before the conference. ` +
+      `The committees, rules of procedure and session dates are unchanged; only the room has moved online.`,
+  },
+  {
     question: "What is the dress code?",
     answer:
-      "Formal attire — the standard is a suit, blazer or formal ethnic wear that reflects the seriousness of the proceedings. The secretariat will publish the complete dress code with the conference guide.",
+      "Formal attire — the standard is a suit, blazer or formal ethnic wear that reflects the seriousness of the proceedings. Since sessions are on camera, formal dress is expected for the full duration of the live sessions.",
   },
   {
     question: "How will I receive my committee allotment?",
@@ -64,7 +71,7 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "When does registration close?",
     answer:
-      `Registration runs through the session dates (${site.date}). On-spot registration is available at the venue subject to seats, at the highest fee tier. ` +
+      `Registration runs through the session dates (${site.date}). On-spot registration is available online subject to seats, at the highest fee tier. ` +
       `Earlier rounds carry a lower fee and committee seats are limited, so registering early is recommended.`,
   },
 ];

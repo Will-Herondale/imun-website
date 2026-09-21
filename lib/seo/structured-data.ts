@@ -75,6 +75,8 @@ export function eventSchema(): Json {
       ]
     : undefined;
 
+  const online = site.venue.name.trim().toLowerCase() === "online";
+
   return clean({
     "@context": "https://schema.org",
     "@type": "Event",
@@ -86,12 +88,14 @@ export function eventSchema(): Json {
     startDate: site.dateIso.start || undefined,
     endDate: site.dateIso.end || undefined,
     eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    eventAttendanceMode: online
+      ? "https://schema.org/OnlineEventAttendanceMode"
+      : "https://schema.org/OfflineEventAttendanceMode",
     isAccessibleForFree: false,
     organizer: { "@id": `${siteUrl}/#organization` },
     location: clean({
       "@type": "Place",
-      name: site.venue.name || dateAndVenueLine(),
+      name: online ? "Online" : site.venue.name || dateAndVenueLine(),
       address: clean({
         "@type": "PostalAddress",
         addressLocality: site.venue.city || undefined,

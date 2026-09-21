@@ -16,6 +16,12 @@ export type UpdateEntry = {
 
 export const updates: UpdateEntry[] = [
   {
+    date: "2026-09-20",
+    tag: "Conference",
+    title: "The session will be held online",
+    body: "IMUN 2026 runs fully online on 10–11 October 2026 — no venue or travel needed. The fee schedule is revised for the online format: Round 1 registration is ₹600 until 28 September, then ₹750, ₹900 and ₹1,000 at on-spot. All four committees keep 25 delegate seats each.",
+  },
+  {
     date: "2026-09-19",
     tag: "Registration",
     title: "Secure UPI checkout is live",
@@ -25,7 +31,7 @@ export const updates: UpdateEntry[] = [
     date: "2026-09-19",
     tag: "Registration",
     title: "Round 1 registration is open",
-    body: "Delegate registration is open at the Round 1 fee of ₹1,600 until 28 September 2026. Fees rise in later rounds, so early registration is advised.",
+    body: "Delegate registration is open at the Round 1 fee of ₹600 until 28 September 2026. Fees rise in later rounds, so early registration is advised.",
   },
   {
     date: "2026-09-18",

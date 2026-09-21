@@ -127,6 +127,33 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ============================== EB CTA ============================== */}
+      <section className="border-b border-brass-500/25 bg-brass-50/70">
+        <div className="container-site grid grid-cols-12 items-center gap-y-8 py-12 md:py-14">
+          <div className="col-span-12 lg:col-span-8">
+            <p className="kicker flex items-center gap-3">
+              <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-brass-600" />
+              Executive Board applications
+            </p>
+            <h2 className="mt-3 font-display text-[clamp(1.6rem,3.6vw,2.3rem)] font-medium leading-tight text-navy-900">
+              Join the dais — chair or vice-chair a committee at IMUN 2026.
+            </h2>
+            <p className="mt-3 max-w-2xl text-[0.98rem] leading-relaxed text-steel-600">
+              DISEC, UNHRC, the European Union and the Joint Crisis Committee all need
+              chairs. Prior dais experience is preferred but not required for every seat.
+            </p>
+          </div>
+          <div className="col-span-12 flex flex-wrap items-center gap-3 lg:col-span-4 lg:justify-end">
+            <Link href="/eb/apply" className="btn btn-primary">
+              Apply now
+            </Link>
+            <Link href="/eb" className="btn btn-outline">
+              About the EB
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ============================== ABOUT ============================== */}
       <section className="section">
         <div className="container-site grid grid-cols-12 gap-y-10">

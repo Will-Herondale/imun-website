@@ -89,6 +89,13 @@ export function proxy(request: NextRequest) {
     : "";
   const gaImg = gaEnabled ? " https://www.google-analytics.com https://www.googletagmanager.com" : "";
 
+  // Only force https for subresources on the primary HTTPS domain. On local /
+  // LAN / tunnel hosts served over plain http, 'upgrade-insecure-requests'
+  // would make the browser request every asset over https and fail them all.
+  const hostname = request.nextUrl.hostname;
+  const isPrimaryDomain =
+    hostname === "imunindia.com" || hostname === "www.imunindia.com";
+
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}'${gaScript}`,
@@ -103,8 +110,8 @@ export function proxy(request: NextRequest) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
-  ].join("; ");
+    isPrimaryDomain ? "upgrade-insecure-requests" : null,
+  ].filter(Boolean).join("; ");
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);

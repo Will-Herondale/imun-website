@@ -20,6 +20,9 @@ export const navItems: NavItem[] = [
  * Secondary links shown in the footer only (the top nav is already full at the
  * large breakpoint).
  */
-export const secondaryNavItems: NavItem[] = [{ label: "Updates", href: "/updates" }];
+export const secondaryNavItems: NavItem[] = [
+  { label: "Updates", href: "/updates" },
+  { label: "Executive Board", href: "/eb" },
+];
 
 export const registerHref = "/registration";

@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/registration", changeFrequency: "weekly", priority: 0.9 },
     { path: "/conference", changeFrequency: "monthly", priority: 0.8 },
     { path: "/committees", changeFrequency: "monthly", priority: 0.8 },
+    { path: "/eb", changeFrequency: "weekly", priority: 0.7 },
+    { path: "/eb/apply", changeFrequency: "daily", priority: 0.8 },
     { path: "/allocations", changeFrequency: "daily", priority: 0.7 },
     { path: "/updates", changeFrequency: "weekly", priority: 0.7 },
     { path: "/about", changeFrequency: "monthly", priority: 0.6 },
