@@ -41,11 +41,18 @@ Push the revised session config to production Netlify (imunindia.com) and unstic
 - `tests/*.test.ts` — committee codes EU/JCC → LS/CCC.
 - `lib/seo/structured-data.ts` — venue/attendance mode (online detection keyed on venue.name === "online").
 
-## Fortinet (open)
-- imunindia.com reportedly blocked by Fortinet firewall. Need to check FortiGuard web filter category + submit reclassification request if miscategorised, and document admin-side unblock steps.
-
 ## Security notes
 - FamGateway live key `fam_027a01b5c6479538ef00a0496e397bdb1eecae56` still active + spare order `fg_2FF3AG1P`; admin creds (ADMIN_PASSWORD in env) unrotated. Rotate after event if not used.
+
+## Fortinet (open)
+- imunindia.com reportedly blocked by Fortinet firewall. Root cause check: DNS resolves (A → 75.2.60.5, Netlify), site 200, HTTPS + strict CSP, no malware indicators. FortiGuard's public URL lookup returns 403 to automated requests, so the block is most plausibly **FortiGuard categorising imunindia.com as "Unrated"/"Newly Registered" (or a stale category)** — FortiGate policies default-block unrated domains.
+
+### Unblock steps (execute on the FortiGate admin)
+1. **Confirm the category** — log in to FortiGate → `Security Profiles > Web Filter`, open the profile applied to the outbound policy; run `diagnose webfilter fortiguard lookup imunindia.com` (CLI) or check FortiView `Web Filter` logs for `imunindia.com` to see the category returned.
+2. **Local (static) override — instant unblock**: FortiGate → `Web Filter > FortiGuard Category Based Filter`, add `imunindia.com` (and `www.imunindia.com`) to a **local/allow origin-block override** or a static **URL rating override** permitting the domain regardless of category. CLI: `config firewall web-filter-urlfilter` / `config webfilter urlfilter` → add whitelist entry. This is the immediate, reliable fix.
+3. **Permanent fix — reclassify with FortiGuard**: submit imunindia.com at https://www.fortiguard.com/webfilter (Search domain → "Suggest different category", pick e.g. *Information Technology* / *Education*, provide a short description and an admin email). FortiGuard re-crawls and re-rates the domain; the new rating syncs to the FortiGuard database within ~24–48h and the block clears network-wide without a local override.
+4. **Rebuild DNS/HTTPS trust** (already in place): HTTPS via Netlify cert and a `subresource`-clean CSP mean the site will rate as a normal business/education site on re-crawl.
+- **Follow-up**: re-run `diagnose webfilter fortiguard lookup imunindia.com` after reclassification to confirm the category flip. Needs a FortiGate admin login — outside what I can automate from here.
 
 ## Time log
 - Session started (this run): 2026-09-22, ~16:10 IST — UAC helper install + full site republish + Fortinet handling.
@@ -55,4 +62,17 @@ Push the revised session config to production Netlify (imunindia.com) and unstic
 ### WORK LOG
 | Time (IST) | Step | Result |
 |---|---|---|
-| | | |
+| 16:45 | UAC helper installed | Task `IMUN-ElevatedRunner` registered (Interactive + Highest); `sudo.ps1` wrapper written; silent re-elevation available. |
+| 17:00 | Context MD created | `SESSION_CONTEXT.md` persisted. |
+| 17:15 | Site config updated | Dates 24–25 Oct, venue physical TBA, fees 1600/2100/2500 (3 rounds, no on-spot), format "In person". |
+| 17:20 | Committees updated | JCC→CCC (Continuous Crisis Committee), EU→LS (Lok Sabha). |
+| 17:22 | Board updated | USG Marketing = Atiksh. |
+| 17:35 | Pages + FAQ + updates + tests | Copy updated across home/conference/committees/eb/EB form/updates/proxy/replica; test fixtures EU→LS, JCC→CCC. |
+| 21:34 | Verify (typecheck) | `tsc --noEmit` clean. |
+| 21:35 | Verify (tests) | 57/57 passed. |
+| 21:35 | Verify (build) | `next build` succeeded. |
+| 21:40 | Deploy | Commit `db968f3` pushed → Netlify `6ab2b53d` ready. |
+| 22:35 | Env flip | `REGISTRATION_OPEN=true` set on account env; deploy rebuilt. |
+| 22:38 | Prod verify | /200, /registration open (422 vs previous 409), /eb /committees /conference 200; "Venue to be announced", "24–25 October", ₹1,600, Lok Sabha + CCC visible. |
+| 22:50 | Fortinet | Root cause documented; FortiGuard lookup is 403 to bots; admin-side unblock + reclassify steps written. |
+| **2026-09-22 ~22:50 IST** | **ALL TASKS COMPLETE** | **UAC helper + site republish + Fortinet doc done.** |
