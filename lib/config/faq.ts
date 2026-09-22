@@ -9,7 +9,7 @@ export type FaqEntry = {
 const inr = (amount: number) =>
   `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
 
-const [round1, round2, round3, onSpot] = site.registrationRounds;
+const [round1, round2, round3] = site.registrationRounds;
 
 export const faqEntries: FaqEntry[] = [
   {
@@ -33,9 +33,8 @@ export const faqEntries: FaqEntry[] = [
       `The delegate fee is the same for every committee and is charged by registration round. ` +
       `${round1.label} is ${inr(round1.amount)} (${round1.window}), ` +
       `${round2.label} is ${inr(round2.amount)} (${round2.window}), ` +
-      `${round3.label} is ${inr(round3.amount)} (${round3.window}), and ` +
-      `on-spot registration is ${inr(onSpot.amount)} subject to seats. ` +
-      `The fee covers your committee sessions, digital conference materials and a signed certificate.`,
+      `${round3.label} is ${inr(round3.amount)} (${round3.window}). ` +
+      `The fee covers your committee sessions, conference materials and a signed certificate.`,
   },
   {
     question: "How do I pay the delegate fee?",
@@ -49,14 +48,13 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "Is IMUN 2026 online or in person?",
     answer:
-      `IMUN 2026 is held fully online on ${site.date}, using a live video platform. ` +
-      `Joining links, background guides and your committee materials are emailed to registered delegates before the conference. ` +
-      `The committees, rules of procedure and session dates are unchanged; only the room has moved online.`,
+      `IMUN 2026 is held in person on ${site.date}. The venue is being finalised and will be announced here as soon as it is confirmed. ` +
+      `Delegates join us for the full two-day sessions; committee materials and schedule updates are emailed to registered delegates before the conference.`,
   },
   {
     question: "What is the dress code?",
     answer:
-      "Formal attire — the standard is a suit, blazer or formal ethnic wear that reflects the seriousness of the proceedings. Since sessions are on camera, formal dress is expected for the full duration of the live sessions.",
+      "Formal attire — the standard is a suit, blazer or formal ethnic wear that reflects the seriousness of the proceedings.",
   },
   {
     question: "How will I receive my committee allotment?",
@@ -71,7 +69,7 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "When does registration close?",
     answer:
-      `Registration runs through the session dates (${site.date}). On-spot registration is available online subject to seats, at the highest fee tier. ` +
+      `Registration runs through the session dates (${site.date}), with the fee rising by round as the conference approaches. ` +
       `Earlier rounds carry a lower fee and committee seats are limited, so registering early is recommended.`,
   },
 ];

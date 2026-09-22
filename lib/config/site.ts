@@ -33,23 +33,26 @@ export const site = {
    */
   edition: "",
 
-  /** Conference dates, confirmed: 10–11 October 2026. */
-  date: "10–11 October 2026",
+  /** Conference dates, confirmed: 24–25 October 2026. */
+  date: "24–25 October 2026",
 
   /**
    * Machine-readable dates for structured data (schema.org Event). Keep in
    * sync with `date` above.
    */
-  dateIso: { start: "2026-10-10", end: "2026-10-11" },
+  dateIso: { start: "2026-10-24", end: "2026-10-25" },
 
-  /** Venue object. Online edition: the "venue" is the event platform. */
+  /**
+   * Venue object. Physical edition with the venue still to be finalised; an
+   * empty name renders as "To be announced" across the site.
+   */
   venue: {
-    name: "Online",
+    name: "",
     city: "",
   },
 
   /** Conference format, published across the site. */
-  format: "Fully online",
+  format: "In person",
 
   /**
    * Delegate registration fee. Fees rise by registration round, so `amount`
@@ -57,20 +60,20 @@ export const site = {
    * structured-data offer. The full schedule lives in `registrationRounds`.
    */
   registrationFee: {
-    amount: 600,
+    amount: 1600,
     currency: "INR",
     note: "",
   },
 
   /**
    * Registration rounds and their per-delegate fee. Editing this list updates
-   * the Registration and Conference pages.
+   * the Registration and Conference pages. Rounds are expanded to run through
+   * the confirmation of the venue; the final round holds until the session.
    */
   registrationRounds: [
-    { label: "Round 1", amount: 600, window: "Until 28 September 2026", from: "2026-01-01", to: "2026-09-28" },
-    { label: "Round 2", amount: 750, window: "29 September – 5 October 2026", from: "2026-09-29", to: "2026-10-05" },
-    { label: "Round 3", amount: 900, window: "6 – 10 October 2026", from: "2026-10-06", to: "2026-10-10" },
-    { label: "On-spot", amount: 1000, window: "Online, subject to seats", from: "2026-10-11", to: "" },
+    { label: "Round 1", amount: 1600, window: "Until 8 October 2026", from: "2026-01-01", to: "2026-10-08" },
+    { label: "Round 2", amount: 2100, window: "9 – 18 October 2026", from: "2026-10-09", to: "2026-10-18" },
+    { label: "Round 3", amount: 2500, window: "19 – 25 October 2026", from: "2026-10-19", to: "2026-10-25" },
   ],
 
   /**
@@ -139,7 +142,7 @@ export const site = {
   registrationOpen: true,
 
   /** Human-readable label for the current registration period. */
-  registrationLabel: "Registration open — Round 1 (₹600 until 28 September)",
+  registrationLabel: "Registration open — Round 1 (₹1,600 until 8 October)",
 
   /** Committees offered at this session. Reorder = reorder dropdowns. */
   committeesInRoster: true,

@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registration form — IMUN 2026 (preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy-900: #0e284c;
+    --navy-950: #071a36;
+    --brass-500: #b8860b;
+    --brass-600: #a67704;
+    --brass-700: #8c6408;
+    --brass-800: #6f4f06;
+    --steel-100: #eef2f7;
+    --steel-200: #dde4ee;
+    --steel-300: #c3cedd;
+    --steel-400: #94a3b5;
+    --steel-500: #64748d;
+    --steel-600: #41506b;
+    --red: #b42318;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: #f7f8fa;
+    color: var(--navy-900);
+    line-height: 1.5;
+    padding: 40px 16px 64px;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  .banner {
+    background: var(--navy-950);
+    color: #f5e7c0;
+    border: 1px solid rgba(184,134,11,.35);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-size: .9rem;
+    margin-bottom: 40px;
+  }
+  .banner strong { color: #f7df9b; }
+  form { background: #fff; border: 1px solid var(--steel-200); border-radius: 6px; padding: clamp(24px, 5vw, 48px); }
+  .tip { color: var(--steel-500); font-size: .9rem; margin: 0 0 36px; }
+  fieldset { border: none; margin: 0; padding: 0; }
+  fieldset + fieldset { margin-top: 56px; }
+  legend {
+    display: flex; align-items: center; gap: 16px;
+    width: 100%; border-bottom: 1px solid var(--steel-200); padding-bottom: 16px; margin: 0;
+  }
+  legend .num { font-family: "Newsreader", serif; font-size: 1.4rem; line-height: 1; color: var(--brass-600); }
+  legend .title { font-family: "Newsreader", serif; font-size: clamp(1.4rem, 3.5vw, 1.7rem); font-weight: 500; color: var(--navy-900); }
+  .grid { margin-top: 24px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+  @media (min-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  }
+  .field-label { display: block; font-size: .95rem; font-weight: 600; color: var(--navy-900); margin-bottom: 6px; }
+  .req { color: var(--red); }
+  .input, .select, .textarea {
+    width: 100%; font: inherit; font-size: .95rem; color: var(--navy-900);
+    background: #fff; border: 1px solid var(--steel-300); border-radius: 3px;
+    padding: 9px 12px; outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .input:focus, .select:focus, .textarea:focus { border-color: var(--brass-500); box-shadow: 0 0 0 2px rgba(184,134,11,.18); }
+  .textarea { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: .85rem; resize: vertical; }
+  .field-hint { display: block; color: var(--steel-500); font-size: .8rem; margin-top: 5px; }
+  .field-hint code { background: var(--steel-100); border-radius: 3px; padding: 1px 6px; font-size: .75rem; }
+  .field-hint .block-code { display: block; background: var(--steel-100); border-radius: 3px; padding: 5px 8px; margin-top: 4px; }
+  .field-error { color: var(--red); font-size: .8rem; margin: 5px 0 0; }
+  .checkbox-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 16px; }
+  .checkbox-row input[type=checkbox] { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--navy-900); flex: none; }
+  .checkbox-row label { font-size: .95rem; color: var(--navy-900); }
+  .boxed { border: 1px solid var(--steel-200); border-radius: 4px; padding: 20px; margin-top: 20px; }
+  .boxed h3 { font-family: "Newsreader", serif; font-size: 1.05rem; font-weight: 600; margin: 0 0 10px; color: var(--brass-700); }
+  .boxed .amt { font-family: "Newsreader", serif; font-size: 1.8rem; font-weight: 600; color: var(--navy-900); }
+  .boxed .wallet { font-family: ui-monospace, monospace; font-size: .9rem; color: var(--navy-900); background: var(--steel-100); border-radius: 3px; padding: 2px 6px; }
+  .boxed.muted { background: var(--steel-100); border-color: transparent; color: var(--steel-600); font-size: .9rem; }
+  .submit-zone { margin-top: 48px; border-top: 1px solid var(--steel-200); padding-top: 32px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--brass-600); color: #fff; border: none; cursor: pointer;
+    font: inherit; font-weight: 600; letter-spacing: .01em;
+    padding: 12px 26px; border-radius: 3px; min-width: 13rem; justify-content: center;
+  }
+  .btn:hover { background: var(--brass-700); }
+  .note { color: var(--steel-400); font-size: .8rem; margin: 0 0 20px; }
+  .privacy { color: var(--steel-400); font-size: .8rem; line-height: 1.6; margin-top: 18px; }
+  .privacy a { color: var(--navy-900); }
+  .hidden { position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner"><strong>Preview copy — this form is not live.</strong> Registrations on <strong>imunindia.com</strong> use the live registration form with secure UPI checkout at the submitted fee. This page is a standalone HTML replica of the registration form for review only; it submits nowhere.</div>
+
+  <form id="imun-form" novalidate>
+    <p class="tip">Fields marked <span class="req">*</span> are required. Your responses are sent directly to the organiser; a copy stays on this device so you can recover it if the page closes.</p>
+
+    <fieldset>
+      <legend><span class="num">01</span><span class="title">Basic information</span></legend>
+      <div class="grid grid-2">
+        <div>
+          <label class="field-label" for="fullName">1. Full Name <span class="req">*</span></label>
+          <input class="input" id="fullName" name="fullName" type="text" autocomplete="name" required>
+          <span class="field-hint">As it should appear on your certificate.</span>
+        </div>
+        <div>
+          <label class="field-label" for="email">2. Email Address <span class="req">*</span></label>
+          <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" required>
+          <span class="field-hint">Allotments and updates are sent here.</span>
+        </div>
+        <div>
+          <label class="field-label" for="contactNumber">3. Contact Number <span class="req">*</span></label>
+          <input class="input" id="contactNumber" name="contactNumber" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="e.g. 98XXXXXXXX" required>
+          <span class="field-hint">Indian mobile number (10 digits, may start with +91).</span>
+        </div>
+        <div>
+          <label class="field-label" for="schoolName">4. School Name <span class="req">*</span></label>
+          <input class="input" id="schoolName" name="schoolName" type="text" autocomplete="organization" required>
+        </div>
+        <div class="sm-half">
+          <label class="field-label" for="grade">5. Grade / Class <span class="req">*</span></label>
+          <input class="input" id="grade" name="grade" type="text" placeholder="e.g. Class 11" required>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="num">02</span><span class="title">Model UN experience</span></legend>
+      <div class="grid">
+        <div class="sm-half">
+          <label class="field-label" for="munCount">6. How many MUNs have you attended? <span class="req">*</span></label>
+          <select class="select" id="munCount" name="munCount" required>
+            <option value="0">None — this is my first MUN</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4+</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="munHistory">7. List the MUN conferences you have participated in</label>
+          <textarea class="textarea" id="munHistory" name="munHistory" rows="5" placeholder="One conference per line, strictly as:&#10;MUN Name | Year | Committee | Portfolio | Award"></textarea>
+          <span class="field-hint">
+            Use exactly this format, one conference per line:
+            <code class="block-code">MUN Name | Year | Committee | Portfolio | Award</code>
+            Example line: <code>Sample MUN | 2025 | DISEC | USA | Best Delegate</code>
+          </span>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="num">03</span><span class="title">Committee preferences</span></legend>
+      <div class="grid grid-3">
+        <div>
+          <label class="field-label" for="committeePref1">8. First Committee Preference <span class="req">*</span></label>
+          <select class="select" id="committeePref1" name="committeePref1" required>
+            <option value="" disabled selected>Select a committee…</option>
+            <option value="DISEC">Disarmament and International Security Committee</option>
+            <option value="UNHRC">United Nations Human Rights Council</option>
+            <option value="LS">Lok Sabha</option>
+            <option value="CCC">Continuous Crisis Committee</option>
+          </select>
+          <span class="field-hint">Ranked 1st → 3rd.</span>
+        </div>
+        <div>
+          <label class="field-label" for="committeePref2">9. Second Committee Preference <span class="req">*</span></label>
+          <select class="select" id="committeePref2" name="committeePref2" required>
+            <option value="" disabled selected>Select a committee…</option>
+            <option value="DISEC">Disarmament and International Security Committee</option>
+            <option value="UNHRC">United Nations Human Rights Council</option>
+            <option value="LS">Lok Sabha</option>
+            <option value="CCC">Continuous Crisis Committee</option>
+          </select>
+          <span class="field-hint">Ranked 1st → 3rd.</span>
+        </div>
+        <div>
+          <label class="field-label" for="committeePref3">10. Third Committee Preference <span class="req">*</span></label>
+          <select class="select" id="committeePref3" name="committeePref3" required>
+            <option value="" disabled selected>Select a committee…</option>
+            <option value="DISEC">Disarmament and International Security Committee</option>
+            <option value="UNHRC">United Nations Human Rights Council</option>
+            <option value="LS">Lok Sabha</option>
+            <option value="CCC">Continuous Crisis Committee</option>
+          </select>
+          <span class="field-hint">Ranked 1st → 3rd.</span>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div>
+          <label class="field-label" for="countryPreference">11. Preferred Country / Portfolio</label>
+          <input class="input" id="countryPreference" name="countryPreference" type="text" placeholder="e.g. India, Germany, Rwanda…">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="num">04</span><span class="title">Payment</span></legend>
+      <div class="boxed">
+        <h3>Registration fee</h3>
+        <p class="amt">₹1,600</p>
+        <p style="color:var(--steel-500);font-size:.9rem;margin:6px 0 0;">
+          Round&nbsp;1 rate until 8 October 2026; the fee rises in later rounds.
+        </p>
+      </div>
+      <div class="grid">
+        <div class="sm-half">
+          <label class="field-label" for="paymentReference">12. UPI transaction ID / UTR</label>
+          <input class="input" id="paymentReference" name="paymentReference" type="text" placeholder="e.g. 412345678901">
+          <span class="field-hint">Shown in your UPI app&rsquo;s payment confirmation (UTRs are usually 12 digits).</span>
+        </div>
+      </div>
+      <div class="boxed muted">
+        This replica does not process payments. On the live site this section shows the secure checkout and the Pay-to wallet when open.
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span class="num">05</span><span class="title">Declaration</span></legend>
+      <div>
+        <div class="checkbox-row">
+          <input id="declarationAccurate" name="declarationAccurate" type="checkbox" required>
+          <label for="declarationAccurate">14. I confirm that the information provided above is accurate.<span class="req"> *</span></label>
+        </div>
+        <div class="checkbox-row">
+          <input id="declarationRules" name="declarationRules" type="checkbox" required>
+          <label for="declarationRules">15. I agree to follow the rules and regulations of IMUN.<span class="req"> *</span></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="hidden" aria-hidden="true">
+      <label for="website">Leave this field empty</label>
+      <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" readonly>
+    </div>
+
+    <div class="submit-zone">
+      <p class="note">You can submit this form only once per email address.</p>
+      <button class="btn" type="submit">Submit registration</button>
+      <p class="privacy">
+        Information collected here is used solely to administer your registration and is not shared beyond the organiser&rsquo;s secretariat. A draft is stored on this device and deleted when your registration is accepted. See the privacy notice.
+      </p>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById("imun-form");
+  var committeeNames = ["DISEC", "UNHRC", "LS", "CCC"];
+
+  ["committeePref1", "committeePref2", "committeePref3"].forEach(function (id, i) {
+    var el = document.getElementById(id);
+    el.addEventListener("change", function () {
+      ["committeePref1", "committeePref2", "committeePref3"].forEach(function (otherId) {
+        var other = document.getElementById(otherId);
+        committeeNames.forEach(function (code) {
+          var opt = other.querySelector('option[value="' + code + '"]');
+          if (opt) opt.disabled = other.value !== code && otherId !== id;
+        });
+      });
+    });
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    form.querySelectorAll(".field-error").forEach(function (n) { n.remove(); });
+    form.querySelectorAll("[aria-invalid]").forEach(function (n) { n.removeAttribute("aria-invalid"); });
+
+    var errors = [];
+    function check(el, msg, test) {
+      if (!test(el.value)) {
+        errors.push(el);
+        showError(el, msg);
+      }
+    }
+    function showError(el, msg) {
+      var p = document.createElement("p");
+      p.className = "field-error";
+      p.setAttribute("role", "alert");
+      p.textContent = msg;
+      el.setAttribute("aria-invalid", "true");
+      el.parentNode.appendChild(p);
+    }
+
+    var fullName = document.getElementById("fullName");
+    var email = document.getElementById("email");
+    var contactNumber = document.getElementById("contactNumber");
+    var schoolName = document.getElementById("schoolName");
+    var grade = document.getElementById("grade");
+    var prefs = ["committeePref1", "committeePref2", "committeePref3"].map(function (id) { return document.getElementById(id); });
+
+    check(fullName, "Please enter your full name.", function (v) { return v.trim().length >= 2; });
+    check(email, "Enter a valid email address.", function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); });
+    check(contactNumber, "Enter a valid 10-digit Indian mobile number.", function (v) {
+      var d = v.replace(/[^\d]/g, "");
+      return /^(\+91)?\d{10}$/.test(v.replace(/\s/g, "")) && d.length === 10;
+    });
+    check(schoolName, "Please enter your school name.", function (v) { return v.trim().length >= 2; });
+    check(grade, "Please enter your grade / class.", function (v) { return v.trim().length > 0; });
+    prefs.forEach(function (p) {
+      check(p, "Select a committee.", function (v) { return v !== ""; });
+    });
+
+    if (!("declarationAccurate" in form)) void 0;
+    function checkboxOk(id) {
+      var cb = document.getElementById(id);
+      if (!cb.checked) {
+        var p = document.createElement("p");
+        p.className = "field-error";
+        p.setAttribute("role", "alert");
+        p.textContent = "Please confirm before submitting.";
+        cb.parentNode.appendChild(p);
+        return false;
+      }
+      return true;
+    }
+    var okBoxes = checkboxOk("declarationAccurate") & checkboxOk("declarationRules");
+
+    var chosen = prefs.map(function (p) { return p.value; });
+    if (errors.length === 0 && new Set(chosen).size !== chosen.length) {
+      prefs[0].parentNode.appendChild(errorEl("Choose three different committees."));
+      errors.push(prefs[0]);
+    }
+    function errorEl(msg) {
+      var p = document.createElement("p");
+      p.className = "field-error";
+      p.setAttribute("role", "alert");
+      p.textContent = msg;
+      return p;
+    }
+
+    if (errors.length === 0 && okBoxes) {
+      alert("Preview only — registrations are paused. This form is a static replica and nothing was submitted.");
+    } else {
+      var first = form.querySelector("[aria-invalid]") || form.querySelector(".field-error");
+      if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  });
+})();
+</script>
+</body>
+</html>

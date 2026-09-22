@@ -19,7 +19,7 @@ function validPayload(overrides: Record<string, unknown> = {}) {
     munHistory: "Harvest MUN | 2026 | DISEC | Delegate | Special Mention",
     committeePref1: "DISEC",
     committeePref2: "UNHRC",
-    committeePref3: "EU",
+    committeePref3: "LS",
     countryPreference: "India",
     specialRequest: "Sibling seated in the same committee.",
     paymentReference: "UTR123456789012",
@@ -62,7 +62,7 @@ describe("registrationSchema", () => {
 
   it("rejects duplicate committee preferences", () => {
     const out = registrationSchema.safeParse(
-      validPayload({ committeePref1: "DISEC", committeePref2: "DISEC", committeePref3: "EU" })
+      validPayload({ committeePref1: "DISEC", committeePref2: "DISEC", committeePref3: "CCC" })
     );
     expect(out.success).toBe(false);
     expect(out.success || out.error.issues.some((i) => i.path.join(".") === "committeePrefs")).toBe(true);

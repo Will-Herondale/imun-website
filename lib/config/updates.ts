@@ -16,28 +16,28 @@ export type UpdateEntry = {
 
 export const updates: UpdateEntry[] = [
   {
-    date: "2026-09-20",
+    date: "2026-09-22",
     tag: "Conference",
-    title: "The session will be held online",
-    body: "IMUN 2026 runs fully online on 10–11 October 2026 — no venue or travel needed. The fee schedule is revised for the online format: Round 1 registration is ₹600 until 28 September, then ₹750, ₹900 and ₹1,000 at on-spot. All four committees keep 25 delegate seats each.",
+    title: "Session dates confirmed — 24–25 October 2026",
+    body: "IMUN 2026 will be held in person on 24–25 October 2026. The venue is being finalised and will be announced as soon as it is confirmed. All four committees keep 25 delegate seats each.",
+  },
+  {
+    date: "2026-09-22",
+    tag: "Registration",
+    title: "Registration is open — Round 1 at ₹1,600",
+    body: "Delegate registration is open at the Round 1 fee of ₹1,600 until 8 October 2026, then ₹1,600, ₹2,100 and ₹2,500 in later rounds. Registering early is recommended as committee seats are limited.",
+  },
+  {
+    date: "2026-09-22",
+    tag: "Conference",
+    title: "Committee roster updated",
+    body: "The session now runs DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee — each with 25 delegate seats and a confirmed executive board.",
   },
   {
     date: "2026-09-19",
     tag: "Registration",
     title: "Secure UPI checkout is live",
     body: "The delegate fee can now be paid at checkout from any UPI app. Your seat is confirmed the moment the payment is verified — no separate confirmation step is needed.",
-  },
-  {
-    date: "2026-09-19",
-    tag: "Registration",
-    title: "Round 1 registration is open",
-    body: "Delegate registration is open at the Round 1 fee of ₹600 until 28 September 2026. Fees rise in later rounds, so early registration is advised.",
-  },
-  {
-    date: "2026-09-18",
-    tag: "Conference",
-    title: "Conference dates confirmed",
-    body: "The session will be held on 10–11 October 2026. Four committees — DISEC, UNHRC, the European Union and the Joint Crisis Committee — each with 25 delegate seats.",
   },
 ];
 

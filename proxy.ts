@@ -33,10 +33,10 @@ function maintenanceNotice(): NextResponse {
 </head>
 <body><div class="card">
 <div class="seal">IMUN</div>
-<p class="kicker">Indian MUN · 10–11 October 2026</p>
+<p class="kicker">Indian MUN · 24–25 October 2026</p>
 <h1>Registration paused — an update is coming</h1>
 <div class="bar" aria-hidden="true"></div>
-<p>The secretariat is finalising changes to the conference format and the delegate fee. Online registration is temporarily paused. Please check back shortly — the updated details will be posted here as soon as they are confirmed.</p>
+<p>The secretariat is updating the conference details. Registration is temporarily paused. Please check back shortly — the updated details will be posted here as soon as they are confirmed.</p>
 <p class="mail">Questions? Write to <a href="mailto:imun.official@gmail.com">imun.official@gmail.com</a></p>
 </div></body>
 </html>`;

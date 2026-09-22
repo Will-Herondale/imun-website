@@ -72,7 +72,7 @@ const goodPayload = {
   munHistory: "Harvest MUN | 2026 | DISEC | Delegate | Special Mention",
   committeePref1: "DISEC",
   committeePref2: "UNHRC",
-  committeePref3: "EU",
+  committeePref3: "LS",
   countryPreference: "India",
   specialRequest: "",
   paymentReference: "UTR123456789012",

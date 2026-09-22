@@ -8,7 +8,7 @@ import { siteUrl } from "@/app/layout";
 export const metadata: Metadata = {
   title: "Committees",
   description:
-    "The four committees of IMUN — DISEC, UNHRC, the European Union and the Joint Crisis Committee.",
+    "The four committees of IMUN — DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee.",
   alternates: { canonical: `${siteUrl}/committees` },
 };
 

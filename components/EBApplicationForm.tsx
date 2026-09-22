@@ -109,7 +109,7 @@ export function EBApplicationForm() {
       return;
     }
     const name = values.fullName.trim();
-    const q = values.committeePref1 === "JCC" ? "Joint Crisis Committee" : values.committeePref1;
+    const q = committees.find((c) => c.code === values.committeePref1)?.name ?? values.committeePref1;
     const body = [
       "Executive Board application — IMUN 2026",
       "",
@@ -272,7 +272,7 @@ export function EBApplicationForm() {
           </div>
           <div className="flex items-end pb-1">
             <p className="text-[0.85rem] leading-relaxed text-steel-500">
-              The four committees of the session are DISEC, UNHRC, the European Union and the Joint Crisis Committee. Placements are confirmed by the secretariat after shortlisting.
+              The four committees of the session are DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee. Placements are confirmed by the secretariat after shortlisting.
             </p>
           </div>
 
@@ -392,7 +392,7 @@ export function EBApplicationForm() {
               <input id="f-availabilityFull" name="availabilityFull" type="checkbox" className="mt-1 h-5 w-5 accent-[#0e284c]" checked={values.availabilityFull}
                 onChange={(e) => set("availabilityFull", e.target.checked)} />
               <label htmlFor="f-availabilityFull" className="text-[0.95rem] leading-relaxed text-navy-800">
-                18. I can attend the full conference on 10–11 October 2026.
+                18. I can attend the full conference on 24–25 October 2026.
               </label>
             </div>
             <div className="flex items-start gap-3">

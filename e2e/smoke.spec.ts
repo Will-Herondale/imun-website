@@ -60,7 +60,7 @@ test.describe("registration flow", () => {
       .fill("Harvest MUN | 2026 | DISEC | Delegate | Special Mention");
     await page.getByLabel(/first committee/i).selectOption("DISEC");
     await page.getByLabel(/second committee/i).selectOption("UNHRC");
-    await page.getByLabel(/third committee/i).selectOption("EU");
+    await page.getByLabel(/third committee/i).selectOption("LS");
     await page.getByLabel(/preferred country/i).fill("India");
     await page.getByLabel(/transaction ID/i).fill("412345678901");
     await page.getByLabel(/I confirm that/i).check();

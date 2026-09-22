@@ -139,7 +139,7 @@ export default function HomePage() {
               Join the dais — chair or vice-chair a committee at IMUN 2026.
             </h2>
             <p className="mt-3 max-w-2xl text-[0.98rem] leading-relaxed text-steel-600">
-              DISEC, UNHRC, the European Union and the Joint Crisis Committee all need
+              DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee all need
               chairs. Prior dais experience is preferred but not required for every seat.
             </p>
           </div>

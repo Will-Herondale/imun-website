@@ -23,8 +23,9 @@ export default function ConferencePage() {
 
   const confirmed = [
     { label: "Format", value: site.format },
-    { label: "Venue", value: site.venue.name || tba("") },
-    { label: "Committees", value: "Four — DISEC, UNHRC, EU and the Joint Crisis Committee" },
+    { label: "Dates", value: site.date },
+    { label: "Venue", value: tba(site.venue.name) },
+    { label: "Committees", value: "Four — DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee" },
     { label: "Duration", value: `${site.days} days` },
     { label: "Expected delegates", value: `${site.expectedDelegates} delegates` },
     { label: "Delegate fee", value: `${feeRange} by registration round` },
@@ -33,7 +34,6 @@ export default function ConferencePage() {
   ];
 
   const pending = [
-    { label: "Dates", value: tba(site.date) },
     { label: "Edition", value: tba(site.edition) },
     { label: "Session theme", value: tba(site.theme) },
   ];

@@ -114,7 +114,7 @@ async function main() {
       <text x="556" y="250" font-family="Arial, Helvetica, sans-serif" font-size="86" font-weight="700" fill="#ffffff" letter-spacing="2">IMUN</text>
       <text x="560" y="304" font-family="Arial, Helvetica, sans-serif" font-size="29" fill="#c2d8fb" letter-spacing="7">MODEL UNITED NATIONS</text>
       <line x1="560" y1="342" x2="1090" y2="342" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
-      <text x="560" y="388" font-family="Arial, Helvetica, sans-serif" font-size="25" fill="#ffffff">Indian MUN · 10–11 October 2026</text>
+      <text x="560" y="388" font-family="Arial, Helvetica, sans-serif" font-size="25" fill="#ffffff">Indian MUN · 24–25 October 2026</text>
     </svg>`
   );
 

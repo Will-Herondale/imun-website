@@ -1,7 +1,7 @@
 /**
  * Committee roster for the current IMUN session.
  *
- * The session runs four committees: DISEC, UNHRC, EU and the JCC. Each carries
+ * The session runs four committees: DISEC, UNHRC, the Lok Sabha and the CCC. Each carries
  * its confirmed executive board, published here for information only.
  *
  * Changing committee names here automatically updates:
@@ -67,18 +67,18 @@ export const committees: Committee[] = [
     executiveBoard: { chairpersons: 1, viceChairpersons: 1, rapporteurs: 1 },
   },
   {
-    code: "EU",
-    name: "European Union",
-    category: "Regional Body",
+    code: "LS",
+    name: "Lok Sabha",
+    category: "Parliamentary",
     agenda: "Set by the committee chair",
     description:
-      "The council of European member states, negotiating common positions on trade, security and enlargement. Delegates balance national interest against the bloc's collective voice.",
+      "The lower house of the Indian Parliament, where elected members legislate, question and debate the issues that shape the country. Delegates balance constituency interest against party discipline in the chamber of the people.",
     seats: 25,
     executiveBoard: { chairpersons: 1, viceChairpersons: 1, rapporteurs: 1 },
   },
   {
-    code: "JCC",
-    name: "Joint Crisis Committee",
+    code: "CCC",
+    name: "Continuous Crisis Committee",
     category: "Crisis Committee",
     agenda: "Set by the committee chair",
     description:

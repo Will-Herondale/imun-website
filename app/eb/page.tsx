@@ -8,7 +8,7 @@ import { siteUrl } from "@/app/layout";
 
 export const metadata: Metadata = {
   title: "Executive Board",
-  description: `Apply to join the Executive Board of ${"IMUN 2026"} as Chairperson or Vice-Chairperson — DISEC, UNHRC, the European Union and the Joint Crisis Committee.`,
+  description: `Apply to join the Executive Board of ${"IMUN 2026"} as Chairperson or Vice-Chairperson — DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee.`,
   alternates: { canonical: `${siteUrl}/eb` },
 };
 
@@ -19,7 +19,7 @@ export default function EBPage() {
         path="/eb"
         section="Executive Board"
         title="Join the dais"
-        lede="The Executive Board carries the room — the chairs and vice-chairs who lead DISEC, UNHRC, the European Union and the Joint Crisis Committee through the session."
+        lede="The Executive Board carries the room — the chairs and vice-chairs who lead DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee through the session."
       />
 
       <section className="section">
