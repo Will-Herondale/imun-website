@@ -48,8 +48,9 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "Is IMUN 2026 online or in person?",
     answer:
-      `IMUN 2026 is held in person on ${site.date}. The venue is being finalised and will be announced here as soon as it is confirmed. ` +
-      `Delegates join us for the full two-day sessions; committee materials and schedule updates are emailed to registered delegates before the conference.`,
+      `IMUN 2026 is held fully online on ${site.date}, using a live video platform. ` +
+      `Joining links, background guides and your committee materials are emailed to registered delegates before the conference. ` +
+      `The committees and rules of procedure are unchanged; only the room has moved online.`,
   },
   {
     question: "What is the dress code?",

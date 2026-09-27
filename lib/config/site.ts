@@ -43,16 +43,15 @@ export const site = {
   dateIso: { start: "2026-10-24", end: "2026-10-25" },
 
   /**
-   * Venue object. Physical edition with the venue still to be finalised; an
-   * empty name renders as "To be announced" across the site.
+   * Venue object. Online edition: the "venue" is the event platform.
    */
   venue: {
-    name: "",
+    name: "Online",
     city: "",
   },
 
   /** Conference format, published across the site. */
-  format: "In person",
+  format: "Fully online",
 
   /**
    * Delegate registration fee. Fees rise by registration round, so `amount`
