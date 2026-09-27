@@ -7,8 +7,8 @@ Push the revised session config to production Netlify (imunindia.com) and unstic
 
 ## Current session fact sheet
 - **Dates**: 24–25 October 2026 (moved from 10–11 Oct).
-- **Venue**: physical, **not yet decided** → render "To be announced"; format "In person".
-- **Fees (round-wise, reverted to old scheme; On-spot hidden entirely from the site)**:
+- **Venue**: **fully online** (confirmed 2026-09-27) — venue.name "Online", format "Fully online".
+- **Fees (round-wise, no On-spot mentioned on the site)**:
   - Round 1: ₹1,600
   - Round 2: ₹2,100
   - Round 3: ₹2,500
