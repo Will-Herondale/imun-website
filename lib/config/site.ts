@@ -92,8 +92,8 @@ export const site = {
    */
   theme: "",
 
-  /** Delegate seats available across all committees (4 × 25). */
-  capacity: 100,
+  /** Delegate seats available across all committees (3 × 25). */
+  capacity: 75,
 
   /** Expected delegate turnout for the session (headline figure). */
   expectedDelegates: "150+",

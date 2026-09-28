@@ -8,7 +8,7 @@ import { siteUrl } from "@/app/layout";
 export const metadata: Metadata = {
   title: "Committees",
   description:
-    "The four committees of IMUN — DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee.",
+    "The three committees of IMUN — DISEC, UNHRC and AIPPM.",
   alternates: { canonical: `${siteUrl}/committees` },
 };
 
@@ -31,7 +31,7 @@ export default function CommitteesPage() {
         path="/committees"
         section="Committees"
         title="The committee roster"
-        lede="The confirmed roster of four committees. Each committee's agenda is set by its chair and issued ahead of the session."
+        lede="The confirmed roster of three committees. Each committee's agenda is set by its chair and issued ahead of the session."
       />
 
       <section className="section">
@@ -87,7 +87,7 @@ export default function CommitteesPage() {
             <div className="mt-12 rounded-[4px] border border-steel-200 bg-steel-50 p-6">
               <p className="text-[0.92rem] leading-relaxed text-steel-600">
                 <span className="font-semibold text-navy-800">On committees:</span>{" "}
-                the session runs four committees, each capped at {committees[0]?.seats ?? 25}{" "}
+                the session runs three committees, each capped at {committees[0]?.seats ?? 25}{" "}
                 delegate seats. Committee agendas are set by the chair of each chamber
                 and issued ahead of the session. First-time delegates are equally
                 welcome in every chamber; the secretariat allocates portfolios with

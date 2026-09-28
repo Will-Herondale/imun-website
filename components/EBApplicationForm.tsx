@@ -272,7 +272,7 @@ export function EBApplicationForm() {
           </div>
           <div className="flex items-end pb-1">
             <p className="text-[0.85rem] leading-relaxed text-steel-500">
-              The four committees of the session are DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee. Placements are confirmed by the secretariat after shortlisting.
+              The three committees of the session are DISEC, UNHRC and AIPPM. Placements are confirmed by the secretariat after shortlisting.
             </p>
           </div>
 

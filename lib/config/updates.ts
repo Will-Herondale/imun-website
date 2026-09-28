@@ -25,7 +25,7 @@ export const updates: UpdateEntry[] = [
     date: "2026-09-22",
     tag: "Conference",
     title: "Session dates confirmed — 24–25 October 2026",
-    body: "IMUN 2026 runs fully online on 24–25 October 2026 — no venue or travel needed. All four committees keep 25 delegate seats each, and joining links are emailed to registered delegates before the session.",
+    body: "IMUN 2026 runs fully online on 24–25 October 2026 — no venue or travel needed. All three committees keep 25 delegate seats each, and joining links are emailed to registered delegates before the session.",
   },
   {
     date: "2026-09-22",
@@ -37,7 +37,7 @@ export const updates: UpdateEntry[] = [
     date: "2026-09-22",
     tag: "Conference",
     title: "Committee roster updated",
-    body: "The session now runs DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee — each with 25 delegate seats and a confirmed executive board.",
+    body: "The session now runs DISEC, UNHRC and AIPPM — each with 25 delegate seats and a confirmed executive board.",
   },
   {
     date: "2026-09-19",

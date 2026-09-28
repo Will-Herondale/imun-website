@@ -24,7 +24,7 @@ export default function ConferencePage() {
     { label: "Format", value: site.format },
     { label: "Dates", value: site.date },
     { label: "Venue", value: tba(site.venue.name) },
-    { label: "Committees", value: "Four — DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee" },
+    { label: "Committees", value: "Three — DISEC, UNHRC and AIPPM" },
     { label: "Duration", value: `${site.days} days` },
     { label: "Expected delegates", value: `${site.expectedDelegates} delegates` },
     { label: "Delegate fee", value: `${flatFee} flat fee` },

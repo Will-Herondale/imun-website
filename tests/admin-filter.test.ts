@@ -19,7 +19,7 @@ function rec(overrides: Partial<RegistrationRecord> = {}): RegistrationRecord {
     munHistory: "",
     committeePref1: "DISEC",
     committeePref2: "UNHRC",
-    committeePref3: "LS",
+    committeePref3: "AIPPM",
     countryPreference: "India",
     specialRequest: "",
     paymentOrderId: "",
@@ -35,7 +35,7 @@ const rows = [
     id: "1",
     fullName: "Aarav Sharma",
     email: "aarav@example.com",
-    committeePref2: "CCC",
+    committeePref2: "AIPPM",
     countryPreference: "India",
   }),
   rec({
@@ -44,7 +44,7 @@ const rows = [
     email: "zoya@school.in",
     committeePref1: "UNHRC",
     committeePref2: "DISEC",
-    committeePref3: "CCC",
+    committeePref3: "AIPPM",
     countryPreference: "",
   }),
   rec({
@@ -52,8 +52,8 @@ const rows = [
     fullName: "Meera Iyer",
     email: "meera@example.com",
     committeePref1: "DISEC",
-    committeePref2: "LS",
-    committeePref3: "CCC",
+    committeePref2: "AIPPM",
+    committeePref3: "AIPPM",
   }),
 ];
 

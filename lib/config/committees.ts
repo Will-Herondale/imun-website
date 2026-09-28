@@ -1,7 +1,7 @@
 /**
  * Committee roster for the current IMUN session.
  *
- * The session runs four committees: DISEC, UNHRC, the Lok Sabha and the CCC. Each carries
+ * The session runs three committees: DISEC, UNHRC and AIPPM. Each carries
  * its confirmed executive board, published here for information only.
  *
  * Changing committee names here automatically updates:
@@ -67,24 +67,14 @@ export const committees: Committee[] = [
     executiveBoard: { chairpersons: 1, viceChairpersons: 1, rapporteurs: 1 },
   },
   {
-    code: "LS",
-    name: "Lok Sabha",
+    code: "AIPPM",
+    name: "All India Political Parties Meet",
     category: "Parliamentary",
     agenda: "Set by the committee chair",
     description:
-      "The lower house of the Indian Parliament, where elected members legislate, question and debate the issues that shape the country. Delegates balance constituency interest against party discipline in the chamber of the people.",
+      "A domestic parliamentary simulation where parties negotiate policy, coalition strategy and floor management under intense time pressure. Delegates argue from ideological positions while balancing party lines and national priorities.",
     seats: 25,
     executiveBoard: { chairpersons: 1, viceChairpersons: 1, rapporteurs: 1 },
-  },
-  {
-    code: "CCC",
-    name: "Continuous Crisis Committee",
-    category: "Crisis Committee",
-    agenda: "Set by the committee chair",
-    description:
-      "A fast-moving crisis simulation in which the board directs events as they unfold. Delegates respond to live developments and negotiate under pressure, where every directive carries immediate consequence.",
-    seats: 25,
-    executiveBoard: { director: 1, chairpersons: 2, viceChairpersons: 2, rapporteurs: 2 },
   },
 ];
 

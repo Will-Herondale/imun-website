@@ -24,7 +24,7 @@ function rec(overrides: Partial<RegistrationRecord> = {}): RegistrationRecord {
     munHistory: "",
     committeePref1: "DISEC",
     committeePref2: "UNHRC",
-    committeePref3: "CCC",
+    committeePref3: "AIPPM",
     countryPreference: "India",
     specialRequest: "",
     paymentOrderId: "",
