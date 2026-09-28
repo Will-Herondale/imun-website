@@ -54,25 +54,19 @@ export const site = {
   format: "Fully online",
 
   /**
-   * Delegate registration fee. Fees rise by registration round, so `amount`
-   * holds the lowest (Round 1) tier used for the headline figure and the
-   * structured-data offer. The full schedule lives in `registrationRounds`.
+   * Delegate registration fee (flat).
    */
   registrationFee: {
-    amount: 1600,
+    amount: 500,
     currency: "INR",
     note: "",
   },
 
   /**
-   * Registration rounds and their per-delegate fee. Editing this list updates
-   * the Registration and Conference pages. Rounds are expanded to run through
-   * the confirmation of the venue; the final round holds until the session.
+   * Registration fee schedule (single flat tier).
    */
   registrationRounds: [
-    { label: "Round 1", amount: 1600, window: "Until 8 October 2026", from: "2026-01-01", to: "2026-10-08" },
-    { label: "Round 2", amount: 2100, window: "9 – 18 October 2026", from: "2026-10-09", to: "2026-10-18" },
-    { label: "Round 3", amount: 2500, window: "19 – 25 October 2026", from: "2026-10-19", to: "2026-10-25" },
+    { label: "Delegate fee", amount: 500, window: "Flat fee for all delegates", from: "2026-01-01", to: "" },
   ],
 
   /**
@@ -141,7 +135,7 @@ export const site = {
   registrationOpen: true,
 
   /** Human-readable label for the current registration period. */
-  registrationLabel: "Registration open — Round 1 (₹1,600 until 8 October)",
+  registrationLabel: "Registration open — Flat fee ₹500",
 
   /** Committees offered at this session. Reorder = reorder dropdowns. */
   committeesInRoster: true,

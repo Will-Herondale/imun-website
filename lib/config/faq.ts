@@ -9,8 +9,6 @@ export type FaqEntry = {
 const inr = (amount: number) =>
   `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
 
-const [round1, round2, round3] = site.registrationRounds;
-
 export const faqEntries: FaqEntry[] = [
   {
     question: "Who is eligible to register as a delegate?",
@@ -30,17 +28,14 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "What is the registration fee, and what does it cover?",
     answer:
-      `The delegate fee is the same for every committee and is charged by registration round. ` +
-      `${round1.label} is ${inr(round1.amount)} (${round1.window}), ` +
-      `${round2.label} is ${inr(round2.amount)} (${round2.window}), ` +
-      `${round3.label} is ${inr(round3.amount)} (${round3.window}). ` +
+      `The delegate fee is the same for every committee: ${inr(site.registrationFee.amount)} per delegate (flat). ` +
       `The fee covers your committee sessions, conference materials and a signed certificate.`,
   },
   {
     question: "How do I pay the delegate fee?",
     answer:
       `The fee is paid at checkout when you submit the registration form: you are taken to a secure UPI payment page and can pay ₹` +
-      `${site.registrationFee.amount.toLocaleString("en-IN")} (or the current round's fee) from any UPI app — Google Pay, PhonePe, Paytm, ${site.payment.provider} or any other. ` +
+      `${site.registrationFee.amount.toLocaleString("en-IN")} from any UPI app — Google Pay, PhonePe, Paytm, ${site.payment.provider} or any other. ` +
       `Your seat is confirmed the moment the payment is verified, and you are returned to the form automatically. ` +
       `If you prefer to pay another way, you can send the fee to the wallet ID ${site.payment.walletId} from any UPI app and enter the transaction ID / UTR on the form for the secretariat to reconcile manually. ` +
       `A submission does not by itself confirm a seat until the fee is received.`,
@@ -70,7 +65,7 @@ export const faqEntries: FaqEntry[] = [
   {
     question: "When does registration close?",
     answer:
-      `Registration runs through the session dates (${site.date}), with the fee rising by round as the conference approaches. ` +
-      `Earlier rounds carry a lower fee and committee seats are limited, so registering early is recommended.`,
+      `Registration runs through the session dates (${site.date}), subject to seat availability. ` +
+      `Committee seats are limited, so registering early is recommended.`,
   },
 ];

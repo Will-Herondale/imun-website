@@ -9,7 +9,7 @@ import { absoluteUrl } from "@/lib/seo/site-url";
 export const metadata: Metadata = {
   title: "Updates",
   description:
-    "Official announcements from the IMUN secretariat — registration rounds, payment, conference dates and allocations.",
+    "Official announcements from the IMUN secretariat — registration, payment, conference dates and allocations.",
   alternates: { canonical: `${siteUrl}/updates` },
 };
 
@@ -45,7 +45,7 @@ export default function UpdatesPage() {
         path="/updates"
         section="Updates"
         title="Secretariat announcements"
-        lede="Registration rounds, payment and conference notices — published here as they are confirmed."
+        lede="Registration, payment and conference notices — published here as they are confirmed."
       />
 
       <JsonLd data={jsonLd} />

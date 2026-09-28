@@ -16,6 +16,12 @@ export type UpdateEntry = {
 
 export const updates: UpdateEntry[] = [
   {
+    date: "2026-09-28",
+    tag: "Registration",
+    title: "Delegate fee updated to a flat ₹500",
+    body: "Delegate registration now follows a single flat fee of ₹500 per delegate for the full session.",
+  },
+  {
     date: "2026-09-22",
     tag: "Conference",
     title: "Session dates confirmed — 24–25 October 2026",
@@ -24,8 +30,8 @@ export const updates: UpdateEntry[] = [
   {
     date: "2026-09-22",
     tag: "Registration",
-    title: "Registration is open — Round 1 at ₹1,600",
-    body: "Delegate registration is open at the Round 1 fee of ₹1,600 until 8 October 2026, then ₹1,600, ₹2,100 and ₹2,500 in later rounds. Registering early is recommended as committee seats are limited.",
+    title: "Registration is open",
+    body: "Delegate registration is open for IMUN 2026. Committee seats are limited and are confirmed after successful payment.",
   },
   {
     date: "2026-09-22",

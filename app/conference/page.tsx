@@ -17,9 +17,8 @@ export const metadata: Metadata = {
 
 export default function ConferencePage() {
   const reg = registrationStatus();
-  const feeRounds = site.registrationRounds;
   const inr = (amount: number) => `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
-  const feeRange = `${inr(Math.min(...feeRounds.map((r) => r.amount)))} – ${inr(Math.max(...feeRounds.map((r) => r.amount)))}`;
+  const flatFee = inr(site.registrationFee.amount);
 
   const confirmed = [
     { label: "Format", value: site.format },
@@ -28,7 +27,7 @@ export default function ConferencePage() {
     { label: "Committees", value: "Four — DISEC, UNHRC, the Lok Sabha and the Continuous Crisis Committee" },
     { label: "Duration", value: `${site.days} days` },
     { label: "Expected delegates", value: `${site.expectedDelegates} delegates` },
-    { label: "Delegate fee", value: `${feeRange} by registration round` },
+    { label: "Delegate fee", value: `${flatFee} flat fee` },
     { label: "Participation", value: "School and college students across India" },
     { label: "Conduct", value: "Formal dress code, formal debate, English language" },
   ];

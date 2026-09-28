@@ -21,10 +21,8 @@ export default function RegistrationPage() {
   const reg = registrationStatus();
   const paymentsLive = famgatewayConfigured();
   const feeRounds = site.registrationRounds;
-  const feeMin = Math.min(...feeRounds.map((r) => r.amount));
-  const feeMax = Math.max(...feeRounds.map((r) => r.amount));
   const inr = (amount: number) => `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
-  const feeRange = `${inr(feeMin)} – ${inr(feeMax)}`;
+  const feeDisplay = inr(site.registrationFee.amount);
 
   return (
     <>
@@ -60,7 +58,7 @@ export default function RegistrationPage() {
                     </div>
                     <div className="flex items-baseline justify-between gap-4">
                       <dt className="text-steel-500">Delegate fee</dt>
-                      <dd className="font-semibold text-navy-900">{feeRange}</dd>
+                      <dd className="font-semibold text-navy-900">{feeDisplay}</dd>
                     </div>
                     <div className="flex items-baseline justify-between gap-4">
                       <dt className="text-steel-500">Committees</dt>
@@ -129,8 +127,8 @@ export default function RegistrationPage() {
           <div className="col-span-12 lg:col-span-5">
             <SectionHeading
               kicker="Fees and payment"
-              title="Delegate fee by registration round"
-              intro="Fees are charged per delegate and rise as the session approaches. Registering in an earlier round secures the lower fee."
+              title="Delegate fee"
+              intro="The delegate fee is fixed for this session."
             />
           </div>
           <div className="col-span-12 lg:col-span-6 lg:col-start-7">
