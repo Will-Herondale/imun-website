@@ -3,29 +3,27 @@
 > Update this file after every task so progress survives compressions/restarts.
 
 ## Objective (current)
-Push the revised session config to production Netlify (imunindia.com) and unstick the Fortinet firewall block on the domain.
+Hosting live on **Azure App Service** (imunindia-2026) at imunindia.com — cutover from Netlify complete. Recent work: added "paid but not registered" payment-reconciliation flagging to the admin panel (03 Oct 2026).
 
 ## Current session fact sheet
-- **Dates**: 24–25 October 2026 (moved from 10–11 Oct).
-- **Venue**: **fully online** (confirmed 2026-09-27) — venue.name "Online", format "Fully online".
-- **Fees (round-wise, no On-spot mentioned on the site)**:
-  - Round 1: ₹1,600
-  - Round 2: ₹2,100
-  - Round 3: ₹2,500
-  - **Do NOT mention On-spot anywhere on the website.**
-  - Round windows must be expanded to work with the new dates (event ends 25 Oct).
-  - Old (pre-online) scheme shadow copy (for reference): R1 1600 / R2 2200 / R3 3000 / On-spot 3500.
-- **Registrations**: reopen. `REGISTRATION_OPEN=true` (Netlify env currently `false`).
-- **Committees** (roster = 4):
-  - DISEC (unchanged)
-  - UNHRC (unchanged)
-  - EU Council **→ Lok Sabha** (code LS, Indian Parliament, "Lok Sabha")
-  - JCC **→ CCC** = **Continuous Crisis Committee** (went online on 2026-09-22; confirmed full form: Continuous Crisis Committee)
-- **Board (lib/config/board.ts)**: "Marketing Head / Rithvik Dosapati" → **"Under-Secretary-General, Marketing / Atiksh"**.
-- Deployment: Netlify, site id `8bf4f6a7-4c41-4d6e-aeed-4083b2764d11`, account `IMUN_TECH` (id `6aae48f9a10b67aac791452e`), repo `Will-Herondale/imun-website` branch `main`. Netlify API token lives in Netlify CLI config on this machine (see below).
-- Netlify env vars currently set (2026-09-22): ADMIN_PASSWORD, ADMIN_SESSION_SECRET, FAMGATEWAY_API_KEY (fam_027a01b5c6479538ef00a0496e397bdb1eecae56), NETLIFY_DATABASE_URL (neon postgres), NEXT_PUBLIC_SITE_URL, **REGISTRATION_OPEN=false** (→ flip to true), **SITE_MAINTENANCE=false** (already off), ADMIN_EMAIL.
-- Netlify API base: `https://api.netlify.com/api/v1`. Sites env GET is `GET /sites/{site_id}/env`. Env vars are managed at account level: `PUT /accounts/{account_id}/env/{key}?site_id={site_id}` (account id `6aae48f9a10b67aac791452e`).
-- Local dev: `npm run dev`, preview was PID 11704 on `http://192.168.1.12:3000` (may be stale). Tests: 57 passed. Build: `npm run build` / `npm run build:netlify`.
+- **Dates**: 24–25 October 2026.
+- **Venue**: **fully online** — venue "Online", format "Fully online".
+- **Fees**: **flat ₹500 per delegate** (single tier, no rounds, no On-spot mention anywhere).
+- **Registrations**: open. `REGISTRATION_OPEN=true` set on Azure app settings AND Netlify env.
+- **Committees** (roster = 3, capacity 75 = 25/committee):
+  - DISEC
+  - UNHRC
+  - AIPPM
+  - (Lok Sabha/CCC/others removed on 2026-09-28, commit `36a0d08`.)
+- **Board (lib/config/board.ts)**: "Under-Secretary-General, Marketing / Atiksh".
+- **Hosting**: Azure App Service **`imunindia-2026`**, RG `Pulse`, plan `PulsePlan` (Linux, **B1** Basic, Central India). App host `imunindia-2026.azurewebsites.net`; custom domains `imunindia.com` + `www.imunindia.com` bound with App Service managed TLS (SNI). Apex A → `20.192.171.16`, www CNAME → imunindia-2026.azurewebsites.net (BigRock DNS, asuid TXT verification ID `C7637823FD7F9C8B21DE9CF416B63F0EA5F5D3B6166B72A50A518A4F9905D519`).
+- Deploy flow: `npm run build:standalone` → `deploy-artifact/iemun-standalone.zip` → `az webapp deploy --resource-group Pulse --name imunindia-2026 --src-path deploy-artifact/iemun-standalone.zip --type zip --clean true --restart true`. Runtime NODE|24-lts; startup `node server.js`; httpsOnly=true.
+- Azure app settings (copy of the Netlify set): ADMIN_EMAIL/PASSWORD/SESSION_SECRET, FAMGATEWAY_API_KEY (fam_027a01b5c6479538ef00a0496e397bdb1eecae56), NETLIFY_DATABASE_URL (Neon), NEXT_PUBLIC_SITE_URL=https://imunindia.com, REGISTRATION_OPEN=true, SITE_MAINTENANCE=false.
+- **Netlify halted**: account build credits exhausted; deploys error `Skipped due to account credit usage exceeded` (reset approx 19 Oct 2026 12:30 IST). Netlify CLI deploy → `Forbidden`. Netlify still owns site id `8bf4f6a7-4c41-4d6e-aeed-4083b2764d11` (used as 24h fallback; DNS now points at Azure, so it no longer serves imunindia.com).
+- **Payments**: FamGateway. Flow = pay at checkout → poll `/api/payments/status` → POST `/api/registrations` persists row (paid only after server re-verify & amount==fee ₹500; manual UTR → `unverified`). Webhook is HMAC-SHA256 (`X-FamGateway-Signature`, key = FAMGATEWAY_API_KEY). **Payment orphans**: when a success webhook has no linked registration, a `payment_orphans` row is recorded and shown in the admin Registrations tab banner; auto-cleared when the order is finally used, or dismissed via `POST /api/admin/payment-orphans/[orderId]`.
+- **DB**: Neon Postgres `ep-muddy-dream-az54zxs7-c-3.ap-southeast-1` → db `neondb` (role neondb_owner). Tables: `registrations` (+ additive migrations), `payment_orphans`. Admin list API returns `items,total,pages,page,grandTotal,orphans,orphanCount`.
+- **Rate limit**: registrations 3/IP/10 min; payments 30/IP/10 min; admin login 8/IP/15 min (in-memory, single instance).
+- Local dev: `npm run dev`. Tests: 62 passed, typecheck + lint clean.
 
 ## Persistent helpers
 - **UAC helper**: `scripts/uac/` — `install-uac-helper.ps1` (register scheduled task `IMUN-ElevatedRunner`, one UAC prompt), `elevated-runner.ps1` (runs pending request), `sudo.ps1` (invoke elevated command without prompting). Request dir `%TEMP%\imun-uac\req-<id>.json`.
@@ -45,7 +43,7 @@ Push the revised session config to production Netlify (imunindia.com) and unstic
 - FamGateway live key `fam_027a01b5c6479538ef00a0496e397bdb1eecae56` still active + spare order `fg_2FF3AG1P`; admin creds (ADMIN_PASSWORD in env) unrotated. Rotate after event if not used.
 
 ## Fortinet (open)
-- imunindia.com reportedly blocked by Fortinet firewall. Root cause check: DNS resolves (A → 75.2.60.5, Netlify), site 200, HTTPS + strict CSP, no malware indicators. FortiGuard's public URL lookup returns 403 to automated requests, so the block is most plausibly **FortiGuard categorising imunindia.com as "Unrated"/"Newly Registered" (or a stale category)** — FortiGate policies default-block unrated domains.
+- imunindia.com reportedly blocked by Fortinet firewall. Root cause check: DNS resolves (now A → 20.192.171.16, Azure), site 200, HTTPS + strict CSP, no malware indicators. FortiGuard's public URL lookup returns 403 to automated requests, so the block is most plausibly **FortiGuard categorising imunindia.com as "Unrated"/"Newly Registered" (or a stale category)** — FortiGate policies default-block unrated domains.
 
 ### Unblock steps (execute on the FortiGate admin)
 1. **Confirm the category** — log in to FortiGate → `Security Profiles > Web Filter`, open the profile applied to the outbound policy; run `diagnose webfilter fortiguard lookup imunindia.com` (CLI) or check FortiView `Web Filter` logs for `imunindia.com` to see the category returned.
@@ -76,3 +74,10 @@ Push the revised session config to production Netlify (imunindia.com) and unstic
 | 22:38 | Prod verify | /200, /registration open (422 vs previous 409), /eb /committees /conference 200; "Venue to be announced", "24–25 October", ₹1,600, Lok Sabha + CCC visible. |
 | 22:50 | Fortinet | Root cause documented; FortiGuard lookup is 403 to bots; admin-side unblock + reclassify steps written. |
 | **2026-09-22 ~22:50 IST** | **ALL TASKS COMPLETE** | **UAC helper + site republish + Fortinet doc done.** |
+| 2026-09-27 | Online format confirmed | Venue "Online", format "Fully online" (commit `7044ae7`). |
+| 2026-09-28 | Flat fee ₹500 | Single flat ₹500 fee applied across site/FAQ/pages/tests (commit `14ae1a2`). |
+| 2026-09-28 | Roster → AIPPM only | DISEC/UNHRC/AIPPM, capacity 75 (commit `36a0d08`); flat fee + AIPPM not live on Netlify (credits exhausted). |
+| 2026-09-28 | Azure cutover | Built + deployed standalone to App Service **imunindia-2026** (B1). Bound imunindia.com + www on Azure, managed TLS SNI certs issued/bound. DNS (BigRock): apex A → 20.192.171.16, www CNAME → imunindia-2026.azurewebsites.net, asuid TXT verification. Netlify kept as 24h fallback (now out of path). |
+| 2026-10-03 | Registration triage | SG reported 3 paid registrations missing from admin. Neon had exactly 1 (Saptajit Das, unverified, UTR 130636058736). Root cause: registration only persists on final POST; paid-but-incomplete submits are silently lost. Verified live write path end-to-end (test row created → seen in admin API → deleted). |
+| 2026-10-03 | Orphan reconciliation feature | `payment_orphans` table + store (`lib/storage/paymentOrphans.ts`); webhook records paid-but-unregistered orders; registration POST auto-clears orphan; admin list returns `orphans`/`orphanCount`; dashboard shows reconciliation banner with Dismiss (`POST /api/admin/payment-orphans/[orderId]`). Tests 62/62, lint + typecheck clean; deployed to Azure and verified live (table exists, resolve endpoint 200). |
+| **2026-10-03** | **STATE** | **Live on Azure; orphan-flag feature deployed; awaiting SG's 3 names/emails to reconcile.** |

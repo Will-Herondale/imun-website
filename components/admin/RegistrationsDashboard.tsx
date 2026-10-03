@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AllocationStatus, PaymentStatus, RegistrationRecord } from "@/lib/validation/registration";
+import type { PaymentOrphan } from "@/lib/storage/paymentOrphans";
 import { allocationStatusLabels } from "@/lib/allocations";
 import { committeeName } from "@/lib/display";
 import { committees } from "@/lib/config/committees";
@@ -16,6 +17,8 @@ type ListResponse = {
   pages: number;
   page: number;
   grandTotal: number;
+  orphans?: PaymentOrphan[];
+  orphanCount?: number;
 };
 
 const PAGE_SIZE = 25;
@@ -58,6 +61,7 @@ export function RegistrationsDashboard({ email }: { email: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [orphans, setOrphans] = useState<PaymentOrphan[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const load = useCallback(
@@ -86,6 +90,7 @@ export function RegistrationsDashboard({ email }: { email: string }) {
         setGrandTotal(data.grandTotal ?? data.total ?? 0);
         setPages(data.pages ?? 1);
         setPage(data.page ?? 1);
+        setOrphans(data.orphans ?? []);
       } catch {
         setError("Could not load registrations. Try again.");
       } finally {
@@ -122,6 +127,14 @@ export function RegistrationsDashboard({ email }: { email: string }) {
     setItems((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
     setRefreshKey((k) => k + 1);
   }, []);
+
+  async function dismissOrphan(orderId: string) {
+    try {
+      await fetch(`/api/admin/payment-orphans/${encodeURIComponent(orderId)}`, { method: "POST" });
+    } finally {
+      load({ search, committee, status, page, sort, dir });
+    }
+  }
 
   async function logout() {
     try {
@@ -191,6 +204,40 @@ export function RegistrationsDashboard({ email }: { email: string }) {
           <AllocationMatrix refreshKey={refreshKey} />
         ) : (
           <div className="py-6">
+            {/* Paid but not registered — reconciliation list */}
+            {orphans.length > 0 ? (
+              <div className="mb-6 rounded-[3px] border border-[#e5cfa0] bg-[#fdf6e6] p-5" role="status">
+                <p className="flex items-center gap-2 font-semibold text-[#8a6215]">
+                  <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-[#d9a03a]" />
+                  {orphans.length} payment{orphans.length === 1 ? "" : "s"} received with no linked registration
+                </p>
+                <p className="mt-1 text-[0.85rem] text-[#8a6215]/90">
+                  These delegates paid at checkout but their registration did not complete. Ask them to finish the
+                  form — the flag clears automatically once the order is used.
+                </p>
+                <ul className="mt-3 flex flex-col gap-2">
+                  {orphans.map((o) => (
+                    <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e5cfa0]/60 pt-2">
+                      <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.85rem] text-navy-900">
+                        <span className="font-mono text-[0.8rem]">{o.orderId}</span>
+                        <span>₹{o.amount.toLocaleString("en-IN")}</span>
+                        {o.utr ? <span className="font-mono text-[0.8rem] text-steel-600">UTR {o.utr}</span> : null}
+                        {o.payer ? <span className="text-steel-600">{o.payer}</span> : null}
+                        <span className="text-steel-500">{new Date(o.receivedAt).toLocaleString("en-IN")}</span>
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-outline !px-3 !py-1.5"
+                        onClick={() => dismissOrphan(o.orderId)}
+                      >
+                        Dismiss
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             {/* Toolbar */}
             <div className="flex flex-wrap items-center gap-3">
               <div className="min-w-[14rem] flex-1">

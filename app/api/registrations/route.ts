@@ -7,6 +7,7 @@ import {
   type PaymentFields,
 } from "@/lib/validation/registration";
 import { activeStore } from "@/lib/storage";
+import { orphanStore } from "@/lib/storage/paymentOrphans";
 import { feeAmountFor } from "@/lib/config/site";
 import { famgatewayConfigured, verifyPaymentOrder } from "@/lib/payments/famgateway";
 import { isRegistrationOpen } from "@/lib/registration-control";
@@ -139,6 +140,15 @@ export async function POST(request: NextRequest) {
       id: result.record.id,
       paymentStatus: result.record.paymentStatus,
     });
+    // The delegate completed a previously orphaned payment: clear the flag so
+    // the payment reconciliation list reflects reality. Best-effort.
+    if (data.paymentOrderId) {
+      await orphanStore()
+        .resolve(data.paymentOrderId)
+        .catch(() => {
+          log.warn("failed to clear payment orphan", { orderId: data.paymentOrderId });
+        });
+    }
     return jsonOk(
       {
         accepted: true,

@@ -31,7 +31,7 @@ export default function EBPage() {
             <Reveal>
               <p>
                 Good chairs set the temperature of the room. They run the Rules
-                of Procedure without weighing debate down, keep the speakers'
+                of Procedure without weighing debate down, keep the speakers&apos;
                 list moving, and make sure a first-time delegate is as able to
                 contribute as a veteran. That is the EB we are building for
                 IMUN 2026.

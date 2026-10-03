@@ -6,6 +6,10 @@ import {
   type RegistrationStore,
 } from "@/lib/storage";
 import {
+  overrideOrphanStoreForTests,
+  type PaymentOrphanStore,
+} from "@/lib/storage/paymentOrphans";
+import {
   emptyAllocation,
   emptyPayment,
   type PaymentFields,
@@ -83,6 +87,24 @@ const goodPayload = {
 
 let ipCounter = 1;
 
+function fakeOrphanStore() {
+  const resolved: string[] = [];
+  const store: PaymentOrphanStore = {
+    async ensure() {},
+    async recordPaidOrphan() {},
+    async listUnresolved() {
+      return [];
+    },
+    async countUnresolved() {
+      return 0;
+    },
+    async resolve(orderId) {
+      resolved.push(orderId);
+    },
+  };
+  return { store, resolved };
+}
+
 function post(body: string | object, header?: Record<string, string>): Promise<Response> {
   const payload = typeof body === "string" ? body : JSON.stringify(body);
   // Unique X-Forwarded-For per call so in-memory per-IP rate limits never
@@ -99,9 +121,13 @@ function post(body: string | object, header?: Record<string, string>): Promise<R
 describe("POST /api/registrations", () => {
   beforeEach(() => {
     overrideStoreForTests(fakeStore());
+    overrideOrphanStoreForTests(null);
   });
   afterEach(() => {
+    overrideStoreForTests(null);
+    overrideOrphanStoreForTests(null);
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   it("stores a valid submission and returns 201", async () => {
@@ -153,6 +179,29 @@ describe("POST /api/registrations", () => {
     expect(res.status).toBe(503);
     const data = (await res.json()) as { code: string };
     expect(data.code).toBe("PAYMENTS_UNAVAILABLE");
+  });
+
+  it("clears the payment orphan when an automated order is used (201)", async () => {
+    vi.stubEnv("FAMGATEWAY_API_KEY", "test-key");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          status: "success",
+          data: { amount: 500, utr: "UTR998877", sender_name: "Aarav" },
+        }),
+      }))
+    );
+    const { store, resolved } = fakeOrphanStore();
+    overrideOrphanStoreForTests(store);
+    const res = await post({
+      ...goodPayload,
+      paymentReference: "",
+      paymentOrderId: "fg_order_resolve",
+    });
+    expect(res.status).toBe(201);
+    expect(resolved).toEqual(["fg_order_resolve"]);
   });
 
   it("rejects oversized bodies (413)", async () => {

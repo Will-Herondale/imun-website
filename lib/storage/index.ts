@@ -38,6 +38,6 @@ export function activeStore(): RegistrationStore {
 }
 
 /** Test seam: swap a fake store while keeping the same module surface. */
-export function overrideStoreForTests(store: RegistrationStore): void {
+export function overrideStoreForTests(store: RegistrationStore | null): void {
   testOverride = store;
 }
