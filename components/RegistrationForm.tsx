@@ -105,7 +105,6 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<{ duplicate: boolean; paymentStatus: string } | null>(null);
-  const [manualMode, setManualMode] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
   const [pendingIntent, setPendingIntent] = useState<PendingIntent | null>(null);
   const [restored, setRestored] = useState<string | null>(null);
@@ -122,10 +121,6 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
     }
   }, [values, result]);
 
-  useEffect(() => {
-    if (manualMode) track("payment_manual_fallback");
-  }, [manualMode]);
-
   const set = useCallback(<K extends keyof Values>(key: K, value: Values[K]) => {
     if (!startedRef.current) {
       startedRef.current = true;
@@ -141,8 +136,9 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
 
   /**
    * The single body every path sends. The automated path posts this to
-   * /api/registrations/intents (payment fields are ignored there); the manual
-   * path posts it to /api/registrations with the UTR the delegate typed.
+   * /api/registrations/intents (payment fields are ignored there); the
+   * post-payment fallback posts it to /api/registrations together with the
+   * order id the checkout returned.
    */
   const payloadFor = useCallback((v: Values): RegistrationInput => {
     return {
@@ -185,25 +181,13 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
     }
     if (!v.declarationAccurate) errs.declarationAccurate = "You must confirm that the information is accurate.";
     if (!v.declarationRules) errs.declarationRules = "You must agree to follow the rules and regulations of IMUN.";
-    if (!paymentsLive && !v.paymentOrderId) {
-      const ref = v.paymentReference.trim();
-      if (ref.length < 6) errs.paymentReference = "Enter the payment reference / UTR from your payment confirmation.";
-      else if (!/^[A-Za-z0-9][A-Za-z0-9\-/ .]{5,39}$/.test(ref)) errs.paymentReference = "Payment reference contains invalid characters.";
-    }
     return errs;
-  }, [paymentsLive]);
+  }, []);
 
   const submitRegistration = useCallback(
     async (override?: Partial<Values>) => {
       if (submitting || result) return;
       const v = { ...values, ...override };
-
-      const manualRef = v.paymentReference.trim();
-      if (!v.paymentOrderId && manualMode && manualRef.length > 0 && !/^[A-Za-z0-9][A-Za-z0-9\-/ .]{5,39}$/.test(manualRef)) {
-        setErrors((e) => ({ ...e, paymentReference: "Payment reference contains invalid characters." }));
-        setTouched((t) => ({ ...t, paymentReference: true }));
-        return;
-      }
 
       const honeypot = new FormData(formRef.current ?? undefined)
         .get("website")
@@ -263,7 +247,7 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         setSubmitting(false);
       }
     },
-    [values, submitting, result, manualMode, payloadFor]
+    [values, submitting, result, payloadFor]
   );
 
   /** Honeypot value from the hidden field; bots fill it, humans never see it. */
@@ -290,8 +274,18 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
       return;
     }
 
-// Manual-only mode, an already-verified order id, or a manual UTR → submit.
-    if (!paymentsLive || values.paymentOrderId || values.paymentReference.trim()) {
+/* Without a working gateway there is nothing to verify, so the form cannot
+     * accept a registration at all — a self-reported reference is not proof. */
+    if (!paymentsLive) {
+      setSubmitError(
+        "Online checkout is unavailable right now, so we cannot verify a payment. Please try again shortly or contact the secretariat."
+      );
+      return;
+    }
+
+    /* An order id in hand means the delegate already paid: finish that
+     * registration directly instead of opening a second order. */
+    if (values.paymentOrderId) {
       await submitRegistration();
       return;
     }
@@ -366,17 +360,18 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         return;
       }
 
-      // Automated payment not available — reveal the manual fallback.
-      setManualMode(true);
+      /* Checkout could not be opened. The answers are already saved on this device,
+       * so the delegate can simply try again — there is deliberately no
+       * "type your own reference" escape hatch, because that cannot be
+       * verified. */
       setPaymentNotice(
         res.status === 503
-          ? "Online checkout is temporarily unavailable. Pay the fee from any UPI app and enter the transaction ID / UTR below."
-          : data.error ?? "We could not start the online payment. Pay from any UPI app and enter the transaction ID / UTR below."
+          ? "Online checkout is temporarily unavailable. Your answers are saved — please try again in a few minutes."
+          : data.error ?? "We could not open the checkout. Your answers are saved — please try again in a few minutes."
       );
     } catch {
-      setManualMode(true);
       setPaymentNotice(
-        "We could not start the online payment. Your answers are saved — pay from any UPI app and enter the transaction ID / UTR below, or try again."
+        "We could not reach the payment service. Your answers are saved — please check your connection and try again."
       );
     } finally {
       setSubmitting(false);
@@ -470,16 +465,12 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
             </>
           ) : (
             <>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">Payment recorded — awaiting verification</p>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-brass-700">
+                Payment being verified
+              </p>
               <p className="mt-3 max-w-xl text-[0.92rem] leading-relaxed text-steel-600">
-                {values.paymentReference.trim() ? (
-                  <>
-                    We have logged your payment reference{" "}
-                    <span className="font-mono font-semibold text-navy-900">{values.paymentReference}</span> for
-                    verification against the wallet.{" "}
-                  </>
-                ) : null}
-                Your seat is confirmed once the secretariat matches the transfer.
+                We are still confirming your payment with the provider. Your seat is held, and the secretariat will
+                email your committee allotment once the payment clears.
               </p>
             </>
           )}
@@ -711,9 +702,9 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
                 moment the payment is verified.
               </p>
               <p className="mt-3 max-w-2xl text-[0.85rem] leading-relaxed text-steel-500">
-                Paying another way? You can send the fee to{" "}
-                <span className="font-mono font-semibold text-navy-900">{site.payment.walletId}</span> and record the
-                transaction ID / UTR instead.
+                Your answers are saved on our servers before you pay, so your registration completes even if you
+                close this page. A seat is only granted once the payment is verified with our payment provider —
+                we cannot accept a self-reported transaction reference.
               </p>
             </>
           ) : (
@@ -721,16 +712,10 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
               <p className="mt-3 max-w-2xl text-[0.92rem] leading-relaxed text-steel-600">
                 {site.payment.setupNotice}
               </p>
-              <dl className="mt-5 flex flex-wrap items-baseline gap-x-10 gap-y-3">
-                <div>
-                  <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Pay from</dt>
-                  <dd className="mt-1.5 font-semibold text-navy-900">Any UPI app</dd>
-                </div>
-                <div>
-                  <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-steel-500">Wallet ID</dt>
-                  <dd className="mt-1.5 font-mono text-[0.95rem] font-semibold text-navy-900">{site.payment.walletId}</dd>
-                </div>
-              </dl>
+              <p className="mt-3 max-w-2xl text-[0.85rem] leading-relaxed text-steel-500">
+                Registrations are paused until the checkout is available, because we only confirm a seat against a
+                verified payment. Please check back shortly.
+              </p>
             </>
           )}
         </div>
@@ -772,30 +757,6 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
             {paymentNotice}
           </div>
         ) : null}
-
-        <div className="mt-6 sm:max-w-md">
-          <label className="field-label" htmlFor="f-paymentReference">
-            13. UPI transaction ID / UTR{" "}
-            {!paymentsLive || manualMode ? (
-              <span aria-hidden="true" className="text-[#b42318]">*</span>
-            ) : (
-              <span className="text-steel-500">(optional if you use the secure checkout)</span>
-            )}
-          </label>
-          <input
-            id="f-paymentReference" name="paymentReference" type="text" autoComplete="off"
-            className="input font-mono" value={values.paymentReference} placeholder="e.g. 412345678901"
-            onChange={(e) => set("paymentReference", e.target.value)}
-            onBlur={() => markTouched("paymentReference")}
-            aria-invalid={touched.paymentReference && errors.paymentReference ? true : undefined}
-            aria-describedby={errors.paymentReference ? "err-paymentReference" : "hint-paymentReference"}
-          />
-          <span id="hint-paymentReference" className="field-hint">
-            Shown in your UPI app&apos;s payment confirmation (UTRs are usually 12 digits).
-            {paymentsLive && !manualMode ? " Leave blank if you use the secure checkout." : ""}
-          </span>
-          {touched.paymentReference && errors.paymentReference ? <p id="err-paymentReference" className="field-error" role="alert">{errors.paymentReference}</p> : null}
-        </div>
       </fieldset>
 
       <fieldset className="mt-14">
@@ -819,7 +780,7 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
               aria-describedby={errors.declarationAccurate ? "err-declarationAccurate" : undefined}
             />
             <label htmlFor="f-declarationAccurate" className="text-[0.95rem] leading-relaxed text-navy-800">
-              14. I confirm that the information provided above is accurate.
+              13. I confirm that the information provided above is accurate.
               <span aria-hidden="true" className="text-[#b42318]"> *</span>
             </label>
           </div>
@@ -837,7 +798,7 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
               aria-describedby={errors.declarationRules ? "err-declarationRules" : undefined}
             />
             <label htmlFor="f-declarationRules" className="text-[0.95rem] leading-relaxed text-navy-800">
-              15. I agree to follow the rules and regulations of IMUN.
+              14. I agree to follow the rules and regulations of IMUN.
               <span aria-hidden="true" className="text-[#b42318]"> *</span>
             </label>
           </div>
@@ -861,20 +822,26 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         ) : null}
 
         <div className="flex flex-wrap items-center gap-4">
-          <button type="submit" disabled={submitting} className="btn btn-primary min-w-[13rem] disabled:cursor-not-allowed disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={submitting || !paymentsLive}
+            className="btn btn-primary min-w-[13rem] disabled:cursor-not-allowed disabled:opacity-60"
+          >
             {submitting ? (
               <>
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />
                 Please wait…
               </>
-            ) : !paymentsLive || values.paymentOrderId || values.paymentReference.trim() ? (
+            ) : values.paymentOrderId ? (
               "Submit registration"
             ) : (
               `Pay ₹${feeAmountFor().toLocaleString("en-IN")} & register`
             )}
           </button>
           <p className="text-[0.8rem] text-steel-500">
-            You can submit this form only once per email address.
+            {paymentsLive
+              ? "You can submit this form only once per email address."
+              : "Registration is paused until online checkout is available."}
           </p>
         </div>
         <p className="mt-5 text-[0.8rem] leading-relaxed text-steel-400">

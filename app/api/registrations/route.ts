@@ -1,6 +1,5 @@
 import type { NextRequest } from "next/server";
 import {
-  emptyPayment,
   MAX_BODY_BYTES,
   registrationSchema,
   sanitizePayload,
@@ -88,100 +87,109 @@ export async function POST(request: NextRequest) {
   }
 
   /**
-   * Resolve payment BEFORE persisting. When a FamGateway order id is present it
-   * is re-verified server-to-server (never trusted from the browser) and the
-   * credited amount must match this round's fee exactly. A manual UTR is stored
-   * as "unverified" for the secretariat to reconcile by hand.
+   * Resolve payment BEFORE persisting. A FamGateway order id is re-verified
+   * server-to-server (never trusted from the browser) and the credited amount
+   * must match the fee quoted for this round.
+   *
+   * There is no self-reported fallback: a typed UTR cannot be verified, so it
+   * must not grant a seat. Offline/cash payments are added by the secretariat
+   * from the admin console after they have confirmed the transfer.
    */
-  let payment: PaymentFields;
-  if (data.paymentOrderId) {
-    if (!famgatewayConfigured()) {
-      return jsonError("Automated payment is temporarily unavailable. Please try again shortly.", 503, {
-        code: "PAYMENTS_UNAVAILABLE",
-      });
-    }
+  if (!data.paymentOrderId) {
+    return jsonError(
+      "We could not verify a payment for this registration. Please pay the delegate fee using the checkout on the registration page, then submit again.",
+      402,
+      { code: "PAYMENT_REQUIRED" }
+    );
+  }
 
-    /**
-     * If this order belongs to a stored draft, the registration is completed
-     * from those saved answers (the same code path the webhook and the
-     * confirmation page use). Re-sending the payload from the browser must
-     * never create a second row or report a spurious failure.
-     */
-    const intent = await intentStore()
-      .findByOrderId(data.paymentOrderId)
-      .catch(() => null);
+  if (!famgatewayConfigured()) {
+    return jsonError("Automated payment is temporarily unavailable. Please try again shortly.", 503, {
+      code: "PAYMENTS_UNAVAILABLE",
+    });
+  }
 
-    if (intent) {
-      const outcome = await finalizeFromOrderId(data.paymentOrderId);
-      if (outcome.status === "registered") {
-        return jsonOk(
-          {
-            accepted: true,
-            duplicate: outcome.duplicate,
-            id: outcome.registrationId,
-            paymentStatus: outcome.paymentStatus,
-          },
-          { status: 201 }
-        );
-      }
-      if (outcome.status === "pending_payment") {
-        return jsonError("Your payment has not been confirmed yet. Complete the payment, then submit again.", 402, {
-          code: "PAYMENT_PENDING",
-        });
-      }
-      if (outcome.status === "amount_mismatch") {
-        return jsonError(
-          `We received ₹${outcome.amount || 0} but the fee for this round is ₹${outcome.expected}. Please contact the secretariat.`,
-          422,
-          {
-            code: "PAYMENT_AMOUNT_MISMATCH",
-            fields: { paymentReference: "Payment amount does not match the delegate fee." },
-          }
-        );
-      }
-      if (outcome.status !== "no_draft") {
-        return jsonError("We could not complete your registration just now. Please try again shortly.", 503, {
-          code: "REGISTRATION_UNAVAILABLE",
-        });
-      }
-      /* No draft after all (legacy order): fall through to the inline check. */
-    }
+  /**
+   * If this order belongs to a stored draft, the registration is completed
+   * from those saved answers (the same code path the webhook and the
+   * confirmation page use). Re-sending the payload from the browser must
+   * never create a second row or report a spurious failure.
+   */
+  const intent = await intentStore()
+    .findByOrderId(data.paymentOrderId)
+    .catch(() => null);
 
-    const verified = await verifyPaymentOrder(data.paymentOrderId);
-    if (!verified) {
-      return jsonError("We could not confirm that payment. Please retry in a moment.", 502, {
-        code: "PAYMENT_VERIFY_FAILED",
-      });
+  if (intent) {
+    const outcome = await finalizeFromOrderId(data.paymentOrderId);
+    if (outcome.status === "registered") {
+      return jsonOk(
+        {
+          accepted: true,
+          duplicate: outcome.duplicate,
+          id: outcome.registrationId,
+          paymentStatus: outcome.paymentStatus,
+        },
+        { status: 201 }
+      );
     }
-    if (verified.status !== "success") {
+    if (outcome.status === "pending_payment") {
       return jsonError("Your payment has not been confirmed yet. Complete the payment, then submit again.", 402, {
         code: "PAYMENT_PENDING",
       });
     }
-    const expected = feeAmountFor();
-    if (verified.amount !== expected) {
+    if (outcome.status === "amount_mismatch") {
       return jsonError(
-        `We received ₹${verified.amount || 0} but the fee for this round is ₹${expected}. Please contact the secretariat.`,
+        `We received ₹${outcome.amount || 0} but the fee for this round is ₹${outcome.expected}. Please contact the secretariat.`,
         422,
-        { code: "PAYMENT_AMOUNT_MISMATCH", fields: { paymentReference: "Payment amount does not match the delegate fee." } }
+        {
+          code: "PAYMENT_AMOUNT_MISMATCH",
+          fields: { paymentOrderId: "Payment amount does not match the delegate fee." },
+        }
       );
     }
-    const alreadyUsed = await activeStore().findByPaymentOrderId(data.paymentOrderId);
-    if (alreadyUsed) {
-      return jsonError("This payment has already been used for another registration.", 409, {
-        code: "PAYMENT_ALREADY_USED",
+    if (outcome.status !== "no_draft") {
+      return jsonError("We could not complete your registration just now. Please try again shortly.", 503, {
+        code: "REGISTRATION_UNAVAILABLE",
       });
     }
-    payment = {
-      paymentStatus: "paid",
-      paymentOrderId: data.paymentOrderId,
-      paymentUtr: verified.utr,
-      paymentPayer: verified.payerName,
-      paidAt: new Date().toISOString(),
-    };
-  } else {
-    payment = { ...emptyPayment(), paymentStatus: "unverified" };
+    /* No draft after all (legacy order): fall through to the inline check. */
   }
+
+  const verified = await verifyPaymentOrder(data.paymentOrderId);
+  if (!verified) {
+    return jsonError("We could not confirm that payment. Please retry in a moment.", 502, {
+      code: "PAYMENT_VERIFY_FAILED",
+    });
+  }
+  if (verified.status !== "success") {
+    return jsonError("Your payment has not been confirmed yet. Complete the payment, then submit again.", 402, {
+      code: "PAYMENT_PENDING",
+    });
+  }
+  const expected = feeAmountFor();
+  if (verified.amount !== expected) {
+    return jsonError(
+      `We received ₹${verified.amount || 0} but the fee for this round is ₹${expected}. Please contact the secretariat.`,
+      422,
+      {
+        code: "PAYMENT_AMOUNT_MISMATCH",
+        fields: { paymentOrderId: "Payment amount does not match the delegate fee." },
+      }
+    );
+  }
+  const alreadyUsed = await activeStore().findByPaymentOrderId(data.paymentOrderId);
+  if (alreadyUsed) {
+    return jsonError("This payment has already been used for another registration.", 409, {
+      code: "PAYMENT_ALREADY_USED",
+    });
+  }
+  const payment: PaymentFields = {
+    paymentStatus: "paid",
+    paymentOrderId: data.paymentOrderId,
+    paymentUtr: verified.utr,
+    paymentPayer: verified.payerName,
+    paidAt: new Date().toISOString(),
+  };
 
   try {
     const result = await activeStore().create(data, payment);

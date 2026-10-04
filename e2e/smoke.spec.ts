@@ -40,15 +40,8 @@ test.describe("registration flow", () => {
     await page.goto("/registration");
   });
 
-  test("shows the form when registration is open", async ({ page }) => {
-    await expect(page.getByRole("heading", { name: /Become a delegate/i })).toBeVisible();
-  });
-
-  test("valid submission shows success state", async ({ page }) => {
-    const task = page.waitForResponse(
-      (r) => r.url().includes("/api/registrations") && r.request().method() === "POST"
-    );
-
+  /** Fills every answer except the declaration checkboxes. */
+  async function fillForm(page: import("@playwright/test").Page) {
     await page.getByLabel(/full name/i).fill("Aarav Sharma");
     await page.getByLabel(/email/i).fill("aarav.e2e@example.com");
     await page.getByLabel(/contact number/i).fill("9876543210");
@@ -62,19 +55,48 @@ test.describe("registration flow", () => {
     await page.getByLabel(/second committee/i).selectOption("UNHRC");
     await page.getByLabel(/third committee/i).selectOption("AIPPM");
     await page.getByLabel(/preferred country/i).fill("India");
-    await page.getByLabel(/transaction ID/i).fill("412345678901");
+  }
+
+  test("shows the form when registration is open", async ({ page }) => {
+    await expect(page.getByRole("heading", { name: /Become a delegate/i })).toBeVisible();
+  });
+
+  /* A typed UTR could be anything, so it must not appear as a way to register:
+   * the only route to a seat is a payment the server verifies with FamGateway. */
+  test("offers no self-reported payment reference field", async ({ page }) => {
+    await expect(page.getByLabel(/transaction ID/i)).toHaveCount(0);
+    await expect(page.getByLabel(/UTR/i)).toHaveCount(0);
+    await expect(page.getByText(/cannot accept a self-reported transaction reference/i)).toBeVisible();
+  });
+
+  test("saves the draft and starts a verified checkout instead of registering", async ({ page }) => {
+    /* Any POST to the legacy endpoint would be a registration attempt that skips
+     * verification — it must never happen from the public form. */
+    const unverifiedPosts: string[] = [];
+    page.on("request", (r) => {
+      const url = r.url();
+      if (r.method() === "POST" && url.includes("/api/registrations") && !url.includes("/intents")) {
+        unverifiedPosts.push(url);
+      }
+    });
+
+    const intentPost = page.waitForRequest(
+      (r) => r.url().includes("/api/registrations/intents") && r.method() === "POST"
+    );
+
+    await fillForm(page);
     await page.getByLabel(/I confirm that/i).check();
     await page.getByLabel(/I agree to follow/i).check();
+    await page.getByRole("button", { name: /Pay .* & register/i }).click();
+    await intentPost;
 
-    await page.getByRole("button", { name: /Submit/i }).click();
-    const res = await task;
-    expect(res.status()).toBe(201);
-
-    await expect(page.getByText(/registration received/i)).toBeVisible();
+    /* No seat is granted without a verified payment. */
+    await expect(page.getByText(/registration received/i)).toHaveCount(0);
+    expect(unverifiedPosts).toEqual([]);
   });
 
   test("client-side validation blocks an empty submission", async ({ page }) => {
-    await page.getByRole("button", { name: /Submit/i }).click();
+    await page.getByRole("button", { name: /Pay .* & register/i }).click();
     await expect(page.getByText(/Name contains invalid characters/i)).toBeVisible();
     await expect(page.locator("[role=alert]").first()).toBeVisible();
     await expect(page).toHaveURL(/\/registration$/);

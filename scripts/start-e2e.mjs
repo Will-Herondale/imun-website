@@ -116,6 +116,10 @@ async function main() {
     HOSTNAME: "127.0.0.1",
     NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${PORT}`,
     REGISTRATION_OPEN: "true",
+    /* Present so the form renders its live payment path. The key is a dummy:
+     * e2e never completes a real payment, and the gateway is never trusted for
+     * anything that grants a seat. */
+    FAMGATEWAY_API_KEY: "e2e-dummy-key",
     AZURE_TABLE_CONNECTION_STRING: "UseDevelopmentStorage=true",
     AZURE_TABLE_NAME: "registrations",
     ADMIN_EMAIL: "organiser@iemun.example",

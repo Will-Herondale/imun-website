@@ -70,20 +70,24 @@ export const site = {
   ],
 
   /**
-   * How the delegate fee is collected. Confirmations are issued against the
-   * payment reference once the secretariat reconciles the wallet.
+   * How the delegate fee is collected.
+   *
+   * A seat is only ever granted against a payment the server has verified with
+   * the gateway, so the offline "type your own reference" route no longer
+   * exists. Delegates who pay by bank transfer are added by the secretariat
+   * from the admin console after the transfer is confirmed.
    */
   payment: {
     provider: "Fam",
     walletId: "nathan.hamilton@fam",
-    note: "Pay the delegate fee securely from any UPI app (Google Pay, PhonePe, Paytm, Fam or any other) at checkout — your seat is confirmed the moment the payment is verified. You can also pay to the wallet ID below and record the transaction ID / UTR for manual confirmation.",
+    note: "Pay the delegate fee securely from any UPI app (Google Pay, PhonePe, Paytm, Fam or any other) at checkout — your seat is confirmed the moment the payment is verified with our payment provider.",
     /**
      * Shown on the registration form while the secure checkout is not yet
      * connected (FAMGATEWAY_API_KEY unset). It disappears automatically once the
      * key is configured — no code change or redeploy needed.
      */
     setupNotice:
-      "Our secure UPI checkout is being set up and will be live by 5:30 PM (IST) today. You can register right now by paying the delegate fee from any UPI app to the wallet ID below and entering your transaction ID / UTR.",
+      "Our secure UPI checkout is being set up. Registrations open as soon as it is live — we confirm a seat only against a payment our provider has verified, so we cannot take registrations until then.",
   },
 
   /**

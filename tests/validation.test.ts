@@ -22,7 +22,8 @@ function validPayload(overrides: Record<string, unknown> = {}) {
     committeePref3: "AIPPM",
     countryPreference: "India",
     specialRequest: "Sibling seated in the same committee.",
-    paymentReference: "UTR123456789012",
+    paymentOrderId: "fg_test_order_1",
+    paymentReference: "",
     declarationAccurate: "Yes",
     declarationRules: "Yes",
     website: "",
@@ -80,10 +81,26 @@ describe("registrationSchema", () => {
     expect(out.success).toBe(false);
   });
 
-  it("rejects when no payment information is supplied", () => {
+  it("rejects when no verified order id is supplied", () => {
     const out = registrationSchema.safeParse(
-      validPayload({ paymentReference: "", paymentOrderId: "" })
+      validPayload({ paymentOrderId: "", paymentReference: "" })
     );
+    expect(out.success).toBe(false);
+  });
+
+  /* A typed UTR proves nothing, so it must not stand in for a verified order. */
+  it("rejects a self-reported UTR with no order id", () => {
+    const out = registrationSchema.safeParse(
+      validPayload({ paymentOrderId: "", paymentReference: "UTR123456789012" })
+    );
+    expect(out.success).toBe(false);
+    if (!out.success) {
+      expect(out.error.issues.some((i) => i.path.join(".") === "paymentOrderId")).toBe(true);
+    }
+  });
+
+  it("rejects a malformed order id", () => {
+    const out = registrationSchema.safeParse(validPayload({ paymentOrderId: "not an order id!" }));
     expect(out.success).toBe(false);
   });
 

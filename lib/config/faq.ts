@@ -37,8 +37,8 @@ export const faqEntries: FaqEntry[] = [
       `The fee is paid at checkout when you submit the registration form: you are taken to a secure UPI payment page and can pay ₹` +
       `${site.registrationFee.amount.toLocaleString("en-IN")} from any UPI app — Google Pay, PhonePe, Paytm, ${site.payment.provider} or any other. ` +
       `Your seat is confirmed the moment the payment is verified, and you are returned to the form automatically. ` +
-      `If you prefer to pay another way, you can send the fee to the wallet ID ${site.payment.walletId} from any UPI app and enter the transaction ID / UTR on the form for the secretariat to reconcile manually. ` +
-      `A submission does not by itself confirm a seat until the fee is received.`,
+      `Because a seat is only granted against a payment our provider has verified, we cannot accept a self-reported transaction reference on the form. ` +
+      `If you have already paid by bank transfer, email the secretariat with your name and the transfer reference and it will be confirmed for you.`,
   },
   {
     question: "Is IMUN 2026 online or in person?",

@@ -106,12 +106,24 @@ export const registrationFieldsSchema = z
     specialRequest: z.string().trim().min(0).max(1200),
 
     /**
-     * FamGateway order id returned after a verified UPI payment. Preferred:
-     * the server re-verifies it against FamGateway before trusting it.
+     * FamGateway order id. This is the only accepted proof of payment: the
+     * server re-verifies it against FamGateway, so a registration can never be
+     * granted on a self-reported reference.
      */
-    paymentOrderId: z.string().trim().max(40).optional().default(""),
+    paymentOrderId: z
+      .string()
+      .trim()
+      .refine((s) => s === "" || /^[A-Za-z0-9][A-Za-z0-9_-]{5,39}$/.test(s), {
+        message: "That payment reference is not a valid checkout order id.",
+      })
+      .optional()
+      .default(""),
 
-    /** Manual fallback: transaction ID / UTR typed by the delegate. */
+    /**
+     * Retained on the stored record for the secretariat's own reconciliation
+     * (e.g. a bank transfer noted by hand). It is NOT accepted as proof of
+     * payment for a new registration — see `registrationSchema`.
+     */
     paymentReference: z
       .string()
       .trim()
@@ -185,14 +197,20 @@ const fieldConsistencyRules = (
 /** Pre-payment draft: every answer is checked, no payment requirement yet. */
 export const registrationDraftSchema = registrationFieldsSchema.superRefine(fieldConsistencyRules);
 
-/** Final submission: a draft plus proof of payment. */
+/**
+ * Final submission: a draft plus a verified payment.
+ *
+ * Only a FamGateway order id counts, because the server re-verifies it against
+ * the gateway. A self-reported UTR proves nothing — anyone could type a random
+ * string and take a seat — so it can no longer authorise a registration.
+ */
 export const registrationSchema = registrationFieldsSchema.superRefine((data, ctx) => {
   fieldConsistencyRules(data, ctx);
-  if (!data.paymentOrderId && !data.paymentReference) {
+  if (!data.paymentOrderId) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      path: ["paymentReference"],
-      message: "Complete the delegate fee payment before submitting.",
+      path: ["paymentOrderId"],
+      message: "We could not verify a payment for this registration.",
     });
   }
 });

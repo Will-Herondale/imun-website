@@ -79,11 +79,27 @@ const goodPayload = {
   committeePref3: "AIPPM",
   countryPreference: "India",
   specialRequest: "",
-  paymentReference: "UTR123456789012",
+  paymentOrderId: "fg_paid_order_1",
+  paymentReference: "",
   declarationAccurate: "Yes",
   declarationRules: "Yes",
   website: "",
 };
+
+/** Stubs FamGateway's verify-order call as a successful ₹500 payment. */
+function stubVerifiedPayment(amount = 500) {
+  vi.stubEnv("FAMGATEWAY_API_KEY", "test-key");
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        status: "success",
+        data: { amount, utr: "UTR998877", sender_name: "Aarav" },
+      }),
+    }))
+  );
+}
 
 let ipCounter = 1;
 
@@ -131,11 +147,24 @@ describe("POST /api/registrations", () => {
   });
 
   it("stores a valid submission and returns 201", async () => {
+    stubVerifiedPayment();
     const res = await post(goodPayload);
     expect(res.status).toBe(201);
     const data = (await res.json()) as { ok: boolean; duplicate: boolean };
     expect(data.ok).toBe(true);
     expect(data.duplicate).toBe(false);
+  });
+
+  /* Anyone could type a random UTR and take a seat; a self-reported reference
+   * is no longer accepted as proof of payment. */
+  it("refuses a self-reported UTR with no verified order (422, nothing stored)", async () => {
+    const store = fakeStore();
+    overrideStoreForTests(store);
+    const res = await post({ ...goodPayload, paymentOrderId: "", paymentReference: "UTR123456789012" });
+    expect(res.status).toBe(422);
+    const data = (await res.json()) as { fields?: Record<string, string> };
+    expect(data.fields?.paymentOrderId).toBeDefined();
+    expect(store.created).toHaveLength(0);
   });
 
   it("rejects when registration is closed (409)", async () => {
@@ -157,6 +186,7 @@ describe("POST /api/registrations", () => {
   it("accepts honeypot submissions without persisting (201, no save)", async () => {
     const store = fakeStore();
     overrideStoreForTests(store);
+    stubVerifiedPayment();
     const res = await post({ ...goodPayload, website: "http://spam.example" });
     expect(res.status).toBe(201);
     expect(store.created).toHaveLength(0);
@@ -182,26 +212,28 @@ describe("POST /api/registrations", () => {
   });
 
   it("clears the payment orphan when an automated order is used (201)", async () => {
-    vi.stubEnv("FAMGATEWAY_API_KEY", "test-key");
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => ({
-        ok: true,
-        json: async () => ({
-          status: "success",
-          data: { amount: 500, utr: "UTR998877", sender_name: "Aarav" },
-        }),
-      }))
-    );
+    stubVerifiedPayment();
     const { store, resolved } = fakeOrphanStore();
     overrideOrphanStoreForTests(store);
     const res = await post({
       ...goodPayload,
-      paymentReference: "",
       paymentOrderId: "fg_order_resolve",
     });
     expect(res.status).toBe(201);
     expect(resolved).toEqual(["fg_order_resolve"]);
+  });
+
+  /* Verification happens before anything is written, so a wrong amount cannot
+   * leave a seat behind. */
+  it("refuses a verified payment for the wrong amount (422, nothing stored)", async () => {
+    const store = fakeStore();
+    overrideStoreForTests(store);
+    stubVerifiedPayment(250);
+    const res = await post(goodPayload);
+    expect(res.status).toBe(422);
+    const data = (await res.json()) as { code: string };
+    expect(data.code).toBe("PAYMENT_AMOUNT_MISMATCH");
+    expect(store.created).toHaveLength(0);
   });
 
   it("rejects oversized bodies (413)", async () => {
