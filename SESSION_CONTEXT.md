@@ -40,7 +40,9 @@ Hosting live on **Azure App Service** (imunindia-2026) at imunindia.com — cuto
 - `lib/seo/structured-data.ts` — venue/attendance mode (online detection keyed on venue.name === "online").
 
 ## Security notes
-- FamGateway live key `fam_027a01b5c6479538ef00a0496e397bdb1eecae56` still active + spare order `fg_2FF3AG1P`; admin creds (ADMIN_PASSWORD in env) unrotated. Rotate after event if not used.
+- The FamGateway live key and the Neon connection string were both pasted into earlier revisions of this file. The current revision only names the settings — values now live solely in Azure app settings (read on demand). The values remain in **git history**, so treat both as exposed: rotate the FamGateway key and the Neon password, then optionally rewrite history.
+- Admin creds (`ADMIN_PASSWORD`) are unrotated. Rotate after the event if unused.
+- Old spare order `fg_2FF3AG1P` (never paid) may still sit in the FamGateway dashboard; cancel/ignore it.
 
 ## Fortinet (open)
 - imunindia.com reportedly blocked by Fortinet firewall. Root cause check: DNS resolves (now A → 20.192.171.16, Azure), site 200, HTTPS + strict CSP, no malware indicators. FortiGuard's public URL lookup returns 403 to automated requests, so the block is most plausibly **FortiGuard categorising imunindia.com as "Unrated"/"Newly Registered" (or a stale category)** — FortiGate policies default-block unrated domains.
