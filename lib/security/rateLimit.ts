@@ -70,4 +70,10 @@ export const LIMITS = {
   account: { limit: 8, windowMs: 15 * 60 * 1000 },
   /** Payment order creation + status polling, per IP per 10 minutes. */
   payments: { limit: 30, windowMs: 10 * 60 * 1000 },
+  /**
+   * Payment-completion polling, per IP per 10 minutes. Deliberately generous:
+   * the return page polls every few seconds for as long as the delegate waits,
+   * and a throttled poll must never look like a lost payment.
+   */
+  intents: { limit: 240, windowMs: 10 * 60 * 1000 },
 } as const;

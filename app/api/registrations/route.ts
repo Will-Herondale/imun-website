@@ -8,6 +8,8 @@ import {
 } from "@/lib/validation/registration";
 import { activeStore } from "@/lib/storage";
 import { orphanStore } from "@/lib/storage/paymentOrphans";
+import { intentStore } from "@/lib/storage/registrationIntents";
+import { finalizeFromOrderId } from "@/lib/registrations/finalize";
 import { feeAmountFor } from "@/lib/config/site";
 import { famgatewayConfigured, verifyPaymentOrder } from "@/lib/payments/famgateway";
 import { isRegistrationOpen } from "@/lib/registration-control";
@@ -98,6 +100,53 @@ export async function POST(request: NextRequest) {
         code: "PAYMENTS_UNAVAILABLE",
       });
     }
+
+    /**
+     * If this order belongs to a stored draft, the registration is completed
+     * from those saved answers (the same code path the webhook and the
+     * confirmation page use). Re-sending the payload from the browser must
+     * never create a second row or report a spurious failure.
+     */
+    const intent = await intentStore()
+      .findByOrderId(data.paymentOrderId)
+      .catch(() => null);
+
+    if (intent) {
+      const outcome = await finalizeFromOrderId(data.paymentOrderId);
+      if (outcome.status === "registered") {
+        return jsonOk(
+          {
+            accepted: true,
+            duplicate: outcome.duplicate,
+            id: outcome.registrationId,
+            paymentStatus: outcome.paymentStatus,
+          },
+          { status: 201 }
+        );
+      }
+      if (outcome.status === "pending_payment") {
+        return jsonError("Your payment has not been confirmed yet. Complete the payment, then submit again.", 402, {
+          code: "PAYMENT_PENDING",
+        });
+      }
+      if (outcome.status === "amount_mismatch") {
+        return jsonError(
+          `We received ₹${outcome.amount || 0} but the fee for this round is ₹${outcome.expected}. Please contact the secretariat.`,
+          422,
+          {
+            code: "PAYMENT_AMOUNT_MISMATCH",
+            fields: { paymentReference: "Payment amount does not match the delegate fee." },
+          }
+        );
+      }
+      if (outcome.status !== "no_draft") {
+        return jsonError("We could not complete your registration just now. Please try again shortly.", 503, {
+          code: "REGISTRATION_UNAVAILABLE",
+        });
+      }
+      /* No draft after all (legacy order): fall through to the inline check. */
+    }
+
     const verified = await verifyPaymentOrder(data.paymentOrderId);
     if (!verified) {
       return jsonError("We could not confirm that payment. Please retry in a moment.", 502, {

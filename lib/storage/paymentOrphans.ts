@@ -136,6 +136,7 @@ export const postgresOrphanStore: PaymentOrphanStore = {
       SELECT * FROM payment_orphans
       WHERE resolved_at IS NULL
       ORDER BY received_at DESC
+      LIMIT 500
     `) as Row[];
     return rows.map(rowToOrphan);
   },

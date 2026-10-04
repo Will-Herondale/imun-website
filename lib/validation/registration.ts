@@ -60,7 +60,14 @@ const stringField = (min: number, max: number, message?: string, regex?: RegExp)
     .max(max)
     .refine((s) => !regex || regex.test(s), { message: message ?? "This value is not in the expected format." });
 
-export const registrationSchema = z
+/**
+ * The delegate's own fields, shared by both submission paths.
+ *
+ * `registrationDraftSchema` (the pre-payment draft saved before checkout)
+ * validates these; `registrationSchema` adds the "payment reference present"
+ * rule on top for the direct-submit path.
+ */
+export const registrationFieldsSchema = z
   .object({
     fullName: stringField(
       3,
@@ -118,52 +125,77 @@ export const registrationSchema = z
     declarationAccurate: z.literal("Yes", { error: "You must confirm that the information is accurate." }),
     declarationRules: z.literal("Yes", { error: "You must agree to follow the rules and regulations of IMUN." }),
 
-    /** Honeypot — real users never see or fill this field. */
-    website: z.string().max(200),
+    /**
+     * Honeypot — real users never see or fill this field.
+     *
+     * Optional with an empty default on purpose: a client that simply omits
+     * the hidden input must still get a registration, and only a *filled*
+     * honeypot counts as a bot signal.
+     */
+    website: z.string().max(200).optional().default(""),
   })
-  .superRefine((data, ctx) => {
-    const prefs = [data.committeePref1, data.committeePref2, data.committeePref3];
-    const unknownPrefs = prefs.filter((p) => !p);
-    if (unknownPrefs.length > 0) {
+  .strict();
+
+/**
+ * Rules that hold regardless of payment state: three distinct, valid committee
+ * preferences and a coherent MUN history.
+ *
+ * They live on the draft schema too — a stored draft that could never become a
+ * valid registration is worse than no draft at all.
+ */
+const fieldConsistencyRules = (
+  data: { committeePref1: string; committeePref2: string; committeePref3: string; munCount: string; munHistory: string },
+  ctx: z.RefinementCtx
+) => {
+  const prefs = [data.committeePref1, data.committeePref2, data.committeePref3];
+  const unknownPrefs = prefs.filter((p) => !p);
+  if (unknownPrefs.length > 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["committeePrefs"],
+      message: "All three committee preferences are required.",
+    });
+  } else {
+    if (!committeeCodeOptions.includes(data.committeePref1)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["committeePref1"], message: "Select a valid committee." });
+    }
+    if (!committeeCodeOptions.includes(data.committeePref2)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["committeePref2"], message: "Select a valid committee." });
+    }
+    if (!committeeCodeOptions.includes(data.committeePref3)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["committeePref3"], message: "Select a valid committee." });
+    }
+    if (new Set(prefs.filter(Boolean)).size !== 3) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["committeePrefs"],
-        message: "All three committee preferences are required.",
-      });
-    } else {
-      if (!committeeCodeOptions.includes(data.committeePref1)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["committeePref1"], message: "Select a valid committee." });
-      }
-      if (!committeeCodeOptions.includes(data.committeePref2)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["committeePref2"], message: "Select a valid committee." });
-      }
-      if (!committeeCodeOptions.includes(data.committeePref3)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["committeePref3"], message: "Select a valid committee." });
-      }
-      if (new Set(prefs.filter(Boolean)).size !== 3) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["committeePrefs"],
-          message: "Each committee preference must be different.",
-        });
-      }
-    }
-    if (data.munCount === "0" && data.munHistory.trim().length > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["munHistory"],
-        message: "You indicated no prior conferences; remove the experience list.",
+        message: "Each committee preference must be different.",
       });
     }
-    if (!data.paymentOrderId && !data.paymentReference) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["paymentReference"],
-        message: "Complete the delegate fee payment before submitting.",
-      });
-    }
-  })
-  .strict();
+  }
+  if (data.munCount === "0" && data.munHistory.trim().length > 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["munHistory"],
+      message: "You indicated no prior conferences; remove the experience list.",
+    });
+  }
+};
+
+/** Pre-payment draft: every answer is checked, no payment requirement yet. */
+export const registrationDraftSchema = registrationFieldsSchema.superRefine(fieldConsistencyRules);
+
+/** Final submission: a draft plus proof of payment. */
+export const registrationSchema = registrationFieldsSchema.superRefine((data, ctx) => {
+  fieldConsistencyRules(data, ctx);
+  if (!data.paymentOrderId && !data.paymentReference) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["paymentReference"],
+      message: "Complete the delegate fee payment before submitting.",
+    });
+  }
+});
 
 /** The persisted record stored in Azure Table Storage. */
 export type RegistrationInput = {
@@ -290,6 +322,9 @@ export function sanitizePayload(raw: Record<string, unknown> | null): Record<str
   const out: Record<string, unknown> = {};
 
   for (const k of Object.keys(raw)) {
+    /* `__proto__`/`constructor` from parsed JSON must never reach the output
+     * object: assigning them changes its prototype rather than adding a field. */
+    if (k === "__proto__" || k === "constructor" || k === "prototype") continue;
     const v = raw[k];
     if ((single as readonly string[]).includes(k)) out[k] = sanitizeText(v);
     else if ((multi as readonly string[]).includes(k)) out[k] = sanitizeMultiline(v);

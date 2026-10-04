@@ -51,7 +51,37 @@ const initialValues: Values = {
 type Errors = Partial<Record<keyof Values, string>>;
 
 const DRAFT_KEY = "iemun:registration:Draft:v1";
-const PAYMENT_KEY = "iemun:payment:orderId:v1";
+/**
+ * The delegate's in-flight payment. Server-side this lives in a stored draft;
+ * locally we keep only the resume token so a return visit (or a second tab)
+ * knows there is something to check.
+ */
+const INTENT_KEY = "iemun:registration:intent:v1";
+type PendingIntent = { token: string; orderId: string; at: number };
+
+function readPendingIntent(): PendingIntent | null {
+  try {
+    const raw = window.localStorage.getItem(INTENT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PendingIntent>;
+    if (typeof parsed?.token !== "string" || !parsed.token) return null;
+    return {
+      token: parsed.token,
+      orderId: typeof parsed.orderId === "string" ? parsed.orderId : "",
+      at: typeof parsed.at === "number" ? parsed.at : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function clearPendingIntent(): void {
+  try {
+    window.localStorage.removeItem(INTENT_KEY);
+  } catch {
+    /* storage unavailable — the server-side draft is the source of truth */
+  }
+}
 
 const DESCRIPTION_TIP =
   "Only the fields marked required (*) must be completed. The MUN experience list is optional — first-time delegates leave it blank.";
@@ -77,11 +107,10 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
   const [result, setResult] = useState<{ duplicate: boolean; paymentStatus: string } | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
-  const [awaitingPayment, setAwaitingPayment] = useState(false);
+  const [pendingIntent, setPendingIntent] = useState<PendingIntent | null>(null);
+  const [restored, setRestored] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
-  const autoSubmittedRef = useRef(false);
   const startedRef = useRef(false);
-  const submitRegistrationRef = useRef<((override?: Partial<Values>) => Promise<void>) | null>(null);
 
   // Draft recovery (device-local, never synced).
   useEffect(() => {
@@ -108,6 +137,32 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
 
   const markTouched = useCallback((key: keyof Values) => {
     setTouched((t) => ({ ...t, [key]: true }));
+  }, []);
+
+  /**
+   * The single body every path sends. The automated path posts this to
+   * /api/registrations/intents (payment fields are ignored there); the manual
+   * path posts it to /api/registrations with the UTR the delegate typed.
+   */
+  const payloadFor = useCallback((v: Values): RegistrationInput => {
+    return {
+      fullName: v.fullName,
+      email: v.email,
+      contactNumber: v.contactNumber,
+      schoolName: v.schoolName,
+      grade: v.grade,
+      munCount: v.munCount as RegistrationInput["munCount"],
+      munHistory: v.munHistory,
+      committeePref1: v.committeePref1,
+      committeePref2: v.committeePref2,
+      committeePref3: v.committeePref3,
+      countryPreference: v.countryPreference,
+      specialRequest: v.specialRequest,
+      paymentOrderId: v.paymentOrderId,
+      paymentReference: v.paymentReference,
+      declarationAccurate: "Yes",
+      declarationRules: "Yes",
+    };
   }, []);
 
   const validateClient = useCallback((v: Values): Errors => {
@@ -158,25 +213,7 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
       setSubmitting(true);
       setSubmitError(null);
       try {
-        const payload: RegistrationInput & { website?: string } = {
-          fullName: v.fullName,
-          email: v.email,
-          contactNumber: v.contactNumber,
-          schoolName: v.schoolName,
-          grade: v.grade,
-          munCount: v.munCount as RegistrationInput["munCount"],
-          munHistory: v.munHistory,
-          committeePref1: v.committeePref1,
-          committeePref2: v.committeePref2,
-          committeePref3: v.committeePref3,
-          countryPreference: v.countryPreference,
-          specialRequest: v.specialRequest,
-          paymentOrderId: v.paymentOrderId,
-          paymentReference: v.paymentReference,
-          declarationAccurate: "Yes",
-          declarationRules: "Yes",
-          website: honeypot,
-        };
+        const payload = { ...payloadFor(v), website: honeypot };
         const res = await fetch("/api/registrations", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -206,10 +243,10 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
           setResult({ duplicate: Boolean(data.duplicate), paymentStatus: outcome });
           try {
             window.localStorage.removeItem(DRAFT_KEY);
-            window.localStorage.removeItem(PAYMENT_KEY);
           } catch {
             /* ignore */
           }
+          clearPendingIntent();
           return;
         }
         if (res.status === 422 && data.fields) {
@@ -226,12 +263,17 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         setSubmitting(false);
       }
     },
-    [values, submitting, result, manualMode]
+    [values, submitting, result, manualMode, payloadFor]
   );
 
-  useEffect(() => {
-    submitRegistrationRef.current = submitRegistration;
-  }, [submitRegistration]);
+  /** Honeypot value from the hidden field; bots fill it, humans never see it. */
+  const readHoneypot = useCallback((): string => {
+    if (typeof document === "undefined") return "";
+    return new FormData(formRef.current ?? undefined)
+      .get("website")
+      ?.toString()
+      .trim() ?? "";
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -248,31 +290,44 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
       return;
     }
 
-    // Manual-only mode, an already-verified order id, or a manual UTR → submit.
+// Manual-only mode, an already-verified order id, or a manual UTR → submit.
     if (!paymentsLive || values.paymentOrderId || values.paymentReference.trim()) {
       await submitRegistration();
       return;
     }
 
-    // Otherwise start the automated secure checkout.
+    /**
+     * Step 1 of the automated path: the server validates and stores these
+     * answers, then opens the UPI order. Once the payment is confirmed the
+     * registration is written from the stored copy, so closing this tab (or
+     * losing the network) can no longer lose a registration.
+     */
     setSubmitting(true);
     try {
-      const res = await fetch("/api/payments/create", {
+      const res = await fetch("/api/registrations/intents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: values.fullName }),
+        body: JSON.stringify({ ...payloadFor(values), website: readHoneypot() }),
       });
       const data = (await res.json().catch(() => ({}))) as {
+        token?: string;
         orderId?: string;
         checkoutUrl?: string;
         error?: string;
+        fields?: Record<string, string>;
         code?: string;
+        retryAfterSeconds?: number;
       };
-      if (res.ok && data.orderId && data.checkoutUrl) {
+
+      if (res.ok && data.token && data.checkoutUrl) {
+        setPendingIntent({ token: data.token, orderId: data.orderId ?? "", at: Date.now() });
         try {
-          window.localStorage.setItem(PAYMENT_KEY, data.orderId);
+          window.localStorage.setItem(
+            INTENT_KEY,
+            JSON.stringify({ token: data.token, orderId: data.orderId ?? "", at: Date.now() })
+          );
         } catch {
-          /* storage unavailable — the order id is also returned after redirect via polling */
+          /* storage unavailable — the token also rides home in the redirect URL */
         }
         track("payment_initiated", {
           value: feeAmountFor(),
@@ -282,11 +337,35 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         window.location.assign(data.checkoutUrl);
         return;
       }
+
+      /* Field-level problems are shown inline instead of bouncing the delegate. */
+      if (res.status === 422 && data.fields) {
+        const mapped: Errors = {};
+        for (const [k, msg] of Object.entries(data.fields)) {
+          if (k in initialValues) mapped[k as keyof Values] = msg;
+        }
+        setErrors(mapped);
+        setTouched(Object.keys(mapped).reduce((acc, k) => ({ ...acc, [k]: true }), {}));
+        setPaymentNotice("Some details need fixing before we can take the payment — they are marked below.");
+        const first = Object.keys(mapped)[0] as keyof Values | undefined;
+        if (first) formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
+        return;
+      }
+
+      if (res.status === 429) {
+        const wait = Math.max(1, Math.round(data.retryAfterSeconds ?? 60));
+        setPaymentNotice(
+          `You have tried this a few times already. Please wait about ${wait} seconds and try again — your answers are saved.`
+        );
+        return;
+      }
+
       // Registration paused (maintenance): show the notice, no manual fallback.
       if (res.status === 503 && data.code === "MAINTENANCE") {
         setPaymentNotice(data.error ?? "Registration is temporarily paused. Please check back shortly.");
         return;
       }
+
       // Automated payment not available — reveal the manual fallback.
       setManualMode(true);
       setPaymentNotice(
@@ -297,63 +376,62 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
     } catch {
       setManualMode(true);
       setPaymentNotice(
-        "We could not start the online payment. Pay the fee from any UPI app and enter the transaction ID / UTR below."
+        "We could not start the online payment. Your answers are saved — pay from any UPI app and enter the transaction ID / UTR below, or try again."
       );
     } finally {
       setSubmitting(false);
     }
   }
 
-  // Returning from the hosted checkout: confirm the order, then submit.
+  /**
+   * Mount-time work: surface an unfinished payment from a previous visit and
+   * restore a saved draft when the delegate is sent back from the confirmation
+   * page. Deferred by a tick so these updates land after the first paint.
+   */
   useEffect(() => {
-    if (result || autoSubmittedRef.current) return;
-    let orderId = "";
-    try {
-      orderId = window.localStorage.getItem(PAYMENT_KEY) ?? "";
-    } catch {
-      return;
-    }
-    if (!orderId) return;
-    autoSubmittedRef.current = true;
-
+    if (result) return;
     let cancelled = false;
-    const poll = async () => {
-      setAwaitingPayment(true);
-      for (let attempt = 0; attempt < 60 && !cancelled; attempt += 1) {
-        try {
-          const res = await fetch(`/api/payments/status?orderId=${encodeURIComponent(orderId)}`);
-          if (res.ok) {
-            const data = (await res.json()) as { status?: string };
-            if (data.status === "success") {
-              setValues((v) => ({ ...v, paymentOrderId: orderId, paymentReference: "" }));
-              setAwaitingPayment(false);
-              await submitRegistrationRef.current?.({
-                paymentOrderId: orderId,
-                paymentReference: "",
-              });
-              return;
-            }
-            if (data.status === "expired") break;
-          }
-        } catch {
-          /* transient — keep polling */
-        }
-        await new Promise((r) => setTimeout(r, 4000));
-      }
+
+    const hydrate = async () => {
+      await Promise.resolve();
       if (cancelled) return;
-      setAwaitingPayment(false);
+
+      const pending = readPendingIntent();
+      if (pending) setPendingIntent(pending);
+
+      let resume = "";
       try {
-        window.localStorage.removeItem(PAYMENT_KEY);
+        resume = new URLSearchParams(window.location.search).get("resume")?.trim() ?? "";
       } catch {
-        /* ignore */
+        resume = "";
       }
-      setPaymentNotice("We could not confirm that payment. If money left your account, contact the secretariat; otherwise try again.");
+      if (!resume || resume.length > 128) return;
+
+      try {
+        const res = await fetch(`/api/registrations/intents?token=${encodeURIComponent(resume)}`);
+        const data = (await res.json().catch(() => ({}))) as {
+          draft?: Partial<Values>;
+          state?: string;
+          registered?: boolean;
+        };
+        if (cancelled || !res.ok || !data.draft) return;
+        if (data.registered) {
+          setRestored("This registration is already complete — no further action is needed.");
+          return;
+        }
+        setValues((v) => ({ ...v, ...(data.draft as Partial<Values>) }));
+        setRestored("We restored the details you saved earlier. Check them over, then continue to payment.");
+        clearPendingIntent();
+        setPendingIntent(null);
+      } catch {
+        /* nothing to restore — the delegate simply retypes */
+      }
     };
-    void poll();
+
+    void hydrate();
     return () => {
       cancelled = true;
     };
-    // Intentionally runs once on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -657,10 +735,35 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
           )}
         </div>
 
-        {awaitingPayment ? (
-          <div className="mt-6 flex items-start gap-3 border border-brass-500/40 bg-brass-50/60 p-4 text-[0.9rem] text-navy-800" role="status" aria-live="polite">
-            <span className="mt-0.5 inline-block h-4 w-4 animate-spin rounded-full border-2 border-brass-500/40 border-t-brass-600" aria-hidden="true" />
-            <span>Waiting for your payment to be confirmed — please don&apos;t close this tab.</span>
+        {restored ? (
+          <div className="mt-6 border border-brass-500/40 bg-brass-50/60 p-4 text-[0.9rem] text-navy-800" role="status">
+            {restored}
+          </div>
+        ) : null}
+
+        {pendingIntent ? (
+          <div className="mt-6 border border-steel-200 bg-steel-50 p-4 text-[0.9rem] text-navy-800" role="status">
+            <p>
+              You have a payment in progress.{" "}
+              <a
+                href={`/registration/complete?token=${encodeURIComponent(pendingIntent.token)}`}
+                className="font-semibold text-navy-700 underline decoration-brass-600 underline-offset-2"
+              >
+                Check its status
+              </a>{" "}
+              — if you have already paid, your registration completes on its own and this page will
+              confirm it.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                clearPendingIntent();
+                setPendingIntent(null);
+              }}
+              className="mt-3 text-[0.85rem] font-semibold text-steel-600 underline decoration-steel-400 underline-offset-2"
+            >
+              Dismiss and start a new registration
+            </button>
           </div>
         ) : null}
 
@@ -762,12 +865,12 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
             {submitting ? (
               <>
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />
-                {awaitingPayment ? "Verifying payment…" : "Please wait…"}
+                Please wait…
               </>
             ) : !paymentsLive || values.paymentOrderId || values.paymentReference.trim() ? (
               "Submit registration"
             ) : (
-              `Pay ₹${feeAmountFor().toLocaleString("en-IN")} & submit`
+              `Pay ₹${feeAmountFor().toLocaleString("en-IN")} & register`
             )}
           </button>
           <p className="text-[0.8rem] text-steel-500">
@@ -776,8 +879,10 @@ export function RegistrationForm({ paymentsLive = false }: { paymentsLive?: bool
         </div>
         <p className="mt-5 text-[0.8rem] leading-relaxed text-steel-400">
           Information collected here is used solely to administer your IMUN registration and is not shared
-          beyond the organiser&apos;s secretariat. A draft of your responses is stored on this device so that
-          you can recover them if you close the page; it is deleted when your registration is accepted.
+          beyond the organiser&apos;s secretariat. A draft of your responses is stored on this device, and
+          your answers are saved on our servers before you pay so that your registration can be completed
+          the moment your payment is confirmed — even if you close this page. That server-side copy is
+          deleted on a short automatic cycle, whether or not you go on to pay.
           See the <a href="/privacy" className="underline decoration-brass-600 underline-offset-2">privacy notice</a>.
         </p>
       </div>

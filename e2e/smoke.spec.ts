@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("public site", () => {
   test("homepage renders hero, navigation and footer", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/Indian MUN/);
+    await expect(page).toHaveTitle(/Indian Model United Nations/);
     await expect(page.getByRole("banner")).toBeVisible();
     await expect(
       page
