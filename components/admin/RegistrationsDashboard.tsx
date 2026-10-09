@@ -9,6 +9,7 @@ import { committeeName } from "@/lib/display";
 import { committees } from "@/lib/config/committees";
 import { AllocationMatrix } from "@/components/admin/AllocationMatrix";
 import { AllocationEditor } from "@/components/admin/AllocationEditor";
+import { AddDelegateDialog } from "@/components/admin/AddDelegateDialog";
 
 type ListResponse = {
   ok: boolean;
@@ -61,6 +62,8 @@ export function RegistrationsDashboard({ email }: { email: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const [orphans, setOrphans] = useState<PaymentOrphan[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -134,6 +137,21 @@ export function RegistrationsDashboard({ email }: { email: string }) {
     } finally {
       load({ search, committee, status, page, sort, dir });
     }
+  }
+
+  function handleCreated(record: RegistrationRecord) {
+    setAdding(false);
+    setNotice(`${record.fullName} was added to the registration list.`);
+    setRefreshKey((k) => k + 1);
+    // Back to the first page: under the default sort the new record is on top.
+    if (page !== 1) setPage(1);
+    else load({ search, committee, status, page: 1, sort, dir });
+  }
+
+  function openExisting(id: string) {
+    setAdding(false);
+    setNotice(null);
+    setDetailId(id);
   }
 
   async function logout() {
@@ -280,7 +298,20 @@ export function RegistrationsDashboard({ email }: { email: string }) {
               >
                 Export CSV
               </a>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => { setNotice(null); setAdding(true); }}
+              >
+                Add delegate
+              </button>
             </div>
+
+            {notice ? (
+              <p className="mt-6 rounded-[3px] border border-[#9ec5a4] bg-[#eef7ef] p-4 text-[0.92rem] text-[#1f6b34]" role="status">
+                {notice}
+              </p>
+            ) : null}
 
             {error ? (
               <p className="mt-6 rounded-[3px] border border-[#e5b3af] bg-[#fef3f2] p-4 text-[0.92rem] text-[#8a1e15]" role="alert">
@@ -387,6 +418,14 @@ export function RegistrationsDashboard({ email }: { email: string }) {
           </div>
         )}
       </div>
+
+      {adding ? (
+        <AddDelegateDialog
+          onClose={() => setAdding(false)}
+          onCreated={handleCreated}
+          onOpenExisting={openExisting}
+        />
+      ) : null}
 
       {detailId ? (
         <RegistrationDetail id={detailId} onClose={() => setDetailId(null)} onSaved={handleSaved} />

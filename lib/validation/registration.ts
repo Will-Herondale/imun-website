@@ -215,8 +215,53 @@ export const registrationSchema = registrationFieldsSchema.superRefine((data, ct
   }
 });
 
-/** The persisted record stored in Azure Table Storage. */
-export type RegistrationInput = {
+/**
+ * A delegate entered by the secretariat from the admin console.
+ *
+ * This is the ONLY other way a registration row comes into existence, and it
+ * is guarded by the admin session: the organiser has already confirmed the
+ * transfer themselves (bank credit, cash, an offline UPI payment), so they
+ * record it here instead of a delegate typing a reference into the public form.
+ *
+ * The declarations are attested server-side — the organiser is adding a
+ * record, not agreeing on the delegate's behalf — and the delegate-facing
+ * `paymentOrderId` / `website` fields are omitted, so no path can hand this
+ * schema an unverified order id. Unknown keys are rejected by the strict
+ * schema: a caller cannot inject `id`, `createdAt`, `feeAmount` or allocation.
+ */
+export const adminRegistrationSchema = registrationFieldsSchema
+  .omit({
+    declarationAccurate: true,
+    declarationRules: true,
+    website: true,
+    paymentOrderId: true,
+    paymentReference: true,
+  })
+  .extend({
+    /**
+     * `paid` once the transfer is confirmed (the usual case), `unverified`
+     * when the seat is being held against a transfer still to be checked, and
+     * `pending` when the delegate is added before paying at all.
+     */
+    paymentStatus: z.enum(["paid", "unverified", "pending"]).default("paid"),
+    /** Reference the secretariat can read off the credit message. */
+    paymentUtr: z
+      .string()
+      .trim()
+      .max(40)
+      .refine((s) => s === "" || /^[A-Za-z0-9][A-Za-z0-9\-/ .]{5,39}$/.test(s), {
+        message: "Enter the reference shown on the bank or wallet credit message.",
+      })
+      .optional()
+      .default(""),
+    /** Who sent the money, when it differs from the delegate. */
+    paymentPayer: z.string().trim().max(80).optional().default(""),
+  })
+  .superRefine(fieldConsistencyRules);
+
+export type AdminRegistrationCreate = z.infer<typeof adminRegistrationSchema>;
+
+/** The persisted record stored in Azure Table Storage. */export type RegistrationInput = {
   fullName: string;
   email: string;
   contactNumber: string;
@@ -335,6 +380,8 @@ export function sanitizePayload(raw: Record<string, unknown> | null): Record<str
     "grade",
     "paymentOrderId",
     "paymentReference",
+    "paymentUtr",
+    "paymentPayer",
   ] as const;
   const multi = ["munHistory", "specialRequest"] as const;
   const out: Record<string, unknown> = {};

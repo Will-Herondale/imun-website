@@ -283,7 +283,10 @@
   .input,
   .select,
   .textarea {
-    @apply block w-full font-sans text-[0.95rem] text-navy-900
+    /* 16px minimum: prevents the mobile browser from auto-zooming the page on
+       focus, which would resize the layout viewport and un-anchor fixed
+       overlays mid-interaction. */
+    @apply block w-full font-sans text-base text-navy-900
       bg-white border border-steel-300 rounded-[0.5rem] px-3.5 py-2.5
       placeholder:text-steel-400 transition-[border-color,box-shadow] duration-150;
   }

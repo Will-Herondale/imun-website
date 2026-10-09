@@ -124,6 +124,57 @@ test.describe("admin console", () => {
     await expect(page.getByRole("heading", { name: /Organiser sign in/i })).toBeVisible();
   });
 
+  test("an organiser can add a delegate by hand", async ({ page }) => {
+    const email = `admin.e2e+${Date.now()}@example.com`;
+
+    async function signIn() {
+      await page.goto("/admin/login");
+      await page.getByLabel(/email/i).fill("organiser@iemun.example");
+      await page.getByLabel(/password/i).fill("e2e-test-admin-password-0123");
+      await page.getByRole("button", { name: /Sign in/i }).click();
+      await page.waitForURL("**/admin");
+    }
+
+    async function fillDelegateForm(theEmail: string) {
+      await page.getByLabel(/full name/i).fill("Zoya Verma");
+      await page.getByLabel(/email address/i).fill(theEmail);
+      await page.getByLabel(/contact number/i).fill("9876543210");
+      await page.getByLabel(/school name/i).fill("Delhi Public School");
+      await page.getByLabel(/grade/i).fill("10");
+      await page.getByLabel(/prior MUN conferences/i).selectOption("1");
+      await page
+        .getByLabel(/MUN history/i)
+        .fill("Harvest MUN | 2026 | DISEC | Delegate | Special Mention");
+      await page.getByLabel(/first committee/i).selectOption("DISEC");
+      await page.getByLabel(/second committee/i).selectOption("UNHRC");
+      await page.getByLabel(/third committee/i).selectOption("AIPPM");
+      await page.getByLabel(/preferred country/i).fill("India");
+      await page.getByLabel(/payment reference/i).fill("UTR998877665544");
+      await page.getByLabel(/sent by/i).fill("Verma");
+    }
+
+    await signIn();
+    await expect(page.getByRole("button", { name: "Add delegate", exact: true })).toBeVisible();
+
+    /* Create. */
+    await page.getByRole("button", { name: "Add delegate", exact: true }).click();
+    await fillDelegateForm(email);
+    await page.getByRole("button", { name: "Save delegate" }).click();
+    await expect(page.getByText(/Zoya Verma was added to the registration list/i)).toBeVisible();
+    /* Earlier runs leave rows with the same name, so match on the unique email. */
+    await expect(page.getByRole("row").filter({ hasText: email })).toBeVisible();
+
+    /* The same email cannot produce a second seat. */
+    await page.getByRole("button", { name: "Add delegate", exact: true }).click();
+    await fillDelegateForm(email);
+    await page.getByRole("button", { name: "Save delegate" }).click();
+    await expect(page.getByText(/That email already has a registration/i)).toBeVisible();
+    await page.getByRole("button", { name: /Open the existing registration/i }).click();
+    const details = page.getByRole("dialog", { name: /Registration details/i });
+    await expect(details).toBeVisible();
+    await expect(details.getByText(email)).toBeVisible();
+  });
+
   test("wrong credentials are rejected", async ({ page }) => {
     await page.goto("/admin/login");
     await page.getByLabel(/email/i).fill("organiser@iemun.example");
