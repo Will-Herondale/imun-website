@@ -53,21 +53,21 @@ export const site = {
   /** Conference format, published across the site. */
   format: "Fully online",
 
-  /**
-   * Delegate registration fee (flat).
-   */
-  registrationFee: {
-    amount: 500,
-    currency: "INR",
-    note: "",
-  },
+    /**
+     * Delegate registration fee (flat).
+     */
+    registrationFee: {
+      amount: 1,
+      currency: "INR",
+      note: "",
+    },
 
-  /**
-   * Registration fee schedule (single flat tier).
-   */
-  registrationRounds: [
-    { label: "Delegate fee", amount: 500, window: "Flat fee for all delegates", from: "2026-01-01", to: "" },
-  ],
+    /**
+     * Registration fee schedule (single flat tier).
+     */
+    registrationRounds: [
+      { label: "Delegate fee", amount: 1, window: "Flat fee for all delegates", from: "2026-01-01", to: "" },
+    ],
 
   /**
    * How the delegate fee is collected.
@@ -139,7 +139,7 @@ export const site = {
   registrationOpen: true,
 
   /** Human-readable label for the current registration period. */
-  registrationLabel: "Registration open — Flat fee ₹500",
+  registrationLabel: "Registration open — Flat fee ₹1",
 
   /** Committees offered at this session. Reorder = reorder dropdowns. */
   committeesInRoster: true,

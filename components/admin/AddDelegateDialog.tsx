@@ -27,21 +27,21 @@ type Props = {
 };
 
 export function AddDelegateDialog({ onClose, onCreated, onOpenExisting }: Props) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [schoolName, setSchoolName] = useState("");
-  const [grade, setGrade] = useState("");
-  const [munCount, setMunCount] = useState<MunCount>("0");
-  const [munHistory, setMunHistory] = useState("");
-  const [committeePref1, setPref1] = useState("");
-  const [committeePref2, setPref2] = useState("");
-  const [committeePref3, setPref3] = useState("");
-  const [countryPreference, setCountry] = useState("");
-  const [specialRequest, setSpecial] = useState("");
+  const [fullName, setFullName] = useState("Test Admin Delegate");
+  const [email, setEmail] = useState(() => `testadmin+${Date.now()}@iemun.test`);
+  const [contactNumber, setContactNumber] = useState("9876543210");
+  const [schoolName, setSchoolName] = useState("Test School");
+  const [grade, setGrade] = useState("12");
+  const [munCount, setMunCount] = useState<MunCount>("2");
+  const [munHistory, setMunHistory] = useState("Test MUN 2025 - DISEC - Delegate");
+  const [committeePref1, setPref1] = useState("DISEC");
+  const [committeePref2, setPref2] = useState("UNHRC");
+  const [committeePref3, setPref3] = useState("AIPPM");
+  const [countryPreference, setCountry] = useState("India");
+  const [specialRequest, setSpecial] = useState("Test admin add");
   const [paymentStatus, setPaymentStatus] = useState<AdminPaymentStatus>("paid");
-  const [paymentUtr, setPaymentUtr] = useState("");
-  const [paymentPayer, setPaymentPayer] = useState("");
+  const [paymentUtr, setPaymentUtr] = useState("TEST123456");
+  const [paymentPayer, setPaymentPayer] = useState("Admin Test");
 
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);

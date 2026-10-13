@@ -86,8 +86,8 @@ const goodPayload = {
   website: "",
 };
 
-/** Stubs FamGateway's verify-order call as a successful ₹500 payment. */
-function stubVerifiedPayment(amount = 500) {
+/** Stubs FamGateway's verify-order call as a successful ₹1 payment. */
+function stubVerifiedPayment(amount = 1) {
   vi.stubEnv("FAMGATEWAY_API_KEY", "test-key");
   vi.stubGlobal(
     "fetch",
