@@ -10,10 +10,23 @@ import { isMaintenance, maintenanceJsonResponse } from "@/lib/maintenance";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function firstHeaderValue(value: string | null): string | null {
+  if (!value) return null;
+  const first = value.split(",")[0]?.trim();
+  return first || null;
+}
+
 function originFrom(request: NextRequest): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const configured = process.env.SITE_URL?.trim();
   if (configured) return configured.replace(/\/+$/, "");
-  return new URL(request.url).origin;
+  const host =
+    firstHeaderValue(request.headers.get("x-forwarded-host")) ??
+    firstHeaderValue(request.headers.get("host")) ??
+    request.nextUrl.host;
+  const proto =
+    firstHeaderValue(request.headers.get("x-forwarded-proto")) ??
+    request.nextUrl.protocol.replace(/:$/, "");
+  return `${proto}://${host}`;
 }
 
 /**

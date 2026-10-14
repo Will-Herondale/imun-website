@@ -20,10 +20,27 @@ export const dynamic = "force-dynamic";
 
 const MAX_TOKEN = 128;
 
+function firstHeaderValue(value: string | null): string | null {
+  if (!value) return null;
+  const first = value.split(",")[0]?.trim();
+  return first || null;
+}
+
+function requestOrigin(request: NextRequest): string {
+  const host =
+    firstHeaderValue(request.headers.get("x-forwarded-host")) ??
+    firstHeaderValue(request.headers.get("host")) ??
+    request.nextUrl.host;
+  const proto =
+    firstHeaderValue(request.headers.get("x-forwarded-proto")) ??
+    request.nextUrl.protocol.replace(/:$/, "");
+  return `${proto}://${host}`;
+}
+
 function siteOrigin(request: NextRequest): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const configured = process.env.SITE_URL?.trim();
   if (configured) return configured.replace(/\/+$/, "");
-  return new URL(request.url).origin;
+  return requestOrigin(request);
 }
 
 /**
@@ -37,9 +54,11 @@ function siteOrigin(request: NextRequest): string {
 function crossOriginPost(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return false;
-  const expected = new URL(siteOrigin(request)).host;
   try {
-    return new URL(origin).host !== expected;
+    const originHost = new URL(origin).host.toLowerCase();
+    const requestHost = new URL(requestOrigin(request)).host.toLowerCase();
+    const configuredHost = new URL(siteOrigin(request)).host.toLowerCase();
+    return originHost !== requestHost && originHost !== configuredHost;
   } catch {
     return true;
   }

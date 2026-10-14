@@ -20,17 +20,41 @@ const standalone = path.join(root, ".next", "standalone");
 const outDir = path.join(root, "deploy-artifact");
 const zipPath = path.join(outDir, "iemun-standalone.zip");
 
+const deploySiteUrl =
+  process.env.DEPLOY_SITE_URL?.trim() ||
+  process.env.SITE_URL?.trim() ||
+  "https://imunindia.com";
+
+if (!/^https?:\/\//i.test(deploySiteUrl)) {
+  console.error("DEPLOY_SITE_URL/SITE_URL must be an absolute http(s) URL.");
+  process.exit(1);
+}
+
+if (/(localhost|127\.0\.0\.1)/i.test(deploySiteUrl) && process.env.ALLOW_LOCAL_PUBLIC_URL !== "1") {
+  console.error(
+    `Refusing standalone build with local NEXT_PUBLIC_SITE_URL (${deploySiteUrl}). ` +
+      "Set DEPLOY_SITE_URL (or SITE_URL) to the real public domain, or ALLOW_LOCAL_PUBLIC_URL=1 for local-only runs."
+  );
+  process.exit(1);
+}
+
 function copyDir(src, dest) {
   fs.cpSync(src, dest, { recursive: true });
 }
 
 async function main() {
+  console.log(`> using public site URL: ${deploySiteUrl}`);
   console.log("> building next (standalone output)…");
   const build = spawnSync("npx", ["next", "build"], {
     cwd: root,
     stdio: "inherit",
     shell: process.platform === "win32",
-    env: { ...process.env, BUILD_STANDALONE: "true" },
+    env: {
+      ...process.env,
+      BUILD_STANDALONE: "true",
+      SITE_URL: deploySiteUrl,
+      NEXT_PUBLIC_SITE_URL: deploySiteUrl,
+    },
   });
   if (build.status !== 0) {
     console.error("build failed");
