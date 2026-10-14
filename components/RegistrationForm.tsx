@@ -30,22 +30,22 @@ type Values = {
 };
 
 const initialValues: Values = {
-  fullName: "Test Delegate",
-  email: "testdelegate@iemun.test",
-  contactNumber: "9876543210",
-  schoolName: "Test School",
-  grade: "12",
-  munCount: "2",
-  munHistory: "Test MUN 2025 - DISEC - Delegate",
-  committeePref1: "DISEC",
-  committeePref2: "UNHRC",
-  committeePref3: "AIPPM",
-  countryPreference: "India",
-  specialRequest: "Test registration",
+  fullName: "",
+  email: "",
+  contactNumber: "",
+  schoolName: "",
+  grade: "",
+  munCount: "0",
+  munHistory: "",
+  committeePref1: "",
+  committeePref2: "",
+  committeePref3: "",
+  countryPreference: "",
+  specialRequest: "",
   paymentOrderId: "",
   paymentReference: "",
-  declarationAccurate: true,
-  declarationRules: true,
+  declarationAccurate: false,
+  declarationRules: false,
 };
 
 type Errors = Partial<Record<keyof Values, string>>;
