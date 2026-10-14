@@ -247,12 +247,13 @@ export function PaymentComplete({ token }: { token: string }) {
             Payment window closed
           </p>
           <h2 className="mt-4 font-display text-[clamp(1.8rem,4vw,2.6rem)] font-medium text-navy-900">
-            You were not charged.
+            This payment window has closed.
           </h2>
           <p className="mt-4 max-w-xl leading-relaxed text-steel-600">
-            This payment window lapsed before we received your payment, so you were not charged.
-            Everything you typed has been kept — continue and you will be back at the payment step
-            with your answers in place.
+            This order expired before payment could be confirmed. Everything you typed has been
+            kept — continue and you will be back at the payment step with your answers in place.
+            If your UPI app already shows a debit for this order, contact the secretariat with
+            your UTR so we can reconcile it immediately.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link href={`/registration?resume=${encodeURIComponent(token)}`} className="btn btn-primary">
