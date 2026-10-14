@@ -85,7 +85,13 @@ async function call(path: string, init: RequestInit): Promise<Record<string, unk
 /** Creates a dynamic UPI order; returns null when FamGateway is unavailable. */
 export async function createPaymentOrder(
   amount: number,
-  opts: { customerName?: string; redirectUrl?: string; webhookUrl?: string } = {}
+  opts: {
+    customerName?: string;
+    customerEmail?: string;
+    customerPhone?: string;
+    redirectUrl?: string;
+    webhookUrl?: string;
+  } = {}
 ): Promise<PaymentOrder | null> {
   if (!famgatewayConfigured()) return null;
 
@@ -95,6 +101,8 @@ export async function createPaymentOrder(
     body: JSON.stringify({
       amount,
       customer_name: opts.customerName,
+      customer_email: opts.customerEmail,
+      customer_phone: opts.customerPhone,
       redirect_url: opts.redirectUrl,
       webhook_url: opts.webhookUrl,
     }),

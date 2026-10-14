@@ -210,6 +210,8 @@ export async function POST(request: NextRequest) {
   try {
     const order = await createPaymentOrder(quoted, {
       customerName: data.fullName,
+      customerEmail: data.email,
+      customerPhone: data.contactNumber,
       /* The return page carries the resume token, so a delegate who closes the
        * tab can still land back on their own registration. */
       redirectUrl: `${origin}/registration/complete?token=${encodeURIComponent(token)}`,

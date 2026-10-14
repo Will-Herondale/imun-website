@@ -57,7 +57,7 @@ export const site = {
    * Delegate registration fee (flat).
    */
   registrationFee: {
-    amount: 500,
+    amount: 1,
     currency: "INR",
     note: "",
   },
@@ -66,7 +66,7 @@ export const site = {
    * Registration fee schedule (single flat tier).
    */
   registrationRounds: [
-    { label: "Delegate fee", amount: 500, window: "Flat fee for all delegates", from: "2026-01-01", to: "" },
+    { label: "Delegate fee", amount: 1, window: "Flat fee for all delegates", from: "2026-01-01", to: "" },
   ],
 
   /**
@@ -139,7 +139,7 @@ export const site = {
   registrationOpen: true,
 
   /** Human-readable label for the current registration period. */
-  registrationLabel: "Registration open — Flat fee ₹500",
+  registrationLabel: "Registration open — Flat fee ₹1",
 
   /** Committees offered at this session. Reorder = reorder dropdowns. */
   committeesInRoster: true,
