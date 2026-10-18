@@ -201,6 +201,10 @@ export function PaymentComplete({ token }: { token: string }) {
             We are matching your payment to your registration. This normally takes a few seconds
             after your UPI app reports success.
           </p>
+          <p className="mt-3 max-w-xl leading-relaxed text-steel-600">
+            Your registration details are already accepted and safely saved while payment
+            confirmation catches up.
+          </p>
           <div className="mt-8 flex items-center gap-3 text-steel-600">
             <span
               aria-hidden="true"
@@ -298,6 +302,10 @@ export function PaymentComplete({ token }: { token: string }) {
             Your answers are saved and your payment is recorded on our side, so your registration is
             safe — we are simply still waiting on the bank confirmation. Reload this page to check
             again, or contact the secretariat and we will confirm your seat manually.
+          </p>
+          <p className="mt-3 max-w-xl leading-relaxed text-steel-600">
+            Even before gateway confirmation appears, your submitted registration details remain
+            accepted and available for reconciliation.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link href="/contact" className="btn btn-primary">Contact the secretariat</Link>
