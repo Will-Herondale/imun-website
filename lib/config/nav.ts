@@ -22,7 +22,6 @@ export const navItems: NavItem[] = [
  */
 export const secondaryNavItems: NavItem[] = [
   { label: "Updates", href: "/updates" },
-  { label: "Executive Board", href: "/eb" },
 ];
 
 export const registerHref = "/registration";

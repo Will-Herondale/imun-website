@@ -102,9 +102,6 @@ export function Header({ dateLine }: { dateLine: string }) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href="/eb" className="btn btn-outline-light hidden px-6 py-3 xl:inline-flex">
-            Join the EB
-          </Link>
           <Link href={registerHref} className="btn btn-accent hidden px-6 py-3 lg:inline-flex">
             Register
           </Link>
@@ -176,13 +173,6 @@ export function Header({ dateLine }: { dateLine: string }) {
               </li>
             ))}
           </ul>
-          <Link
-            href="/eb"
-            className="btn btn-outline-light mt-4 w-full"
-            onClick={() => setMenuOpen(false)}
-          >
-            Apply for the Executive Board
-          </Link>
           <Link
             href={registerHref}
             className="btn btn-accent mt-4 w-full"
