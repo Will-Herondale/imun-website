@@ -3,19 +3,14 @@
 > Update this file after every task so progress survives compressions/restarts.
 
 ## Objective (current)
-Hosting live on **Azure App Service** (imunindia-2026) at imunindia.com — cutover from Netlify complete. Registration now grants a seat only against a gateway-verified payment (04 Oct 2026).
+Hosting live on **Azure App Service** (imunindia-2026) at imunindia.com. The 2026 session concluded successfully; the public site is now a **one-page standby** until the next edition is announced (25 Oct 2026).
 
 ## Current session fact sheet
-- **Dates**: 24–25 October 2026.
-- **Venue**: **fully online** — venue "Online", format "Fully online".
-- **Fees**: **flat ₹500 per delegate** (single tier, no rounds, no On-spot mention anywhere).
-- **Registrations**: **closed** — the 2026 session concluded on 25 Oct 2026. `REGISTRATION_OPEN=false` is set on Azure app settings AND in `lib/config/site.ts`; the site stays live as a placeholder until the next edition is announced.
-- **Committees** (roster = 3, capacity 75 = 25/committee):
-  - DISEC
-  - UNHRC
-  - AIPPM
-  - (Lok Sabha/CCC/others removed on 2026-09-28, commit `36a0d08`.)
-- **Board (lib/config/board.ts)**: "Under-Secretary-General, Marketing / Atiksh".
+- **State**: **standby** — only `/` (brand, next-edition notice, contact), `/privacy`, `/admin` are public. Every event route redirects to `/` (307).
+- **Last edition (2026, now hidden)**: 24–25 October 2026, fully online, flat ₹500. These values remain in `lib/config/site.ts` (and the committee/FAQ/update configs) for reuse next year, but no public page renders them.
+- **Registrations**: **closed** — `REGISTRATION_OPEN=false` is set on Azure app settings AND `registrationOpen: false` in `lib/config/site.ts`; `POST /api/registrations` returns 409 `REGISTRATION_CLOSED`.
+- **Committees (2026 roster, hidden from public)**: 3 committees, capacity 75 = 25/committee — DISEC, UNHRC, AIPPM. (Lok Sabha/CCC/others removed on 2026-09-28, commit `36a0d08`.)
+- **Board (lib/config/board.ts)**: "Under-Secretary-General, Marketing / Atiksh" (2026, not rendered publicly).
 - **Hosting**: Azure App Service **`imunindia-2026`**, RG `Pulse`, plan `PulsePlan` (Linux, **B1** Basic, Central India). App host `imunindia-2026.azurewebsites.net`; custom domains `imunindia.com` + `www.imunindia.com` bound with App Service managed TLS (SNI). Apex A → `20.192.171.16`, www CNAME → imunindia-2026.azurewebsites.net (BigRock DNS, asuid TXT verification ID `C7637823FD7F9C8B21DE9CF416B63F0EA5F5D3B6166B72A50A518A4F9905D519`).
 - Deploy flow: `npm run build:standalone` → `deploy-artifact/iemun-standalone.zip` → `az webapp deploy --resource-group Pulse --name imunindia-2026 --src-path deploy-artifact/iemun-standalone.zip --type zip --clean true --restart true`. Runtime NODE|24-lts; startup `node server.js`; httpsOnly=true.
 - Azure app settings: ADMIN_EMAIL/PASSWORD/SESSION_SECRET, FAMGATEWAY_API_KEY, NETLIFY_DATABASE_URL (Neon), NEXT_PUBLIC_SITE_URL=https://imunindia.com, REGISTRATION_OPEN=false, SITE_MAINTENANCE=false. **Never write key values into this file** — read them on demand with `az webapp config appsettings list … -o tsv`.
@@ -95,3 +90,4 @@ Hosting live on **Azure App Service** (imunindia-2026) at imunindia.com — cuto
 | 2026-10-04 | Deployed (`edf5fc3`) | `az webapp deploy` → **imunindia-2026** (`RuntimeSuccessful`). Live: `/registration` 200 with **zero** occurrences of "Transaction ID"/"UTR"; UTR-only POST → 422 `VALIDATION_ERROR` on `paymentOrderId`; fabricated `fg_livecheck…` order → 502 `PAYMENT_VERIFY_FAILED`; both stored nothing. Happy path intact: `POST /api/registrations/intents` → 201, order `fg_VB99JYUI`, `state=awaiting_payment`, `quoted_amount=500`. Test row deleted; `registration_intents=0`, `payment_orphans=0`, `registrations=0`. |
 | **2026-10-04** | **STATE** | **Live on Azure with verified-payments-only registration. No public path grants a seat without a gateway-verified ₹500 payment. Remaining: one real ₹500 payment to confirm the genuine paid-webhook path end-to-end.** |
 | 2026-10-25 | Event concluded — registration closed | IMUN 2026 finished successfully. Removed the Executive Board section (`/eb`, `/eb/apply`, `EBApplicationForm`) and closed registration: `REGISTRATION_OPEN=false` on Azure + `registrationOpen: false` in `lib/config/site.ts`. Site stays live as a placeholder — homepage and CTAs point to `/updates`, `/registration` shows the concluded notice (payment/wallet block hidden server-side), FAQ updated, and an "IMUN 2026 concluded" update published. Deployed (`RuntimeSuccessful`); live checks: `POST /api/registrations` → 409 `REGISTRATION_CLOSED`, `/registration` shows the concluded notice with no wallet ID, `/updates` shows the announcement. |
+| 2026-10-25 | One-page standby | Replaced the public site with a single branded standby page (`app/page.tsx`): seal, "The next edition is being prepared", contact email/phone/Instagram. Header now brand-only; footer minimal (contact + Privacy + Organisers). Added `next.config.ts` redirects (307 → `/`) for `/about`, `/conference`, `/committees`, `/allocations`, `/registration`, `/registration/complete`, `/faq`, `/contact`, `/updates`; sitemap reduced to `/` + `/privacy`; removed 2026 keywords, homepage Event JSON-LD and the dated maintenance notice. tsc/lint clean, tests 118 passed | 9 skipped; deployed (`RuntimeSuccessful`). Live: `/` contains no dates/committees/fee, all event routes 307 → `/`, `/privacy` 200, sitemap 2 URLs, `POST /api/registrations` still 409. |

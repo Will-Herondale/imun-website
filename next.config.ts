@@ -21,6 +21,21 @@ const securityHeaders = () => {
 // `output: "standalone"` is only needed for the self-hosted Azure App Service
 // artifact (npm run build:standalone). Netlify's Next.js runtime expects the
 // default build output, so opt in via BUILD_STANDALONE instead of always on.
+// Event pages are hidden while the site is on standby between editions. They
+// redirect to the homepage so no older conference details are publicly served;
+// the page code is kept for the next edition.
+const retiredRoutes = [
+  "/about",
+  "/conference",
+  "/committees",
+  "/allocations",
+  "/registration",
+  "/registration/complete",
+  "/faq",
+  "/contact",
+  "/updates",
+];
+
 const nextConfig: NextConfig = {
   ...(process.env.BUILD_STANDALONE === "true"
     ? { output: "standalone" as const }
@@ -28,6 +43,13 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: { unoptimized: true },
+  async redirects() {
+    return retiredRoutes.map((source) => ({
+      source,
+      destination: "/",
+      permanent: false,
+    }));
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders() }];
   },

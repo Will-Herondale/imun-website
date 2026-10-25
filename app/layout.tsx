@@ -3,7 +3,7 @@ import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { site, dateAndVenueLine } from "@/lib/config/site";
+import { site } from "@/lib/config/site";
 import { siteUrl } from "@/lib/seo/site-url";
 import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/JsonLd";
@@ -46,11 +46,8 @@ export const metadata: Metadata = {
     "Model United Nations",
     "Model UN India",
     "MUN conference India",
-    "MUN 2026 India",
     "student conference India",
     "debate India",
-    "DISEC",
-    "UNHRC",
   ],
   authors: [{ name: `${site.name} Secretariat` }],
   creator: `${site.name} — ${site.fullName}`,
@@ -92,7 +89,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
-        <Header dateLine={dateAndVenueLine()} />
+        <Header />
         <main id="main-content" className="flex-1">
           {children}
         </main>

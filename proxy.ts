@@ -27,16 +27,16 @@ function maintenanceNotice(): NextResponse {
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IMUN — Registration paused</title>
+<title>IMUN — Next edition details coming soon</title>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <style>html,body{margin:0}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#020d24;color:#fff;font-family:Arial,Helvetica,sans-serif;padding:2rem}.card{max-width:620px;text-align:center}.seal{width:74px;height:74px;margin:0 auto 2rem;border:1px solid rgba(193,161,90,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#c1a15a;font-weight:700;font-size:1.05rem;letter-spacing:2px}.kicker{color:#c1a15a;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;margin:0 0 .75rem}h1{font-size:clamp(1.9rem,5vw,3rem);margin:0 0 1rem;line-height:1.1}p{color:rgba(255,255,255,.75);line-height:1.7;margin:0 0 2rem}.mail{color:rgba(255,255,255,.5);font-size:.9rem;margin:0;margin-bottom:0}a{color:#c1a15a;text-decoration:none}.bar{width:64px;height:2px;background:#c1a15a;margin:0 auto 1.5rem}</style>
 </head>
 <body><div class="card">
 <div class="seal">IMUN</div>
-<p class="kicker">Indian MUN · 24–25 October 2026</p>
-<h1>Registration paused — an update is coming</h1>
+<p class="kicker">Indian MUN</p>
+<h1>The next edition is being prepared</h1>
 <div class="bar" aria-hidden="true"></div>
-<p>The secretariat is updating the conference details. Registration is temporarily paused. Please check back shortly — the updated details will be posted here as soon as they are confirmed.</p>
+<p>The 2026 session has concluded. The secretariat is preparing the next IMUN conference — dates, committees and registration will be published here as soon as they are confirmed.</p>
 <p class="mail">Questions? Write to <a href="mailto:imun.official@gmail.com">imun.official@gmail.com</a></p>
 </div></body>
 </html>`;
