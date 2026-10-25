@@ -16,7 +16,7 @@ import { JsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: { absolute: "IMUN — Indian Model United Nations Conference 2026" },
-  description: `${site.descriptor} Register as a delegate for the ${site.date} session.`,
+  description: `${site.descriptor} The 2026 session has concluded — details for the next edition will be announced soon.`,
   alternates: { canonical: `${siteUrl}/` },
 };
 
@@ -77,8 +77,11 @@ export default function HomePage() {
                 international procedure.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
-                <Link href="/registration" className="btn btn-accent">
-                  Register as a delegate
+                <Link
+                  href={reg.open ? "/registration" : "/updates"}
+                  className="btn btn-accent"
+                >
+                  {reg.open ? "Register as a delegate" : "Next edition updates"}
                 </Link>
                 <Link href="/committees" className="btn btn-outline-light">
                   Explore the committees
@@ -278,7 +281,7 @@ export default function HomePage() {
             </ol>
             <div className="mt-9">
               <Link href="/registration" className="btn btn-primary">
-                Begin your registration
+                {reg.open ? "Begin your registration" : "Registration status"}
               </Link>
             </div>
           </div>

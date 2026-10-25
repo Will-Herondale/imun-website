@@ -136,10 +136,10 @@ export const site = {
    * environment) overrides this value if present — the environment wins, so
    * you can flip registration in production without redeploying.
    */
-  registrationOpen: true,
+  registrationOpen: false,
 
   /** Human-readable label for the current registration period. */
-  registrationLabel: "Registration open — Flat fee ₹500",
+  registrationLabel: "Registration closed — next edition details coming soon",
 
   /** Committees offered at this session. Reorder = reorder dropdowns. */
   committeesInRoster: true,

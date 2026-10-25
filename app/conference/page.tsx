@@ -146,7 +146,7 @@ export default function ConferencePage() {
                 Status: <span className="font-semibold text-navy-800">{reg.label}</span>
               </p>
               <Link href="/registration" className="btn btn-primary mt-5">
-                {reg.open ? "Register as a delegate" : "View registration information"}
+                {reg.open ? "Register as a delegate" : "Registration status"}
               </Link>
             </div>
           </div>

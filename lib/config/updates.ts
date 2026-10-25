@@ -16,6 +16,12 @@ export type UpdateEntry = {
 
 export const updates: UpdateEntry[] = [
   {
+    date: "2026-10-25",
+    tag: "Announcement",
+    title: "IMUN 2026 concluded — registration closed",
+    body: "The 2026 session has concluded successfully. Thank you to every delegate, chair and school that took part. Registration is now closed; details for the next edition will be announced here soon.",
+  },
+  {
     date: "2026-09-28",
     tag: "Registration",
     title: "Delegate fee updated to a flat ₹500",

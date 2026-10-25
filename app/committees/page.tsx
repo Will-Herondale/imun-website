@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
 import { Reveal } from "@/components/Reveal";
 import { committees, type ExecutiveBoard } from "@/lib/config/committees";
+import { registrationStatus } from "@/lib/registration-control";
 import { siteUrl } from "@/app/layout";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ function boardRows(eb: ExecutiveBoard) {
 }
 
 export default function CommitteesPage() {
+  const reg = registrationStatus();
   return (
     <>
       <PageMasthead
@@ -99,7 +101,7 @@ export default function CommitteesPage() {
           <Reveal delay={80}>
             <div className="mt-10">
               <Link href="/registration" className="btn btn-primary">
-                Register as a delegate
+                {reg.open ? "Register as a delegate" : "Registration status"}
               </Link>
             </div>
           </Reveal>

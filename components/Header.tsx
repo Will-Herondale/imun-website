@@ -102,9 +102,11 @@ export function Header({ dateLine }: { dateLine: string }) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href={registerHref} className="btn btn-accent hidden px-6 py-3 lg:inline-flex">
-            Register
-          </Link>
+          {reg.open ? (
+            <Link href={registerHref} className="btn btn-accent hidden px-6 py-3 lg:inline-flex">
+              Register
+            </Link>
+          ) : null}
           <button
             type="button"
             className="-mr-2 flex h-11 w-11 items-center justify-center text-white transition-colors hover:text-brass-300 lg:hidden"
@@ -173,13 +175,15 @@ export function Header({ dateLine }: { dateLine: string }) {
               </li>
             ))}
           </ul>
-          <Link
-            href={registerHref}
-            className="btn btn-accent mt-4 w-full"
-            onClick={() => setMenuOpen(false)}
-          >
-            Register as a delegate
-          </Link>
+          {reg.open ? (
+            <Link
+              href={registerHref}
+              className="btn btn-accent mt-4 w-full"
+              onClick={() => setMenuOpen(false)}
+            >
+              Register as a delegate
+            </Link>
+          ) : null}
         </nav>
       </div>
     </header>

@@ -136,6 +136,9 @@ function post(body: string | object, header?: Record<string, string>): Promise<R
 
 describe("POST /api/registrations", () => {
   beforeEach(() => {
+    // This suite exercises the open-registration paths; the site's own
+    // default (closed after the 2026 session) must not affect it.
+    vi.stubEnv("REGISTRATION_OPEN", "true");
     overrideStoreForTests(fakeStore());
     overrideOrphanStoreForTests(null);
   });

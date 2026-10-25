@@ -2,7 +2,7 @@ import Link from "next/link";
 import { registrationStatus } from "@/lib/registration-control";
 
 export function CTABand({
-  title = "Register as a delegate",
+  title,
   body,
 }: {
   title?: string;
@@ -25,18 +25,21 @@ export function CTABand({
           <div className="col-span-12 lg:col-span-8">
             <p className="kicker-light">{reg.open ? "Seats are limited" : "Registration status"}</p>
             <h2 className="mt-4 font-display text-[clamp(1.9rem,4vw,3rem)] font-medium leading-[1.08] text-white">
-              {title}
+              {title ?? (reg.open ? "Register as a delegate" : "The 2026 session has concluded")}
             </h2>
             <p className="mt-5 max-w-2xl text-[1.02rem] leading-relaxed text-white/65">
               {body ??
                 (reg.open
                   ? "Committee seats are allotted in the order registrations are processed. Submitting early improves your chances of holding your first preference."
-                  : "Registration for this session is currently closed. The form reopens when the secretariat announces the next phase.")}
+                  : "Registration is closed. Details for the next edition — dates, committees and registration — will be announced here soon.")}
             </p>
           </div>
           <div className="col-span-12 flex flex-col gap-3 lg:col-span-4 lg:items-end">
-            <Link href="/registration" className="btn btn-accent w-full lg:w-auto">
-              {reg.open ? "Begin registration" : "View registration information"}
+            <Link
+              href={reg.open ? "/registration" : "/updates"}
+              className="btn btn-accent w-full lg:w-auto"
+            >
+              {reg.open ? "Begin registration" : "Next edition updates"}
             </Link>
             <Link href="/faq" className="btn btn-outline-light w-full lg:w-auto">
               Read the FAQ
