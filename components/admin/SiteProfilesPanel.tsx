@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { SiteProfile } from "@/lib/content/profiles";
 import { SiteContentEditor } from "@/components/admin/SiteContentEditor";
+import { CmsEditor } from "@/components/admin/CmsEditor";
 
 type ProfileListResponse = { ok: boolean; profiles: SiteProfile[]; activeId: string | null; error?: string };
 
@@ -15,6 +16,7 @@ export function SiteProfilesPanel() {
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [mode, setMode] = useState<"standby" | "full">("standby");
+  const [editorTab, setEditorTab] = useState<"content" | "pages">("content");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -127,7 +129,15 @@ export function SiteProfilesPanel() {
         <h2 className="mb-4 font-display text-[1.35rem] font-medium text-navy-900">
           Editing: {selected?.name ?? "—"} {selected?.id === activeId ? <span className="text-[0.8rem] font-sans font-semibold uppercase tracking-[0.12em] text-[#1f6b34]">(active)</span> : <span className="text-[0.8rem] font-sans text-steel-500">(inactive — activate to publish)</span>}
         </h2>
-        {selected ? <SiteContentEditor profileId={selected.id} /> : null}
+        {selected ? (
+          <>
+            <div className="flex flex-wrap gap-2 border-b border-steel-200 pb-3">
+              <button type="button" onClick={() => setEditorTab("content")} className={`btn !px-4 !py-2 ${editorTab === "content" ? "btn-primary" : "btn-outline"}`}>Key content</button>
+              <button type="button" onClick={() => setEditorTab("pages")} className={`btn !px-4 !py-2 ${editorTab === "pages" ? "btn-primary" : "btn-outline"}`}>Full-page CMS</button>
+            </div>
+            {editorTab === "content" ? <SiteContentEditor key={selected.id} profileId={selected.id} /> : <CmsEditor key={selected.id} profile={selected} />}
+          </>
+        ) : null}
       </section>
     </div>
   );

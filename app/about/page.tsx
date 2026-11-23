@@ -8,6 +8,8 @@ import { site, tba, dateAndVenueLine } from "@/lib/config/site";
 import { pillars } from "@/lib/config/content";
 import { secretariat } from "@/lib/config/board";
 import { siteUrl } from "@/app/layout";
+import { getActiveCmsPageIfConfigured } from "@/lib/cms/active";
+import { CmsPageRenderer } from "@/components/cms/CmsPageRenderer";
 
 function initialsOf(name: string): string {
   return name
@@ -26,6 +28,8 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   await requireFullMode();
+  const cmsPage = await getActiveCmsPageIfConfigured("about");
+  if (cmsPage) return <CmsPageRenderer page={cmsPage} />;
   return (
     <>
       <PageMasthead path="/about" section="About" title={`About ${site.name}`} lede={`${site.fullName} exists to give Indian student delegates a formal, rigorous Model United Nations — measured by the quality of the debate it produces.`} />

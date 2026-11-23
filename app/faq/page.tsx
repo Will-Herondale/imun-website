@@ -7,6 +7,8 @@ import { faqEntries } from "@/lib/config/faq";
 import { siteUrl } from "@/app/layout";
 import { faqSchema } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/JsonLd";
+import { getActiveCmsPageIfConfigured } from "@/lib/cms/active";
+import { CmsPageRenderer } from "@/components/cms/CmsPageRenderer";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -16,6 +18,8 @@ export const metadata: Metadata = {
 
 export default async function FaqPage() {
   await requireFullMode();
+  const cmsPage = await getActiveCmsPageIfConfigured("faq");
+  if (cmsPage) return <CmsPageRenderer page={cmsPage} />;
   return (
     <>
       <PageMasthead

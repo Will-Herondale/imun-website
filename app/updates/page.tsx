@@ -6,6 +6,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { sortedUpdates } from "@/lib/config/updates";
 import { siteUrl } from "@/app/layout";
 import { absoluteUrl } from "@/lib/seo/site-url";
+import { getActiveCmsPageIfConfigured } from "@/lib/cms/active";
+import { CmsPageRenderer } from "@/components/cms/CmsPageRenderer";
 
 export const metadata: Metadata = {
   title: "Updates",
@@ -22,6 +24,8 @@ function formatDate(iso: string): string {
 
 export default async function UpdatesPage() {
   await requireFullMode();
+  const cmsPage = await getActiveCmsPageIfConfigured("updates");
+  if (cmsPage) return <CmsPageRenderer page={cmsPage} />;
   const entries = sortedUpdates();
 
   const jsonLd = {

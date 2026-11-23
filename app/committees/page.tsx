@@ -6,6 +6,8 @@ import { Reveal } from "@/components/Reveal";
 import { committees, type ExecutiveBoard } from "@/lib/config/committees";
 import { registrationStatus } from "@/lib/registration-control";
 import { siteUrl } from "@/app/layout";
+import { getActiveCmsPageIfConfigured } from "@/lib/cms/active";
+import { CmsPageRenderer } from "@/components/cms/CmsPageRenderer";
 
 export const metadata: Metadata = {
   title: "Committees",
@@ -28,6 +30,8 @@ function boardRows(eb: ExecutiveBoard) {
 
 export default async function CommitteesPage() {
   await requireFullMode();
+  const cmsPage = await getActiveCmsPageIfConfigured("committees");
+  if (cmsPage) return <CmsPageRenderer page={cmsPage} />;
   const reg = registrationStatus();
   return (
     <>

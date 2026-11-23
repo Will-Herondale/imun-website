@@ -9,6 +9,8 @@ import { registrationStatus } from "@/lib/registration-control";
 import { siteUrl } from "@/app/layout";
 import { eventSchema } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/JsonLd";
+import { getActiveCmsPageIfConfigured } from "@/lib/cms/active";
+import { CmsPageRenderer } from "@/components/cms/CmsPageRenderer";
 
 export const metadata: Metadata = {
   title: "Conference",
@@ -18,6 +20,8 @@ export const metadata: Metadata = {
 
 export default async function ConferencePage() {
   await requireFullMode();
+  const cmsPage = await getActiveCmsPageIfConfigured("conference");
+  if (cmsPage) return <CmsPageRenderer page={cmsPage} />;
   const reg = registrationStatus();
   const inr = (amount: number) => `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
   const flatFee = inr(site.registrationFee.amount);

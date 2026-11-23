@@ -5,6 +5,8 @@ import { PageMasthead } from "@/components/PageMasthead";
 import { Reveal } from "@/components/Reveal";
 import { site } from "@/lib/config/site";
 import { siteUrl } from "@/app/layout";
+import { getActiveCmsPageIfConfigured } from "@/lib/cms/active";
+import { CmsPageRenderer } from "@/components/cms/CmsPageRenderer";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -14,6 +16,8 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   await requireFullMode();
+  const cmsPage = await getActiveCmsPageIfConfigured("contact");
+  if (cmsPage) return <CmsPageRenderer page={cmsPage} />;
   const hasEmail = Boolean(site.contact.email);
   const social = [
     { label: "Instagram", handle: site.social.instagram },
