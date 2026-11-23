@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { jsonError, jsonOk, readAdminSession } from "@/lib/api";
 import { listMedia, saveMedia } from "@/lib/cms/media";
-import { ensureProfilesSchema } from "@/lib/content/profiles";
+import { ensureProfilesSchema, listProfiles } from "@/lib/content/profiles";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,6 +13,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const session = await readAdminSession();
   if (!session) return jsonError("Not authenticated.", 401, { code: "UNAUTHENTICATED" });
   const { id } = await params;
+  const profile = (await listProfiles()).profiles.find((item) => item.id === id);
+  if (!profile) return jsonError("Profile not found.", 404, { code: "NOT_FOUND" });
   return jsonOk({ media: await listMedia(id) });
 }
 
@@ -21,6 +23,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!session) return jsonError("Not authenticated.", 401, { code: "UNAUTHENTICATED" });
   const { id } = await params;
   await ensureProfilesSchema();
+  const profile = (await listProfiles()).profiles.find((item) => item.id === id);
+  if (!profile) return jsonError("Profile not found.", 404, { code: "NOT_FOUND" });
   const form = await request.formData();
   const value = form.get("file");
   if (!(value instanceof File)) return jsonError("Choose an image file.", 400, { code: "FILE_REQUIRED" });

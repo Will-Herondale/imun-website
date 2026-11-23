@@ -78,6 +78,7 @@ export async function listMedia(profileId: string): Promise<MediaAsset[]> {
 }
 
 export async function readMedia(id: string): Promise<{ mimeType: string; filename: string; base64: string } | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   await ensureProfilesSchema();
   const rows = (await getSql()`
     SELECT mime_type, filename, file_data FROM site_media WHERE id = ${id} LIMIT 1
