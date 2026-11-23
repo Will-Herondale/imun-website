@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
@@ -23,7 +24,8 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/about` },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  await requireFullMode();
   return (
     <>
       <PageMasthead path="/about" section="About" title={`About ${site.name}`} lede={`${site.fullName} exists to give Indian student delegates a formal, rigorous Model United Nations — measured by the quality of the debate it produces.`} />

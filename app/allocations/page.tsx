@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import { AllocationsAutoRefresh } from "@/components/AllocationsAutoRefresh";
 import { PageMasthead } from "@/components/PageMasthead";
@@ -26,6 +27,7 @@ async function loadGroups(): Promise<PublicAllocationGroup[]> {
 }
 
 export default async function AllocationsPage() {
+  await requireFullMode();
   const groups = await loadGroups();
   const totalDelegates = groups.reduce((sum, g) => sum + g.delegates.length, 0);
   const updatedAt = new Intl.DateTimeFormat("en-IN", {

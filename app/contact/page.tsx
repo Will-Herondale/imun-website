@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/contact` },
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  await requireFullMode();
   const hasEmail = Boolean(site.contact.email);
   const social = [
     { label: "Instagram", handle: site.social.instagram },

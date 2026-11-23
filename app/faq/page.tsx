@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import { PageMasthead } from "@/components/PageMasthead";
 import { Accordion } from "@/components/Accordion";
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/faq` },
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  await requireFullMode();
   return (
     <>
       <PageMasthead

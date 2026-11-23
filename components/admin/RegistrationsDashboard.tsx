@@ -10,6 +10,7 @@ import { committees } from "@/lib/config/committees";
 import { AllocationMatrix } from "@/components/admin/AllocationMatrix";
 import { AllocationEditor } from "@/components/admin/AllocationEditor";
 import { AddDelegateDialog } from "@/components/admin/AddDelegateDialog";
+import { SiteProfilesPanel } from "@/components/admin/SiteProfilesPanel";
 
 type ListResponse = {
   ok: boolean;
@@ -47,7 +48,7 @@ const paymentBadgeClass: Record<PaymentStatus, string> = {
 
 export function RegistrationsDashboard({ email }: { email: string }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"registrations" | "allocations">("registrations");
+  const [tab, setTab] = useState<"registrations" | "allocations" | "site-content">("registrations");
   const [refreshKey, setRefreshKey] = useState(0);
   const [items, setItems] = useState<RegistrationRecord[]>([]);
   const [total, setTotal] = useState(0);
@@ -182,7 +183,7 @@ export function RegistrationsDashboard({ email }: { email: string }) {
               Organisers&apos; area
             </p>
             <h1 className="mt-3 font-display text-[1.8rem] font-medium text-navy-900">
-              {tab === "registrations" ? "Registrations" : "Allocation matrix"}
+              {tab === "registrations" ? "Registrations" : tab === "allocations" ? "Allocation matrix" : "Site content"}
             </h1>
           </div>
           <div className="flex items-center gap-4 text-[0.85rem] text-steel-500">
@@ -197,6 +198,7 @@ export function RegistrationsDashboard({ email }: { email: string }) {
             {([
               ["registrations", "Registrations"],
               ["allocations", "Allocation matrix"],
+              ["site-content", "Site content"],
             ] as const).map(([key, label]) => (
               <button
                 key={key}
@@ -220,6 +222,8 @@ export function RegistrationsDashboard({ email }: { email: string }) {
       <div className="container-site">
         {tab === "allocations" ? (
           <AllocationMatrix refreshKey={refreshKey} />
+        ) : tab === "site-content" ? (
+          <SiteProfilesPanel />
         ) : (
           <div className="py-6">
             {/* Paid but not registered — reconciliation list */}

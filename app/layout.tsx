@@ -8,6 +8,7 @@ import { siteUrl } from "@/lib/seo/site-url";
 import { organizationSchema, websiteSchema } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/JsonLd";
 import { Analytics } from "@/components/Analytics";
+import { getSiteMode } from "@/lib/content/mode";
 
 // Re-exported for pages that build canonical URLs from this module.
 export { siteUrl };
@@ -71,9 +72,11 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const { mode } = await getSiteMode();
+  const dateLine = site.date ? `${site.date}${site.venue?.name ? ` · ${site.venue.name}` : ""}` : "Dates to be announced";
   return (
     <html lang="en" className={`${inter.variable} ${display.variable}`}>
       <body className="flex min-h-dvh flex-col">
@@ -89,7 +92,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
-        <Header />
+        <Header mode={mode} dateLine={dateLine} />
         <main id="main-content" className="flex-1">
           {children}
         </main>

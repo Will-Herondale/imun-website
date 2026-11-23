@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
@@ -16,7 +17,8 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/registration` },
 };
 
-export default function RegistrationPage() {
+export default async function RegistrationPage() {
+  await requireFullMode();
   const open = isRegistrationOpen();
   const reg = registrationStatus();
   const paymentsLive = famgatewayConfigured();

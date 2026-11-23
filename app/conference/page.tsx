@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
@@ -15,7 +16,8 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/conference` },
 };
 
-export default function ConferencePage() {
+export default async function ConferencePage() {
+  await requireFullMode();
   const reg = registrationStatus();
   const inr = (amount: number) => `${site.registrationFee.currency} ${amount.toLocaleString("en-IN")}`;
   const flatFee = inr(site.registrationFee.amount);

@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
@@ -29,6 +30,7 @@ export default async function RegistrationCompletePage({
 }: {
   searchParams: Promise<{ token?: string | string[] }>;
 }) {
+  await requireFullMode();
   const params = await searchParams;
   const raw = Array.isArray(params.token) ? params.token[0] : params.token;
   const token = (raw ?? "").trim().slice(0, 128);

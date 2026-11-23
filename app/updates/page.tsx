@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import { PageMasthead } from "@/components/PageMasthead";
 import { Reveal } from "@/components/Reveal";
@@ -19,7 +20,8 @@ function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "long", timeZone: "Asia/Kolkata" }).format(d);
 }
 
-export default function UpdatesPage() {
+export default async function UpdatesPage() {
+  await requireFullMode();
   const entries = sortedUpdates();
 
   const jsonLd = {

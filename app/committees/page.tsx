@@ -1,3 +1,4 @@
+import { requireFullMode } from "@/lib/content/guard";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageMasthead } from "@/components/PageMasthead";
@@ -25,7 +26,8 @@ function boardRows(eb: ExecutiveBoard) {
   return rows.map((r) => ({ ...r, label: r.value === 1 ? r.label : `${r.label}s` }));
 }
 
-export default function CommitteesPage() {
+export default async function CommitteesPage() {
+  await requireFullMode();
   const reg = registrationStatus();
   return (
     <>
